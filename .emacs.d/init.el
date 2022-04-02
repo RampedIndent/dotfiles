@@ -62,24 +62,29 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 10)))
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+
 
 (use-package doom-themes
-  :init (load-theme 'doom-moonlight-custom t))
+  :init (load-theme 'custom-doom-moonlight t))
+
+;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
 
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
-                term-mode-hook))
+                term-mode-hook
                 shell-mode-hook
-                eshell-mode-hook
+                eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+  :hook (prog-mode . rainbow-delimiters-mode)
+  :init(rainbow-delimiters-mode t))
+  
 
 (use-package which-key
   :init (which-key-mode)
@@ -106,8 +111,8 @@
   ("C-c p" . projectile-command-map)
   :init
   ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
+  (when (file-directory-p "~/documents/Projects/Code")
+    (setq projectile-project-search-path '("~/documents/Projects/Code")))
   (setq projectile-switch-project-action #'projectile-dired))
 
 (use-package magit
@@ -116,3 +121,8 @@
 
 ;;(use-package evil-magit
  ;; :after magit)
+
+(use-package perspective
+  :ensure t
+  :bind(("C-x k" . persp-kill-buffer*))
+  :init(persp-mode))
