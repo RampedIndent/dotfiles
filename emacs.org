@@ -1,2 +1,640 @@
+#+PROPERTY: header-args :tangle ./.emacs.d/init.el
 * Emacs Configuration file
+** Basic Configuration
+The basic configuration for configuring emacs
+*** Remove Default 
+#+begin_src emacs-lisp
+
+(setq inhibit-start-message t)
+
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)       ; Give some breathing room
+
+(menu-bar-mode -1)            ; Disable the menu bar
+;;(setq default-frame-alist '((undecorated . t)))
+;; Set up the visible bell
+(setq visible-bell t)
+
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; Configure Emacs Backup files
+(setq backup-directory-alist `(("." . "~/.saves")))
+(setq backup-by-copying t)
+(setq delete-old-versions t
+  kept-new-versions 6
+  kept-old-versions 2
+  version-control t)
+
+(load-theme 'tango-dark)
+#+end_src
+
+*** Package installer
+This is the configuration for package and use package
+#+begin_src emacs-lisp
+
+;; Initalize package sources
+(require 'package)
+
+(setq package-archives '(("melpa" . "http://melpa.org/packages/")
+						 ("org" . "https://orgmode.org/elpa/")
+						 ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; Initalize use package on non linux platforms
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+#+end_src
+
+*** Configure  Swiper and ivy
+Configure Swiper and ivy 
+
+#+begin_src emacs-lisp
+
+(use-package command-log-mode)
+(use-package swiper)
+
+
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)	
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+
+#+end_src
+
+
+*** Fonts
+Configure Emacs Fonts
+
+#+begin_src emacs-lisp
+
+(use-package all-the-icons)
+
+(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+#+end_src
+
+** Editor Configuration
+*** Configure Line Numbers 
+This is to configure line numbers in the application. Line numbers can be turned off in certin buffers by adding the buffer hook to the dolist.
+#+begin_src emacs-lisp
+
+(column-number-mode)
+(global-display-line-numbers-mode t)
+
+(setq display-line-numbers 'relative)
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+;; (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
+
+
+#+end_src
+
+
+*** Rainbow Delimiters
+This package matches parenthises by coloring them
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode)
+  :init(rainbow-delimiters-mode t))
+#+end_src
+
+#+begin_src emacs-lisp
+
+
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+         ("C-x b" . counsel-ibuffer)
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)))
+
+#+end_src
+** Programs
+*** Projectile
+Projectile is a project manager
+#+begin_src emacs-lisp
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/documents/Projects/Code")
+    (setq projectile-project-search-path '("~/documents/Projects/Code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+
+#+end_src
+*** Magit
+Magit is a emacs git client
+t
+#+begin_src emacs-lisp
+
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+;;(use-package evil-magit
+ ;; :after magit)
+#+end_src
+*** Perspective 
+
+#+begin_src emacs-lisp
+
+(use-package perspective
+  :ensure t
+  :bind(("C-x k" . persp-kill-buffer*))
+  :init(persp-mode))
+
+#+end_src
+
+** Keybindings
+
+#+begin_src emacs-lisp
+
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 1))
+
+(use-package general
+  :ensure t)
+
+(general-create-definer viktorya/editor-keys
+  :keymaps '(normal insert visual emacs)
+  :prefix "SPC"
+  :global-prefix "C-SPC"
+  )
+
+(viktorya/editor-keys
+  "t"  '(:ignore t :which-key "toggles")
+  "tt" '(counsel-load-theme :which-key "choose theme")
+  "e" '(eval-buffer :which-key "Run the buffer")
+  "g" '(magit :which-key "Runs Magit")
+  "f" '(:ignore f :which-key "file commands")
+  "ff" '(counsel-find-file :which-key "Find File")
+  "fs" '(save-buffer :which-key "Save Current Buffer")
+  "w" '(:ignore w :which-key "file commands")
+  "w<left>" '(evil-window-left :which-key "Move Active Window Left")
+  "wq" '(evil-window-delete :which-key "Delete active window")
+  ;;"p" '(yank :which-key "Paste Text")
+  "b" '(:ignore b :which-key "Buffer commands")
+  "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
+  "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
+  )
+
+(use-package hydra)
+
+(defhydra hydra-text-scale (:timeout 10)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+
+(viktorya/editor-keys
+  "t" '(:ignore t :which-key "Text Commands")
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
+
+
+#+end_src
+*** Evil Mode
+The Configuration for Evil mode
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+
+#+end_src
+
+** Theme
+*** Modeline
+
+#+begin_src emacs-lisp
+
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 10)))
+#+end_src
+*** Emacs Set Theme
+
+#+begin_src emacs-lisp
+
+(use-package doom-themes
+  :init (load-theme 'custom-doom-moonlight t))
+
+#+end_src
+
+*** Custom Doom Moonlight
+
+
+
+#+begin_src emacs-lisp :tangle ./.emacs.d/custom-doom-moonlight-theme.el
+
+;;; doom-moonlight-theme.el --- inspired by VS code's Moonlight -*- lexical-binding: t; no-byte-compile: t; -*-
+(require 'doom-themes)
+
+;;
+(defgroup doom-moonlight-theme nil
+  "Options for the `doom-moonlight' theme."
+  :group 'doom-themes)
+
+(defcustom doom-moonlight-padded-modeline doom-themes-padded-modeline
+  "If non-nil, adds a 4px padding to the mode-line.
+Can be an integer to determine the exact padding."
+  :group 'doom-moonlight-theme
+  :type '(choice integer boolean))
+
+;;
+(def-doom-theme custom-doom-moonlight
+  "A dark theme inspired by VS code's Moonlight"
+
+  ;; name        default   256       16
+  ((bg         '("#212337" "#212337"  "black"))
+   (bg-alt     '("#191a2a" "#191a2a" "black"))
+   (base0      '("#161a2a" "#161a2a" "black"))
+   (base1      '("#191a2a" "#191a2a" "brightblack"))
+   (base2      '("#1e2030" "#1e2030" "brightblack"))
+   (base3      '("#222436" "#222436" "brightblack"))
+   (base4      '("#2f334d" "#2f334d" "brightblack"))
+   (base5      '("#444a73" "#444a73" "brightblack"))
+   (base6      '("#828bb8" "#828bb8" "brightblack"))
+   (base7      '("#a9b8e8" "#a9b8e8" "brightblack"))
+   (base8      '("#b4c2f0" "#b4c2f0" "white"))
+   (indigo     '("#7a88cf" "#7a88cf" "brightblack"))
+   (region     '("#383e5c" "#383e5c" "brightblack"))
+   (fg         '("#c8d3f5" "#c8d3f5" "brightwhite"))
+   (fg-alt     '("#b4c2f0" "#b4c2f0" "white"))
+
+   (grey base5)
+
+   (dark-red      '("#ff5370" "#ff5370" "red"))
+   (red           '("#ff757f" "#ff757f" "red"))
+   (light-red     '("#ff98a4" "#ff98a4" "brightred"))
+   (orange        '("#ff995e" "#ff995e" "brightred"))
+   (green         '("#c3e88d" "#c3e88d" "green"))
+   (dark-teal     '("#4fd6be" "#4fd6be" "green"))
+   (teal          '("#77e0c6" "#77e0c6" "brightgreen"))
+   (light-teal    '("#7af8ca" "#7af8ca" "brightgreen"))
+   (yellow        '("#ffc777" "#ffc777" "brightyellow"))
+   (blue          '("#82aaff" "#82aaff" "brightblue"))
+   (dark-blue     '("#4976eb" "#4976eb" "brightblue"))
+   (light-blue    '("#50c4fa" "#50c4fa" "blue"))
+   (light-magenta '("#baacff" "#baacff" "brightmagenta"))
+   (magenta       '("#c099ff" "#c099ff" "brightmagenta"))
+   (violet        '("#f989d3" "#f989d3" "magenta"))
+   (light-pink    '("#fca7ea" "#fca7ea" "magenta"))
+   (pink          '("#f3c1ff" "#f3c1ff" "magenta"))
+   (cyan          '("#b4f9f8" "#b4f9f8" "brightcyan"))
+   (dark-cyan     '("#86e1fc" "#86e1fc" "cyan"))
+
+   ;; face categories -- required for all themes
+   (highlight      blue)
+   (vertical-bar   base0)
+   (line-highlight base4)
+   (selection      region)
+   (builtin        magenta)
+   (comments       indigo)
+   (doc-comments   (doom-lighten comments 0.25))
+   (constants      orange)
+   (functions      blue)
+   (keywords       magenta)
+   (methods        red)
+   (operators      dark-cyan)
+   (type           yellow)
+   (strings        green)
+   (variables      light-red)
+   (numbers        orange)
+   (region         region)
+   (error          red)
+   (warning        yellow)
+   (success        green)
+   (vc-modified    blue)
+   (vc-added       teal)
+   (vc-deleted     red)
+
+   ;; custom categories
+   (modeline-bg     (doom-darken base2 0.1))
+   (modeline-bg-alt (doom-darken bg 0.1))
+   (modeline-fg     base8)
+   (modeline-fg-alt comments)
+
+   (-modeline-pad
+    (when doom-moonlight-padded-modeline
+      (if (integerp doom-moonlight-padded-modeline) doom-moonlight-padded-modeline 4))))
+
+  ;;;; Base theme face overrides
+  ((font-lock-keyword-face :foreground keywords)
+   (font-lock-comment-face :foreground comments)
+   (font-lock-doc-face :foreground doc-comments)
+   (hl-line :background line-highlight)
+   (lazy-highlight :background base4 :foreground fg)
+   ((line-number &override) :foreground base5 :background (doom-darken bg 0.06))
+   ((line-number-current-line &override) :foreground fg :background line-highlight)
+   (mode-line
+    :background modeline-bg :foreground modeline-fg
+    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
+   (mode-line-inactive
+    :background modeline-bg-alt :foreground modeline-fg-alt
+    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-alt)))
+   (tooltip :background base0 :foreground fg)
+
+   ;;;; all-the-icons
+   (all-the-icons-cyan       :foreground dark-cyan)
+   (all-the-icons-cyan-alt   :foreground dark-cyan)
+   (all-the-icons-dblue      :foreground (doom-darken blue 0.1))
+   (all-the-icons-dgreen     :foreground dark-teal)
+   (all-the-icons-dmaroon    :foreground magenta)
+   (all-the-icons-dorange    :foreground orange)
+   (all-the-icons-dpink      :foreground pink)
+   (all-the-icons-dpurple    :foreground magenta)
+   (all-the-icons-dred       :foreground dark-red)
+   (all-the-icons-dsilver    :foreground grey)
+   (all-the-icons-dyellow    :foreground orange)
+   (all-the-icons-green      :foreground teal)
+   (all-the-icons-lcyan      :foreground (doom-lighten dark-cyan 0.3))
+   (all-the-icons-lgreen     :foreground green)
+   (all-the-icons-lmaroon    :foreground light-magenta)
+   (all-the-icons-lorange    :foreground orange)
+   (all-the-icons-lpink      :foreground light-pink)
+   (all-the-icons-lpurple    :foreground light-magenta)
+   (all-the-icons-lred       :foreground light-red)
+   (all-the-icons-lsilver    :foreground (doom-lighten grey 0.4))
+   (all-the-icons-lyellow    :foreground (doom-lighten yellow 0.3))
+   (all-the-icons-orange     :foreground orange)
+   (all-the-icons-pink       :foreground pink)
+   (all-the-icons-purple     :foreground magenta)
+   (all-the-icons-purple-alt :foreground magenta)
+   (all-the-icons-red-alt    :foreground red)
+   (all-the-icons-silver     :foreground (doom-lighten grey 0.2))
+   ;;;; all-the-icons-dired
+   (all-the-icons-dired-dir-face :foreground indigo)
+   ;;;; company
+   (company-tooltip :inherit 'tooltip)
+   (company-tooltip-common :foreground highlight)
+   ;;;; company-box
+   (company-box-annotation :foreground base7)
+   ;;;; css-mode <built-in> / scss-mode
+   (css-proprietary-property :foreground orange)
+   (css-property             :foreground green)
+   (css-selector             :foreground blue)
+   ;;;; doom-emacs
+   (doom-dashboard-menu-desc :foreground dark-cyan)
+   (doom-dashboard-menu-tile :foreground dark-teal)
+   ;;;; diredfl
+   (diredfl-date-time    :foreground blue)
+   (diredfl-file-name    :foreground base7)
+   (diredfl-file-suffix  :foreground base6)
+   (diredfl-symlink      :foreground dark-cyan)
+   ;;;; dired+
+   (diredp-number :foreground orange)
+   ;;;; dired-k
+   (dired-k-commited :foreground base4)
+   (dired-k-modified :foreground vc-modified)
+   (dired-k-ignored  :foreground cyan)
+   (dired-k-added    :foreground vc-added)
+   ;;;; doom-emacs
+   (+workspace-tab-selected-face :background region :foreground blue)
+   ;;;; doom-modeline
+   (doom-modeline-buffer-file       :foreground base7)
+   (doom-modeline-icon-inactive     :foreground indigo)
+   (doom-modeline-evil-normal-state :foreground dark-cyan)
+   (doom-modeline-evil-insert-state :foreground blue)
+   (doom-modeline-project-dir       :foreground light-teal)
+   (doom-modeline-buffer-path       :foreground blue)
+   (doom-modeline-buffer-modified :inherit 'bold :foreground yellow)
+   (doom-modeline-buffer-major-mode :inherit 'doom-modeline-buffer-path)
+   ;;;; ivy-posframe
+   (ivy-posframe :background base0)
+   (ivy-posframe-border :background base0)
+   ;;;; js2-mode
+   (js2-jsdoc-tag              :foreground magenta)
+   (js2-object-property        :foreground dark-teal)
+   (js2-object-property-access :foreground fg-alt)
+   (js2-function-param         :foreground pink)
+   (js2-jsdoc-type             :foreground base8)
+   (js2-jsdoc-value            :foreground cyan)
+   ;;;; linum
+   ((linum &inherit line-number))
+   ;;;; lsp-mode
+   (lsp-face-highlight-read :background region)
+   (lsp-face-highlight-textual :background region)
+   (lsp-face-highlight-write :background region)
+   (lsp-face-semhl-type-primative :foreground orange)
+   (lsp-face-semhl-method :foreground magenta)
+   ;;;; magit
+   (magit-filename :foreground teal)
+   ;;;; man <built-in>
+   (Man-overstrike :inherit 'bold :foreground magenta)
+   (Man-underline :inherit 'underline :foreground blue)
+   ;;;; markdown-mode
+   (markdown-header-face           :inherit 'bold :foreground yellow)
+   (markdown-header-delimiter-face :inherit 'markdown-header-face)
+   (markdown-metadata-key-face     :foreground magenta :inherit 'italic)
+   (markdown-list-face             :foreground red)
+   (markdown-url-face              :inherit 'underline :foreground orange)
+   (markdown-gfm-checkbox-face     :foreground blue)
+   (markdown-blockquote-face       :inherit 'italic :foreground fg)
+   (mmm-default-submode-face       :background base1)
+   ;;;; message <built-in>
+   (message-header-name       :foreground green)
+   (message-header-subject    :foreground highlight :weight 'bold)
+   (message-header-to         :foreground highlight :weight 'bold)
+   (message-header-cc         :inherit 'message-header-to :foreground (doom-darken highlight 0.15))
+   (message-header-other      :foreground violet)
+   (message-header-newsgroups :foreground yellow)
+   (message-header-xheader    :foreground doc-comments)
+   (message-separator         :foreground comments)
+   (message-mml               :foreground comments :slant 'italic)
+   (message-cited-text        :foreground magenta)
+   ;;;; nav-flash
+   (nav-flash-face :background region)
+   ;;;; nix-mode
+   (nix-attribute-face :foreground blue)
+   (nix-builtin-face :foreground dark-teal)
+   ;;;; org <built-in>
+   ((outline-1 &override) :foreground light-blue)
+   ((outline-2 &override) :foreground dark-cyan)
+   ((outline-3 &override) :foreground light-red)
+   ((outline-4 &override) :foreground blue)
+   ((outline-5 &override) :foreground magenta)
+   ((outline-6 &override) :foreground red)
+   ((outline-7 &override) :foreground violet)
+   ((org-block &override) :background base2)
+   ((org-block-background &override) :background base2)
+   ((org-block-begin-line &override) :background base2)
+   ;;;; popup
+   (popup-face :inherit 'tooltip)
+   (popup-selection-face :inherit 'tooltip)
+   ;;;; pos-tip
+   (popup-tip-face :inherit 'tooltip)
+   ;;;; rainbow-delimiters
+   (rainbow-delimiters-depth-1-face :foreground magenta)
+   (rainbow-delimiters-depth-2-face :foreground violet)
+   (rainbow-delimiters-depth-3-face :foreground light-blue)
+   (rainbow-delimiters-depth-4-face :foreground orange)
+   (rainbow-delimiters-depth-5-face :foreground cyan)
+   (rainbow-delimiters-depth-6-face :foreground yellow)
+   (rainbow-delimiters-depth-7-face :foreground blue)
+   (rainbow-delimiters-depth-8-face :foreground teal)
+   (rainbow-delimiters-depth-9-face :foreground dark-cyan)
+   ;;;; rjsx-mode
+   (rjsx-tag :foreground violet)
+   (rjsx-attr :foreground yellow :slant 'italic :weight 'medium)
+   ;;;; treemacs
+   (treemacs-directory-face :foreground highlight)
+   (treemacs-git-modified-face :foreground highlight)
+   ;;;; which-key
+   (which-key-command-description-face :foreground fg)
+   (which-key-group-description-face :foreground magenta)
+   (which-key-local-map-description-face :foreground cyan)))
+
+;;; doom-moonlight-theme.el ends here
+#+end_src
+
+** Org mode 
+*** Basic Org mode setup 
+
+
+#+begin_src emacs-lisp
+(defun efs/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+(defun efs/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1))
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+(use-package org
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (efs/org-font-setup))
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  ;;:custom
+  ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(defun efs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . efs/org-mode-visual-fill))
+
+
+#+end_src
+
+*** Configure Babel Languages
+
+To execute or export code in org-mode code blocks, you’ll need to set up org-babel-load-languages for each language you’d like to use. This page documents all of the languages that you can use with org-babel.
+
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '((emacs-lisp . t)
+    (python . t)))
+
+(setq org-confirm-babel-evaluate nil)
+
+(push '("conf-unix" . conf-unix) org-src-lang-modes)
+#+end_src
+
+*** Structure Templates
+Create Structure templates for Org mode. 
+The avaliable language blocks for Org mode code blocks are located at https://orgmode.org/worg/org-contrib/babel/languages/index.html
+
+#+begin_src emacs-lisp
+(require 'org-tempo)
+
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
+
+
+#+end_src
+
+*** Auto-tangle Configuration Files
+
+#+begin_src emacs-lisp
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name "~/.dotfiles/emacs.org"))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+#+end_src
 

@@ -13,6 +13,7 @@
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
+
 ;; Configure Emacs Backup files
 (setq backup-directory-alist `(("." . "~/.saves")))
 (setq backup-by-copying t)
@@ -20,6 +21,7 @@
   kept-new-versions 6
   kept-old-versions 2
   version-control t)
+
 
 (load-theme 'tango-dark)
 
@@ -53,20 +55,35 @@
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
-
-
-(use-package ivy-rich
-  :init
-  (ivy-rich-mode 1))
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
 
 (use-package all-the-icons)
 
-(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 10)))
+
+
+
+(use-package doom-themes
+  :init (load-theme 'custom-doom-moonlight t))
+
+;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
-
 (setq display-line-numbers 'relative)
+
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
                 term-mode-hook
@@ -74,11 +91,15 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
   :init(rainbow-delimiters-mode t))
+  
+
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
 
 (use-package counsel
   :bind (("M-x" . counsel-M-x)
@@ -111,6 +132,8 @@
   :bind(("C-x k" . persp-kill-buffer*))
   :init(persp-mode))
 
+
+
 (use-package which-key
   :init (which-key-mode)
   :diminish which-key-mode
@@ -142,6 +165,8 @@
   "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
   "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
   )
+
+
 
 (use-package hydra)
 
@@ -178,13 +203,6 @@
   :config
   (evil-collection-init))
 
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 10)))
-
-(use-package doom-themes
-  :init (load-theme 'custom-doom-moonlight t))
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -235,27 +253,6 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-(org-babel-do-load-languages
-  'org-babel-load-languages
-  '((emacs-lisp . t)
-    (python . t)))
 
-(setq org-confirm-babel-evaluate nil)
 
-(push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-(require 'org-tempo)
-
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
-
-;; Automatically tangle our Emacs.org config file when we save it
-(defun efs/org-babel-tangle-config ()
-  (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/emacs.org"))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
