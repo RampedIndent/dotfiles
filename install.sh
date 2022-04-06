@@ -1,6 +1,6 @@
 #! /bin/bash
 
-export UBUNTU_PACKEGES = "exa screen emacs polybar"
+export UBUNTU_PACKEGES = "exa screen emacs polybar aspell-en"
 export DOTFILES_DIR = "~\.dotfiles"
 
 # Check if computer is ubuntu
