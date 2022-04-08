@@ -1,3 +1,18 @@
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; Profile emacs startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+(setq dw/is-termux
+      (string-suffix-p "Android" (string-trim (shell-command-to-string "uname -a"))))
+
 (setq inhibit-start-message t)
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
@@ -53,6 +68,7 @@
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
+	 ))
 
 
 (use-package ivy-rich
@@ -61,7 +77,11 @@
 
 (use-package all-the-icons)
 
-(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+(set-face-attribute 'variable-pitch nil 
+                     :font "Inconsolata Go Nerd Font")
+(set-face-attribute 'fixed-pitch nil 
+                     :font "Inconsolata Go Nerd Font")
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
@@ -70,6 +90,7 @@
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
                 term-mode-hook
+                vterm-mode-hook
                 shell-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -137,6 +158,11 @@
   :bind(("C-x k" . persp-kill-buffer*))
   :init(persp-mode))
 
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-max-scrollback 10000))
+
 (use-package which-key
   :init (which-key-mode)
   :diminish which-key-mode
@@ -167,6 +193,7 @@
   "b" '(:ignore b :which-key "Buffer commands")
   "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
   "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
+  "v" '(vterm :which-key "Start vterm")
   )
 
 (use-package hydra)
@@ -212,6 +239,13 @@
 (use-package doom-themes
   :init (load-theme 'custom-doom-moonlight t))
 
+(require 'subr-x)
+(unless dw/is-termux
+  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+  (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
@@ -251,7 +285,8 @@
   :after org
   :hook (org-mode . org-bullets-mode)
   ;;:custom
-  ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+  ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")
+  )
 
 (defun efs/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
@@ -285,3 +320,67 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+(use-package evil-org
+  :after org
+  :hook ((org-mode . evil-org-mode)
+         (org-agenda-mode . evil-org-mode)
+         (evil-org-mode . (lambda () (evil-org-set-key-theme '(navigation todo insert textobjects additional)))))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+(viktorya/editor-keys
+  "o"   '(:ignore t :which-key "org mode")
+
+  "oi"  '(:ignore t :which-key "insert")
+  "oil" '(org-insert-link :which-key "insert link")
+
+  "on"  '(org-toggle-narrow-to-subtree :which-key "toggle narrow")
+
+  "os"  '(dw/counsel-rg-org-files :which-key "search notes")
+
+  "oa"  '(org-agenda :which-key "status")
+  "ot"  '(org-todo-list :which-key "todos")
+  "oc"  '(org-capture t :which-key "capture")
+  "ox"  '(org-export-dispatch t :which-key "export"))
+
+;; (use-package ivy-xref
+;;   :straight t
+;;   :init (if (< emacs-major-version 27)
+;;           (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
+;;           (setq xref-show-definitions-function #'ivy-xref-show-defs)))
+
+(use-package lsp-mode
+  :straight t
+  :commands lsp
+  :hook ((typescript-mode js2-mode web-mode) . lsp)
+  :bind (:map lsp-mode-map
+         ("TAB" . completion-at-point))
+  :custom (lsp-headerline-breadcrumb-enable nil))
+
+(viktorya/editor-keys
+  "l"  '(:ignore t :which-key "lsp")
+  "ld" 'xref-find-definitions
+  "lr" 'xref-find-references
+  "ln" 'lsp-ui-find-next-reference
+  "lp" 'lsp-ui-find-prev-reference
+  "ls" 'counsel-imenu
+  "le" 'lsp-ui-flycheck-list
+  "lS" 'lsp-ui-sideline-mode
+  "lX" 'lsp-execute-code-action)
+
+(use-package lsp-ui
+  :straight t
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-ui-sideline-show-hover nil)
+  (setq lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-show))
+
+;; (use-package lsp-ivy
+;;   :hook (lsp-mode . lsp-ivy-mode))
+
+(use-package yaml-mode
+  :mode "\\.ya?ml\\'")

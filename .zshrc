@@ -115,3 +115,5 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 . <(flux completion zsh) 
 . <(kubectl completion zsh) 
 . <(helm completion zsh) 
+alias reload='source ~/.zshrc'
+alias ls="exa -la"

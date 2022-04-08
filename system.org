@@ -1,0 +1,7 @@
+* Polybar
+** Average Temperature Script
+
+#+begin_src shell :tangle ./bin/averageTemp.sh
+#!/bin/bash
+cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
+#+end_src
