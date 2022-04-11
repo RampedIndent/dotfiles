@@ -270,6 +270,100 @@ t
 
 #+RESULTS:
 
+*** Dired
+
+#+begin_src emacs-lisp
+(use-package all-the-icons-dired)
+
+(use-package dired
+  :ensure nil
+  :straight nil
+  :defer 1
+  :commands (dired dired-jump)
+  :config
+  (setq dired-listing-switches "-agho --group-directories-first"
+        dired-omit-files "^\\.[^.].*"
+        dired-omit-verbose nil
+        dired-hide-details-hide-symlink-targets nil
+        delete-by-moving-to-trash t)
+
+  (autoload 'dired-omit-mode "dired-x")
+
+  (add-hook 'dired-load-hook
+            (lambda ()
+              (interactive)
+              (dired-collapse)))
+
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (interactive)
+              (dired-omit-mode 1)
+              (dired-hide-details-mode 1)
+              (unless (or dw/is-termux
+                          (s-equals? "/gnu/store/" (expand-file-name default-directory)))
+                (all-the-icons-dired-mode 1))
+              (hl-line-mode 1)))
+
+  (use-package dired-rainbow
+    :defer 2
+    :config
+    (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+    (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+    (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+    (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+    (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+    (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+    (dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+    (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+    (dired-rainbow-define log "#c17d11" ("log"))
+    (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+    (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+    (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+    (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+    (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+    (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+    (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+    (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+    (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+    (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+    (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
+
+  (use-package dired-single
+    :defer t)
+
+  (use-package dired-ranger
+    :defer t)
+
+  (use-package dired-collapse
+    :defer t)
+
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-single-up-directory
+    "H" 'dired-omit-mode
+    "l" 'dired-single-buffer
+    "y" 'dired-ranger-copy
+    "X" 'dired-ranger-move
+    "p" 'dired-ranger-paste))
+(setq dired-kill-when-opening-new-dired-buffer t)
+;; (defun dw/dired-link (path)
+;;   (lexical-let ((target path))
+;;     (lambda () (interactive) (message "Path: %s" target) (dired target))))
+
+;; (dw/leader-key-def
+;;   "d"   '(:ignore t :which-key "dired")
+;;   "dd"  '(dired :which-key "Here")
+;;   "dh"  `(,(dw/dired-link "~") :which-key "Home")
+;;   "dn"  `(,(dw/dired-link "~/Notes") :which-key "Notes")
+;;   "do"  `(,(dw/dired-link "~/Downloads") :which-key "Downloads")
+;;   "dp"  `(,(dw/dired-link "~/Pictures") :which-key "Pictures")
+;;   "dv"  `(,(dw/dired-link "~/Videos") :which-key "Videos")
+;;   "d."  `(,(dw/dired-link "~/.dotfiles") :which-key "dotfiles")
+;;   "de"  `(,(dw/dired-link "~/.emacs.d") :which-key ".emacs.d"))
+#+end_src
+
+#+RESULTS:
+: t
+
 ** Keybindings
 
 #+begin_src emacs-lisp
@@ -296,16 +390,24 @@ t
   "g" '(magit :which-key "Runs Magit")
   "f" '(:ignore f :which-key "file commands")
   "ff" '(counsel-find-file :which-key "Find File")
+  "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
   "fs" '(save-buffer :which-key "Save Current Buffer")
   "w" '(:ignore w :which-key "file commands")
-  "w<left>" '(evil-window-left :which-key "Move Active Window Left")
+  "w<LEFT>" '(evil-window-left :which-key "Move Active Window Left")
   "wq" '(evil-window-delete :which-key "Delete active window")
   ;;"p" '(yank :which-key "Paste Text")
   "b" '(:ignore b :which-key "Buffer commands")
   "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
   "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
   "v" '(vterm :which-key "Start vterm")
+  "<ESC>" '(evil-normal-state :which-key "Default Evil state")
   )
+
+(defun revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer :ignore-auto :noconfirm))
+
 
 (use-package hydra)
 
@@ -753,8 +855,11 @@ The avaliable language blocks for Org mode code blocks are located at https://or
 #+begin_src emacs-lisp
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
-  (when (string-equal (buffer-file-name)
+  (when (or (string-equal (buffer-file-name)
                       (expand-file-name "~/.dotfiles/emacs.org"))
+                      (string-equal (buffer-file-name)
+                      (expand-file-name "~/.dotfiles/system.org"))
+                      )
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -763,7 +868,7 @@ The avaliable language blocks for Org mode code blocks are located at https://or
 #+end_src
 
 #+RESULTS:
-| (lambda nil (add-hook 'after-save-hook #'efs/org-babel-tangle-config)) | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+| evil-org-mode | (lambda nil (add-hook 'after-save-hook #'efs/org-babel-tangle-config)) | org-tempo-setup | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | efs/org-mode-visual-fill | efs/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
 
 *** Evil Org Mode
 
@@ -792,6 +897,87 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   "oc"  '(org-capture t :which-key "capture")
   "ox"  '(org-export-dispatch t :which-key "export"))
 #+end_src
+
+*** Org Roam
+
+#+begin_src emacs-lisp
+(use-package org-roam
+  :straight t
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/documents/Notes/Org-Roam/")
+  (org-roam-completion-everywhere t)
+  (org-roam-completion-system 'default)
+  (org-roam-capture-templates
+    '(("d" "default" plain
+       #'org-roam-capture--get-point
+       "%?"
+       :file-name "%<%Y%m%d%H%M%S>-${slug}"
+       :head "#+title: ${title}\n"
+       :unnarrowed t)
+      ("ll" "link note" plain
+       #'org-roam-capture--get-point
+       "* %^{Link}"
+       :file-name "Inbox"
+       :olp ("Links")
+       :unnarrowed t
+       :immediate-finish)
+      ("lt" "link task" entry
+       #'org-roam-capture--get-point
+       "* TODO %^{Link}"
+       :file-name "Inbox"
+       :olp ("Tasks")
+       :unnarrowed t
+       :immediate-finish)))
+  (org-roam-dailies-directory "Journal/")
+  (org-roam-dailies-capture-templates
+    '(("d" "default" entry
+       #'org-roam-capture--get-point
+       "* %?"
+       :file-name "Journal/%<%Y-%m-%d>"
+       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+      ("t" "Task" entry
+       #'org-roam-capture--get-point
+       "* TODO %?\n  %U\n  %a\n  %i"
+       :file-name "Journal/%<%Y-%m-%d>"
+       :olp ("Tasks")
+       :empty-lines 1
+       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+      ("j" "journal" entry
+       #'org-roam-capture--get-point
+       "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
+       :file-name "Journal/%<%Y-%m-%d>"
+       :olp ("Log")
+       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+      ("l" "log entry" entry
+       #'org-roam-capture--get-point
+       "* %<%I:%M %p> - %?"
+       :file-name "Journal/%<%Y-%m-%d>"
+       :olp ("Log")
+       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+      ("m" "meeting" entry
+       #'org-roam-capture--get-point
+       "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
+       :file-name "Journal/%<%Y-%m-%d>"
+       :olp ("Log")
+       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
+  :bind (:map org-roam-mode-map
+          (("C-c n l"   . org-roam)
+           ("C-c n f"   . org-roam-find-file)
+           ("C-c n d"   . org-roam-dailies-find-date)
+           ("C-c n c"   . org-roam-dailies-capture-today)
+           ("C-c n C r" . org-roam-dailies-capture-tomorrow)
+           ("C-c n t"   . org-roam-dailies-find-today)
+           ("C-c n y"   . org-roam-dailies-find-yesterday)
+           ("C-c n r"   . org-roam-dailies-find-tomorrow)
+           ("C-c n g"   . org-roam-graph))
+         :map org-mode-map
+         (("C-c n i" . org-roam-insert))
+         (("C-c n I" . org-roam-insert-immediate))))
+#+end_src
+
+#+RESULTS:
 
 ** Languages
 *** Emacs Lisp
