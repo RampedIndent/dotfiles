@@ -17,19 +17,19 @@ Can be an integer to determine the exact padding."
   "A dark theme inspired by VS code's Moonlight"
 
   ;; name        default   256       16
-  ((bg         '("#212337" "#212337"  "black"))
-   (bg-alt     '("#191a2a" "#191a2a" "black"))
-   (base0      '("#161a2a" "#161a2a" "black"))
-   (base1      '("#191a2a" "#191a2a" "brightblack"))
-   (base2      '("#1e2030" "#1e2030" "brightblack"))
-   (base3      '("#222436" "#222436" "brightblack"))
-   (base4      '("#2f334d" "#2f334d" "brightblack"))
+  ((bg         '("#1A002B" "#212337"  "black"))
+   (bg-alt     '("#260637" "#191a2a" "black"))
+   (base0      '("#1A002B" "#161a2a" "black"))
+   (base1      '("#191" "#191a2a" "brightblack"))
+   (base2      '("#29093A" "#1e2030" "brightblack"))
+   (base3      '("#228" "#222436" "brightblack"))
+   (base4      '("#2f3" "#2f334d" "brightblack"))
    (base5      '("#444a73" "#444a73" "brightblack"))
    (base6      '("#828bb8" "#828bb8" "brightblack"))
    (base7      '("#a9b8e8" "#a9b8e8" "brightblack"))
    (base8      '("#b4c2f0" "#b4c2f0" "white"))
    (indigo     '("#7a88cf" "#7a88cf" "brightblack"))
-   (region     '("#383e5c" "#383e5c" "brightblack"))
+   (region     '("#402051" "#383e5c" "brightblack"))
    (fg         '("#c8d3f5" "#c8d3f5" "brightwhite"))
    (fg-alt     '("#b4c2f0" "#b4c2f0" "white"))
 

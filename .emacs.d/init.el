@@ -15,10 +15,11 @@
 
 (setq inhibit-start-message t)
 
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)       ; Give some breathing room
+(unless dw/is-termux
+        (scroll-bar-mode -1)        ; Disable visible scrollbar
+        (tool-bar-mode -1)          ; Disable the toolbar
+        (tooltip-mode -1)           ; Disable tooltips
+        (set-fringe-mode 10))       ; Give some breathing room
 
 (menu-bar-mode -1)            ; Disable the menu bar
 ;;(setq default-frame-alist '((undecorated . t)))
@@ -37,6 +38,13 @@
   version-control t)
 
 (load-theme 'tango-dark)
+
+(unless dw/is-termux
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+  (setq use-dialog-box nil)) ;; Disable dialog boxes since they weren't working in Mac OSX
 
 ;; Initalize package sources
 (require 'package)
@@ -275,6 +283,8 @@
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
   "fs" '(save-buffer :which-key "Save Current Buffer")
   "w" '(:ignore w :which-key "file commands")
+  "wv" '(evil-window-vsplit :which-key "Vertical Window Split")
+  "wh" '(evil-window-split :which-key "Horizontal Window Split")
   "w <left>" '(evil-window-left :which-key "Move Active Window Left")
   "w <right>" '(evil-window-right :which-key "Move Active Window Right")
   "w <up>" '(evil-window-up :which-key "Move Active Window Up")
@@ -343,6 +353,9 @@
   (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+
+(use-package rainbow-mode)
+(rainbow-mode t)
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
