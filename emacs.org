@@ -494,9 +494,11 @@ The Configuration for Evil mode
 #+begin_src emacs-lisp
 
 (use-package doom-themes
-  :init (load-theme 'custom-doom-moonlight t))
+  :init (load-theme 'custom-doom-outrun-electric t))
 
 #+end_src
+
+#+RESULTS:
 
 *** Custom Doom Moonlight
 

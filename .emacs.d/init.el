@@ -345,7 +345,7 @@
   :custom ((doom-modeline-height 10)))
 
 (use-package doom-themes
-  :init (load-theme 'custom-doom-moonlight t))
+  :init (load-theme 'custom-doom-outrun-electric t))
 
 (require 'subr-x)
 (unless dw/is-termux
