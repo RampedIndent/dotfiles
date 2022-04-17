@@ -175,7 +175,7 @@
 
 (use-package dired
   :ensure nil
-  :straight nil
+  ;;:straight nil
   :defer 1
   :commands (dired dired-jump)
   :config
@@ -235,13 +235,14 @@
   (use-package dired-collapse
     :defer t)
 
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-single-up-directory
-    "H" 'dired-omit-mode
-    "l" 'dired-single-buffer
-    "y" 'dired-ranger-copy
-    "X" 'dired-ranger-move
-    "p" 'dired-ranger-paste))
+  ;(evil-collection-define-key 'normal 'dired-mode-map
+   ; "h" 'dired-single-up-directory
+    ;"H" 'dired-omit-mode
+   ; "l" 'dired-single-buffer
+   ; "y" 'dired-ranger-copy
+   ; "X" 'dired-ranger-move
+   ; "p" 'dired-ranger-paste)
+   )
 (setq dired-kill-when-opening-new-dired-buffer t)
 ;; (defun dw/dired-link (path)
 ;;   (lexical-let ((target path))
@@ -257,6 +258,72 @@
 ;;   "dv"  `(,(dw/dired-link "~/Videos") :which-key "Videos")
 ;;   "d."  `(,(dw/dired-link "~/.dotfiles") :which-key "dotfiles")
 ;;   "de"  `(,(dw/dired-link "~/.emacs.d") :which-key ".emacs.d"))
+
+(use-package dashboard
+  :ensure t
+  :init
+  (progn
+    (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+
+    ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
+
+    (setq dashboard-items '((recents  . 5)
+                            (bookmarks . 5)
+                            (projects . 5)
+                            ;(agenda . 5)
+                            ;(registers . 5)
+                            ))
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-set-navigator nil)
+    (setq dashboard-navigator-buttons
+      `(;; line1
+        ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+         "Homepage"
+         "Browse homepage"
+         (lambda (&rest _) (browse-url "homepage")))
+        ("★" "Star" "Show stars" (lambda (&rest _) (show-stars)) warning)
+        ("?" "" "?/h" #'show-help nil "<" ">"))
+         ;; line 2
+        ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+          "Linkedin"
+          ""
+          (lambda (&rest _) (browse-url "homepage")))
+         ("⚑" nil "Show flags" (lambda (&rest _) (message "flag")) error))))
+    (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
+    )
+  :config
+  (dashboard-setup-startup-hook))
+
+
+(defun dashboard-insert-custom (list-size)
+  (dashboard-insert-heading "Journal")
+  (insert "\n")
+  (widget-create 'push-button 
+                 :value "Dailies Capture Yesterday"
+                 :format "    %[%v%]\n"
+                 :notify (lambda (widget &rest ignore)
+                            (org-roam-dailies-capture-yesterday 1)))
+  (widget-create 'push-button 
+                 :value "Dailies Capture Today"
+                 :format "    %[%v%]\n"
+                 :notify (lambda (widget &rest ignore)
+                            (org-roam-dailies-capture-today)))
+  (widget-create 'push-button 
+                 :value "Dailies Capture Tomorrow"
+                 :format "    %[%v%]\n"
+                 :notify (lambda (widget &rest ignore)
+                            (org-roam-dailies-capture-tomorrow 1)))
+
+ (widget-create 'push-button 
+                 :value "Dailies Capture Date"
+                 :format "    %[%v%]\n"
+                 :notify (lambda (widget &rest ignore)
+                            (org-roam-dailies-capture-date)))
+  )
+  ;(insert "org-roam-dailies-capture-date"))
+(add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+(add-to-list 'dashboard-items '(custom) t)
 
 (use-package which-key
   :init (which-key-mode)
@@ -460,7 +527,7 @@
   "ox"  '(org-export-dispatch t :which-key "export"))
 
 (use-package org-roam
-  :straight t
+  ;;:straight t
   :hook
   (after-init . org-roam-mode)
   :custom
@@ -520,7 +587,7 @@
        :file-name "Journal/%<%Y-%m-%d>"
        :olp ("Log")
        :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
-  :bind (:map org-roam-mode-map
+       :bind (:map org-roam-mode-map
           (("C-c n l"   . org-roam)
            ("C-c n f"   . org-roam-find-file)
            ("C-c n d"   . org-roam-dailies-find-date)
@@ -534,6 +601,8 @@
          (("C-c n i" . org-roam-insert))
          (("C-c n I" . org-roam-insert-immediate))))
 
+(setq org-latex-create-formula-image-program 'dvipng)
+
 ;; (use-package ivy-xref
 ;;   :straight t
 ;;   :init (if (< emacs-major-version 27)
@@ -541,7 +610,7 @@
 ;;           (setq xref-show-definitions-function #'ivy-xref-show-defs)))
 
 (use-package lsp-mode
-  :straight t
+  ;;:straight t
   :commands lsp
   :hook ((typescript-mode js2-mode web-mode) . lsp)
   :bind (:map lsp-mode-map
@@ -560,7 +629,7 @@
   "lX" 'lsp-execute-code-action)
 
 (use-package lsp-ui
-  :straight t
+  ;;:straight t
   :hook (lsp-mode . lsp-ui-mode)
   :config
   (setq lsp-ui-sideline-enable t)
