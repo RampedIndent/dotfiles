@@ -1,6 +1,6 @@
 #! /bin/bash
 
-#export UBUNTU_PACKEGES = "exa screen emacs polybar aspell-en"
+export UBUNTU_PACKEGES="exa screen emacs polybar aspell-en dvipng texlive-latex-extra cmake"
 export DOTFILES_DIR="~\.dotfiles"
 
 # Check if computer is ubuntu
@@ -22,7 +22,7 @@ fi
 echo $DISTRO
 unset UNAME
 
-if [ "$DISTRO" == "Ubuntut" ]; then
+if [ "$DISTRO" == "Ubuntu" ]; then
     # sudo apt install exa
     # sudo apt install screen
     echo "Updating to newest Ubuntu Version"
@@ -49,3 +49,24 @@ if [ "$DISTRO" == "Ubuntut" ]; then
 fi
 
     
+if [ "$DISTRO" == "ArcoLinux" ]; then
+    echo "Updating to newest Arch Version"
+    sudo pacman -Syu
+    echo "Arch packages are upto date"
+    echo "Installing git and stow"
+    sudo pacman -S git stow
+    # Make Sure Dotfiles dir is up to date and installed
+    echo "Making Sure Dotfiles dir is up to date and downloaded"
+    if [ -d "$DOTFILES_DIR" ]; then
+	echo "Updating Dotfiles"
+	git pull 
+    else
+	echo "Cloning Dotfiles"
+	#git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
+    fi
+    echo "Changing to Dotfiles Dir"
+    cd $DOTFILES_DIR
+    echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
+    stow .
+    
+fi
