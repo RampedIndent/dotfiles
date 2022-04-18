@@ -115,5 +115,10 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 . <(flux completion zsh) 
 . <(kubectl completion zsh) 
 . <(helm completion zsh) 
+
+# Aliases
 alias reload='source ~/.zshrc'
 alias ls="exa -la"
+alias git="emacsclient -c -a emacs -q --eval \"(magit)\""
+#alias git="emacsclient -nw -c -a emacs -q --eval \"(magit)\""
+alias gitcli="/bin/git"
