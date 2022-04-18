@@ -1,7 +1,10 @@
 #! /bin/bash
 
-export UBUNTU_PACKEGES="exa screen emacs polybar aspell-en dvipng texlive-latex-extra cmake"
-export DOTFILES_DIR="~/.dotfiles"
+export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
+export UI_PACKAGES="polybar"
+export PROD_PACKAGES="blender inkscape krita"
+export DOTFILES_DIR=~/.dotfiles
+#export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
 # Check if computer is ubuntu
 # Determine OS platform
@@ -21,7 +24,7 @@ fi
 #[ "$DISTRO" == "" ] && export DISTRO=$UNAME
 echo $DISTRO
 unset UNAME
-
+echo $DOTFILES_DIR
 if [ "$DISTRO" == "Ubuntu" ]; then
     # sudo apt install exa
     # sudo apt install screen
@@ -68,5 +71,25 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     cd $DOTFILES_DIR
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
+    echo "Installing Terminal Packages"
+    sudo pacman -S $UBUNTU_PACKEGES
+    
+   
     
 fi
+
+if [ -d "~/.oh-my-zsh" ]; then
+    echo "Installing Oh My ZSH"
+    sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+if [ -d "~/powerline10k" ]; then
+    echo "Installing zsh Powerline10k"
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+fi
+
+
+#if [ -d "~/powerline10k" ]; then
+#    echo "Installing zsh Powerline10k"
+#    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
+#fi
