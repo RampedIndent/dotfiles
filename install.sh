@@ -1,7 +1,7 @@
 #! /bin/bash
 
-export UBUNTU_PACKEGES = "exa screen emacs polybar aspell-en"
-export DOTFILES_DIR = "~\.dotfiles"
+#export UBUNTU_PACKEGES = "exa screen emacs polybar aspell-en"
+export DOTFILES_DIR="~\.dotfiles"
 
 # Check if computer is ubuntu
 # Determine OS platform
@@ -19,10 +19,10 @@ if [ "$UNAME" == "linux" ]; then
 fi
 # For everything else (or if above failed), just use generic identifier
 #[ "$DISTRO" == "" ] && export DISTRO=$UNAME
-echo $(UNAME)
+echo $DISTRO
 unset UNAME
 
-if [ "$DISTRO" == "Ubuntu" ]; then
+if [ "$DISTRO" == "Ubuntut" ]; then
     # sudo apt install exa
     # sudo apt install screen
     echo "Updating to newest Ubuntu Version"
