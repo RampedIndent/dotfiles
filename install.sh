@@ -1,7 +1,7 @@
 #! /bin/bash
 
 export UBUNTU_PACKEGES="exa screen emacs polybar aspell-en dvipng texlive-latex-extra cmake"
-export DOTFILES_DIR="~\.dotfiles"
+export DOTFILES_DIR="~/.dotfiles"
 
 # Check if computer is ubuntu
 # Determine OS platform
