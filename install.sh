@@ -19,7 +19,7 @@ if [ "$UNAME" == "linux" ]; then
 fi
 # For everything else (or if above failed), just use generic identifier
 #[ "$DISTRO" == "" ] && export DISTRO=$UNAME
-#echo $(pwd)
+echo $(UNAME)
 unset UNAME
 
 if [ "$DISTRO" == "Ubuntu" ]; then
