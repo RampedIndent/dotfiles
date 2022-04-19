@@ -57,7 +57,7 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     sudo pacman -Syu
     echo "Arch packages are upto date"
     echo "Installing git and stow"
-    sudo pacman -S git stow
+    sudo pacman -S git stow --needed
     # Make Sure Dotfiles dir is up to date and installed
     echo "Making Sure Dotfiles dir is up to date and downloaded"
     if [ -d "$DOTFILES_DIR" ]; then
@@ -72,7 +72,7 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     echo "Installing Terminal Packages"
-    sudo pacman -S $UBUNTU_PACKEGES
+    sudo pacman -S $UBUNTU_PACKEGES --needed
     
    
     
