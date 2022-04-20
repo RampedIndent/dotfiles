@@ -34,13 +34,13 @@
 
 [colors]
 ;background = ${xrdb:color0:#222}
-background = #222
-background-alt = #444
+background = #bb1c1542
+background-alt = #E6020016
 ;foreground = ${xrdb:color7:#222}
-foreground = #dfdfdf
-foreground-alt = #555
+foreground = #f6f6f6f
+foreground-alt = #afafaf
 primary = #ffb52a
-secondary = #e60053
+secondary = #ff2afc
 alert = #bd2c40
 
 [bar/example]
@@ -68,8 +68,8 @@ module-margin-left = 1
 module-margin-right = 2
 
 font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
-font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=16;1
-font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=24;1
+font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;2
+font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=32;7
 font-3 = unifont:fontformat=truetype:size=13:antialias=false;0
 font-4 = siji:pixelsize=13;1
 
@@ -327,21 +327,32 @@ ramp-2 = 
 ramp-foreground = ${colors.foreground-alt}
 
 [module/powermenu]
-type = custom/menu
 
-expand-right = true
+type = custom/text
+content = 
+content-font= 3
+;content-height = 90%:-100pt
+;content-padding = 15pt
+format-content-offset = 10px
+content-background = ${colors.bg}
+content-foreground = ${colors.secondary}
 
-format-spacing = 1
+click-left = rofi -show power-menu -width 250 -lines 5
+;type = custom/menu
 
-label-open = P
-label-open-foreground = ${colors.secondary}
-label-close =  cancel
-label-close-foreground = ${colors.secondary}
-label-separator = |
-label-separator-foreground = ${colors.foreground-alt}
+;expand-right = true
 
-menu-0-0 = reboot
-menu-0-0-exec = rofi -show power-menu
+;format-spacing = 1
+
+;label-open = P
+;label-open-foreground = ${colors.secondary}
+;label-close =  cancel
+;label-close-foreground = ${colors.secondary}
+;label-separator = |
+;label-separator-foreground = ${colors.foreground-alt}
+
+;menu-0-0 = reboot
+;menu-0-0-exec = rofi -show power-menu
 ;menu-0-2 = display off
 ;menu-0-2-exec = xset dpms force off
 
@@ -405,16 +416,17 @@ margin-bottom = 5
 #!/bin/bash
 cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
 #+end_src
+
 * Rofi
 ** Rofi Config
 
 #+begin_src css :tangle ./.config/rofi/config.rasi
 configuration {
-	modi: "window,run,ssh,file-browser,power-menu:~/.dotfiles/bin/rofi-power-menu";
-	width: 800; 
-/*	lines: 15;*/
+	modi: "window,drun,ssh,file-browser,power-menu:~/.dotfiles/bin/rofi-power-menu";
+	width: 600; 
+	lines: 8;
 /*	columns: 1;*/
-/*	font: "mono 12";*/
+	font: "InconsolataGo Nerd Font Mono 16";
 /*	bw: 1;*/
 /*	location: 0;*/
 /*	padding: 5;*/
@@ -430,7 +442,7 @@ configuration {
 /*	run-shell-command: "{terminal} -e {cmd}";*/
 /*	window-command: "wmctrl -i -R {window}";*/
 /*	window-match-fields: "all";*/
-/*	icon-theme: ;*/
+	icon-theme: "Papirus" ;
 /*	drun-match-fields: "name,generic,exec,categories,keywords";*/
 /*	drun-categories: ;*/
 /*	drun-show-actions: false;*/
@@ -557,8 +569,8 @@ configuration {
 /*	ml-row-right: "ScrollRight";*/
 /*	ml-row-up: "ScrollUp";*/
 /*	ml-row-down: "ScrollDown";*/
-/*	me-select-entry: "MousePrimary";*/
-/*	me-accept-entry: "MouseDPrimary";*/
+	me-select-entry: "MousePrimary";
+	me-accept-entry: "MouseDPrimary";
 /*	me-accept-custom: "Control+MouseDPrimary";*/
 }
 
@@ -568,385 +580,589 @@ configuration {
 ** Rofi Theme
 
 #+begin_src css :tangle ./.config/rofi/config.rasi
-*{
-    foreground:                 rgba(159, 172, 249, 0.5);
-    normal-foreground:          rgba(159, 172, 249, 0.1);
-    urgent-foreground:          @forground;
-    normal-foreground:          @forground;
-    alternate-normal-foreground:@forground;
-    selected-normal-foreground: rgba(0, 172, 249, 0.5);
-    selected-normal-background: rgba(50, 2, 150, 0.5);
-    background:                 rgba(111, 2, 146, 0.5);
-    normal-background:          @background;
-    urgent-background:          @background;
-    active-background:          @background;
-    alternate-normal-background:rgba(70, 2, 106, 0.5);
-    seperatorcolor:             rgba(117, 255, 214, 0.5);
-    border-color:                @foreground;
-    spacing:                     2;
-    alternate-normal-foreground: @foreground;
-}
-window {
-    background-color: @background;
-    border:           1;
-    padding:          5;
-}
-mainbox {
-    border:  0;
-    padding: 0;
-}
-message {
-    border:       1px dash 0px 0px ;
-    border-color: @separatorcolor;
-    padding:      1px ;
-}
-textbox {
-    text-color: @foreground;
-}
-listview {
-    fixed-height: 0;
-    border:       0px dash 0px 0px ;
-    border-color: @seperatorcolor;
-    spacing:      2px ;
-    scrollbar:    false;
-    padding:      1px 0px 0px ;
-}
-element {
-    border:  0;
-    padding: 1px ;
-}
-element-text {
-    background-color: inherit;
-    text-color:       inherit;
-}
-element.normal.normal {
-    background-color: @normal-background;
-    text-color:       @normal-foreground;
-}
-element.normal.urgent {
-    background-color: @urgent-background;
-    text-color:       @urgent-foreground;
-}
-element.normal.active {
-    background-color: @active-background;
-    text-color:       @active-foreground;
-}
-element.selected.normal {
-    background-color: @selected-normal-background;
-    text-color:       @selected-normal-foreground;
-}
-element.selected.urgent {
-    background-color: @selected-urgent-background;
-    text-color:       @selected-urgent-foreground;
-}
-element.selected.active {
-    background-color: @selected-active-background;
-    text-color:       @selected-active-foreground;
-}
-element.alternate.normal {
-    background-color: @alternate-normal-background;
-    text-color:       @alternate-normal-foreground;
-}
-element.alternate.urgent {
-    background-color: @alternate-urgent-background;
-    text-color:       @alternate-urgent-foreground;
-}
-element.alternate.active {
-    background-color: @alternate-active-background;
-    text-color:       @alternate-active-foreground;
-}
-scrollbar {
-    width:        8px ;
-    border:       0;
-    handle-width: 8px ;
-    padding:      0;
-}
-mode-switcher {
-    border:       0px dash 0px 0px ;
-    border-color: @separatorcolor;
-}
-button.selected {
-    background-color: @selected-normal-background;
-    text-color:       @selected-normal-foreground;
-}
-inputbar {
-    spacing:    0;
-    text-color: @normal-foreground;
-    padding:    1px ;
-}
-case-indicator {
-    spacing:    0;
-    text-color: @normal-foreground;
-}
-entry {
-    spacing:    0;
-    text-color: @normal-foreground;
-}
-prompt {
-    spacing:    0;
-    text-color: @normal-foreground;
-}
-inputbar {
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
-textbox-prompt-colon {
-    expand:     false;
-    str:        ":";
-    margin:     0px 0.3em 0em 0em ;
-    text-color: @normal-foreground;
-}
+  @theme "/dev/null"
+  ,*{
+      /*selected-normal-foreground:  rgba( 255, 255, 255, 100% );
+      foreground:                  rgba( 180, 180, 180, 100% );
+      normal-foreground:           @foreground;
+      alternate-normal-background: rgba( 47, 30, 46, 63% );
+      red:                         rgba( 220, 50, 47, 100% );
+      selected-urgent-foreground:  rgba( 239, 97, 85, 100% );
+      blue:                        rgba( 38, 139, 210, 100% );
+      urgent-foreground:           rgba( 239, 97, 85, 100% );
+      alternate-urgent-background: rgba( 47, 30, 46, 18% );
+      active-foreground:           rgba( 129, 91, 164, 100% );
+      lightbg:                     rgba( 238, 232, 213, 100% );
+      selected-active-foreground:  rgba( 129, 91, 164, 100% );
+      alternate-active-background: rgba( 47, 30, 46, 18% );
+      background:                  rgba( 47, 30, 46, 100% );
+      bordercolor:                 rgba( 239, 97, 85, 21% );
+      alternate-normal-foreground: @foreground;
+      normal-background:           rgba( 47, 30, 46, 63% );
+      lightfg:                     rgba( 88, 104, 117, 100% );
+      selected-normal-background:  rgba( 129, 91, 164, 33% );
+      border-color:                @foreground;
+      spacing:                     2;
+      separatorcolor:              rgba( 239, 97, 85, 18% );
+      urgent-background:           rgba( 47, 30, 46, 15% );
+      selected-urgent-background:  rgba( 129, 91, 164, 33% );
+      alternate-urgent-foreground: @urgent-foreground;
+      background-color:            rgba( 0, 0, 0, 0% );
+      alternate-active-foreground: @active-foreground;
+      active-background:           rgba( 47, 30, 46, 15% );
+      selected-active-background:  rgba( 129, 91, 164, 33% );*/
+      none:                                   rgba(0,0,0,0);
+      foreground:                rgba(255, 42, 252, 1); 
+      normal-foreground:          @foreground;
+      urgent-foreground:          @foreground;
+      active-foreground:          @foreground;
+      alternate-normal-foreground:@foreground;
+      alternate-active-foreground: @foreground;
+      selected-normal-foreground: rgba(159, 172, 249, 0.8);
+      selected-normal-background: rgba(50, 2, 150, 0.5);
+      selected-active-foreground: @foreground;
+      background:                 rgba(29, 18, 115, 0.9);
+      background-color:           @none;
+      normal-background:          rgba(172, 0, 99, 0.5);
+      urgent-background:          @background;
+      active-background:          rgba(200, 0, 170, 0.5);
+      selected-active-background: rgba(172, 0, 99, 0.5);
+      alternate-normal-background:rgba(175,  0,  145, 0.5);
+      seperatorcolor:             rgba(117, 255, 214, 0.5);
+      border-color:                @none;
+      spacing:                     2;
+      border: 0;
+      margin: 0;
+      padding: 0;
+      spacing: 0;
+  }
+  window {
+      background-color: @background;
+      border:           1;
+      padding:         20 0;
+      border-radius:                  12px;
+  }
+  mainbox {
+      border:  0;
+      padding: 0;
+  }
+  message {
+      border:       1px dash 0px 0px ;
+      border-color: @separatorcolor;
+      padding:      1px ;
+  }
+  textbox {
+      text-color: @foreground;
+  }
+  listview {
+      fixed-height: 0;
+      border:       0px dash 0px 0px ;
+      border-color: @seperatorcolor;
+      spacing:      2px ;
+      scrollbar:    false;
+      padding:      1px 0px 0px ;
+      elements:     5;
+  }
+  element {
+      border:  0;
+      padding: 1px ;
+      children: [ element-icon, element-text ];
+  }
+  element-text {
+      background-color: inherit;
+      text-color:       inherit;
+  }
+  element-icon { 
+      size: 36px ; 
+  }
+
+
+  element.normal.normal {
+      background-color: @normal-background;
+      text-color:       @normal-foreground;
+  }
+  element.normal.urgent {
+      background-color: @urgent-background;
+      text-color:       @urgent-foreground;
+  }
+  element.normal.active {
+      background-color: @active-background;
+      text-color:       @active-foreground;
+  }
+  element.selected.normal {
+      background-color: @selected-normal-background;
+      text-color:       @selected-normal-foreground;
+  }
+  element.selected.urgent {
+      background-color: @selected-urgent-background;
+      text-color:       @selected-urgent-foreground;
+  }
+  element.selected.active {
+      background-color: @selected-active-background;
+      text-color:       @selected-active-foreground;
+  }
+  element.alternate.normal {
+      background-color: @alternate-normal-background;
+      text-color:       @alternate-normal-foreground;
+  }
+  element.alternate.urgent {
+      background-color: @alternate-urgent-background;
+      text-color:       @alternate-urgent-foreground;
+  }
+  element.alternate.active {
+      background-color: @alternate-active-background;
+      text-color:       @alternate-active-foreground;
+  }
+  scrollbar {
+      width:        8px ;
+      border:       0;
+      handle-width: 8px ;
+      padding:      0;
+  }
+  mode-switcher {
+      border:       0px dash 0px 0px ;
+      border-color: @separatorcolor;
+  }
+  button.selected {
+      background-color: @selected-normal-background;
+      text-color:       @selected-normal-foreground;
+  }
+  inputbar {
+      spacing:    0;
+      text-color: @normal-foreground;
+      padding:    1px ;
+  }
+  case-indicator {
+      spacing:    0;
+      text-color: @normal-foreground;
+  }
+  entry {
+      spacing:    0;
+      text-color: @normal-foreground;
+  }
+  prompt {
+      spacing:    0;
+      text-color: @normal-foreground;
+  }
+  inputbar {
+      children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+  }
+  textbox-prompt-colon {
+      expand:     false;
+      str:        ":";
+      margin:     0px 0.3em 0em 0em ;
+      text-color: @normal-foreground;
+  }
 #+end_src
+
 ** Rofi Menus
 *** Power-menu
-#+begin_src shell :tangle ./bin/rofi-power-menu
-#!/usr/bin/env bash
 
-# Script Original Version: https://github.com/jluttine/rofi-power-menu
-# This script defines just a mode for rofi instead of being a self-contained
-# executable that launches rofi by itself. This makes it more flexible than
-# running rofi inside this script as now the user can call rofi as one pleases.
-# For instance:
+#+begin_src shell :tangle ./bin/rofi-power-menu :shebang "#!/bin/bash"
+  #  /usr/bin/env bah
+
+  # Script Original Version: https://github.com/jluttine/rofi-power-menu
+  # This script defines just a mode for rofi instead of being a self-contained
+  # executable that launches rofi by itself. This makes it more flexible than
+  # running rofi inside this script as now the user can call rofi as one pleases.
+  # For instance:
+  #
+  #   rofi -show powermenu -modi powermenu:./rofi-power-menu
+  #
+  # See README.md for more information.
+
+  set -e
+  set -u
+
+  # All supported choices logout lockscreen hibernate
+  all=(shutdown reboot suspend logout displayoff )
+
+  # By default, show all (i.e., just copy the array)
+  show=("${all[@]}")
+
+  declare -A texts
+  texts[lockscreen]="lock screen"
+  texts[switchuser]="switch user"
+  texts[logout]="log out"
+  texts[suspend]="suspend"
+  texts[hibernate]="hibernate"
+  texts[reboot]="reboot"
+  texts[shutdown]="shut down"
+  texts[displayoff]="Display Off"
+
+  declare -A icons
+  icons[lockscreen]="\uf023"
+  icons[switchuser]="\uf518"
+  icons[logout]="\uf842"
+  icons[suspend]="\uf9b1"
+  icons[hibernate]="\uf7c9"
+  icons[reboot]="\ufc07"
+  icons[shutdown]="\uf011"
+  icons[cancel]="\u00d7"
+  icons[displayoff]=""
+
+  declare -A actions
+  actions[lockscreen]="loginctl lock-session ${XDG_SESSION_ID-}"
+  #actions[switchuser]="???"
+  actions[logout]="loginctl terminate-session ${XDG_SESSION_ID-}"
+  actions[suspend]="systemctl suspend"
+  actions[hibernate]="systemctl hibernate"
+  actions[reboot]="systemctl reboot"
+  actions[shutdown]="systemctl poweroff"
+  actions[displayoff]="xset dpms force off"
+
+  # By default, ask for confirmation for actions that are irreversible
+  confirmations=(reboot shutdown logout)
+
+  # By default, no dry run
+  dryrun=false
+  showsymbols=true
+
+  function check_valid {
+      option="$1"
+      shift 1
+      for entry in "${@}"
+      do
+          if [ -z "${actions[$entry]+x}" ]
+          then
+              echo "Invalid choice in $1: $entry" >&2
+              exit 1
+          fi
+      done
+  }
+
+  # Parse command-line options
+  parsed=$(getopt --options=h --longoptions=help,dry-run,confirm:,choices:,choose:,symbols,no-symbols --name "$0" -- "$@")
+  if [ $? -ne 0 ]; then
+      echo 'Terminating...' >&2
+      exit 1
+  fi
+  eval set -- "$parsed"
+  unset parsed
+  while true; do
+      case "$1" in
+          "-h"|"--help")
+              echo "rofi-power-menu - a power menu mode for Rofi"
+              echo
+              echo "Usage: rofi-power-menu [--choices CHOICES] [--confirm CHOICES]"
+              echo "                       [--choose CHOICE] [--dry-run] [--symbols|--no-symbols]"
+              echo
+              echo "Use with Rofi in script mode. For instance, to ask for shutdown or reboot:"
+              echo
+              echo "  rofi -show menu -modi \"menu:rofi-power-menu --choices=shutdown/reboot\""
+              echo
+              echo "Available options:"
+              echo "  --dry-run          Don't perform the selected action but print it to stderr."
+              echo "  --choices CHOICES  Show only the selected choices in the given order. Use / "
+              echo "                     as the separator. Available choices are lockscreen, logout,"
+              echo "                     suspend, hibernate, reboot and shutdown. By default, all"
+              echo "                     available choices are shown."
+              echo "  --confirm CHOICES  Require confirmation for the gives choices only. Use / as"
+              echo "                     the separator. Available choices are lockscreen, logout,"
+              echo "                     suspend, hibernate, reboot and shutdown. By default, only"
+              echo "                     irreversible actions logout, reboot and shutdown require"
+              echo "                     confirmation."
+              echo "  --choose CHOICE    Preselect the given choice and only ask for a confirmation"
+              echo "                     (if confirmation is set to be requested). It is strongly"
+              echo "                     recommended to combine this option with --confirm=CHOICE"
+              echo "                     if the choice wouldn't require confirmation by default."
+              echo "                     Available choices are lockscreen, logout, suspend,"
+              echo "                     hibernate, reboot and shutdown."
+              echo "  --[no-]symbols     Show Unicode symbols or not. Requires a font with support"
+              echo "                     for the symbols. Use, for instance, fonts from the"
+              echo "                     Nerdfonts collection. By default, they are shown"
+              echo "  -h,--help          Show this help text."
+              exit 0
+              ;;
+          "--dry-run")
+              dryrun=true
+              shift 1
+              ;;
+          "--confirm")
+              IFS='/' read -ra confirmations <<< "$2"
+              check_valid "$1" "${confirmations[@]}"
+              shift 2
+              ;;
+          "--choices")
+              IFS='/' read -ra show <<< "$2"
+              check_valid "$1" "${show[@]}"
+              shift 2
+              ;;
+          "--choose")
+              # Check that the choice is valid
+              check_valid "$1" "$2"
+              selectionID="$2"
+              shift 2
+              ;;
+          "--symbols")
+              showsymbols=true
+              shift 1
+              ;;
+          "--no-symbols")
+              showsymbols=false
+              shift 1
+              ;;
+          "--")
+              shift
+              break
+              ;;
+          ,*)
+              echo "Internal error" >&2
+              exit 1
+              ;;
+      esac
+  done
+
+  # Define the messages after parsing the CLI options so that it is possible to
+  # configure them in the future.
+
+  function write_message {
+      icon="<span font_size=\"medium\">$1</span>"
+      text="<span font_size=\"medium\">$2</span>"
+      if [ "$showsymbols" = "true" ]
+      then
+          echo -n "\u200e$icon \u2068$text\u2069"
+      else
+          echo -n "$text"
+      fi
+  }
+
+  function print_selection {
+      echo -e "$1" | $(read -r -d '' entry; echo "echo $entry")
+  }
+
+  declare -A messages
+  declare -A confirmationMessages
+  for entry in "${all[@]}"
+  do
+      messages[$entry]=$(write_message "${icons[$entry]}" "${texts[$entry]^}")
+  done
+  for entry in "${all[@]}"
+  do
+      confirmationMessages[$entry]=$(write_message "${icons[$entry]}" "Yes, ${texts[$entry]}")
+  done
+  confirmationMessages[cancel]=$(write_message "${icons[cancel]}" "No, cancel")
+
+  if [ $# -gt 0 ]
+  then
+      # If arguments given, use those as the selection
+      selection="${@}"
+  else
+      # Otherwise, use the CLI passed choice if given
+      if [ -n "${selectionID+x}" ]
+      then
+          selection="${messages[$selectionID]}"
+      fi
+  fi
+
+  # Don't allow custom entries
+  echo -e "\0no-custom\x1ftrue"
+  # Use markup
+  echo -e "\0markup-rows\x1ftrue"
+
+  if [ -z "${selection+x}" ]
+  then
+      echo -e "\0prompt\x1fPower menu"
+      for entry in "${show[@]}"
+      do
+          echo -e "${messages[$entry]}\0icon\x1f${icons[$entry]}"
+      done
+  else
+      for entry in "${show[@]}"
+      do
+          if [ "$selection" = "$(print_selection "${messages[$entry]}")" ]
+          then
+              # Check if the selected entry is listed in confirmation requirements
+              for confirmation in "${confirmations[@]}"
+              do
+                  if [ "$entry" = "$confirmation" ]
+                  then
+                      # Ask for confirmation
+                      echo -e "\0prompt\x1fAre you sure"
+                      echo -e "${confirmationMessages[$entry]}\0icon\x1f${icons[$entry]}"
+                      echo -e "${confirmationMessages[cancel]}\0icon\x1f${icons[cancel]}"
+                      exit 0
+                  fi
+              done
+              # If not, then no confirmation is required, so mark confirmed
+              selection=$(print_selection "${confirmationMessages[$entry]}")
+          fi
+          if [ "$selection" = "$(print_selection "${confirmationMessages[$entry]}")" ]
+          then
+              if [ $dryrun = true ]
+              then
+                  # Tell what would have been done
+                  echo "Selected: $entry" >&2
+              else
+                  # Perform the action
+                  ${actions[$entry]}
+              fi
+              exit 0
+          fi
+          if [ "$selection" = "$(print_selection "${confirmationMessages[cancel]}")" ]
+          then
+              # Do nothing
+              exit 0
+          fi
+      done
+      # The selection didn't match anything, so raise an error
+      echo "Invalid selection: $selection" >&2
+      exit 1
+  fi
+#+end_src
+
+* Bspwm
+** bspwmrc
+
+#+begin_src shell :tangle ./.config/bspwm/bspwmrc :shebang "#!/bin/sh"
+sxhkd & polybar example --config=~/.config/polybar/config.ini &
+
+
+bspc monitor -d I II III IV V VI VII VIII IX X
+
+bspc config border_width         2
+bspc config window_gap          12
+
+bspc config split_ratio          0.52
+bspc config borderless_monocle   true
+bspc config gapless_monocle      true
+
+bspc rule -a Gimp desktop='^8' state=floating follow=on
+bspc rule -a Chromium desktop='^2'
+bspc rule -a mplayer2 state=floating
+bspc rule -a Kupfer.py focus=on
+bspc rule -a Screenkey manage=off
+
+#+end_src
+
+** sxhkdrc
+
+#+begin_src conf :tangle ./.config/sxhkd/sxhkdrc
+# 
+# wm independent hotkeys
 #
-#   rofi -show powermenu -modi powermenu:./rofi-power-menu
+
+# terminal emulator
+super + Return
+	urxvt
+
+# program launcher
+super + @space
+	rofi -show drun -show-icons
+
+# make sxhkd reload its configuration files:
+super + Escape
+	pkill -USR1 -x sxhkd
+
 #
-# See README.md for more information.
+# bspwm hotkeys
+#
 
-set -e
-set -u
+# quit/restart bspwm
+super + alt + {q,r}
+	bspc {quit,wm -r}
 
-# All supported choices logout lockscreen hibernate
-all=(shutdown reboot suspend  displayoff )
+# close and kill
+super + {_,shift + }w
+	bspc node -{c,k}
 
-# By default, show all (i.e., just copy the array)
-show=("${all[@]}")
+# alternate between the tiled and monocle layout
+super + m
+	bspc desktop -l next
 
-declare -A texts
-texts[lockscreen]="lock screen"
-texts[switchuser]="switch user"
-texts[logout]="log out"
-texts[suspend]="suspend"
-texts[hibernate]="hibernate"
-texts[reboot]="reboot"
-texts[shutdown]="shut down"
-texts[displayoff]="Display Off"
+# send the newest marked node to the newest preselected node
+super + y
+	bspc node newest.marked.local -n newest.!automatic.local
 
-declare -A icons
-icons[lockscreen]="\uf023"
-icons[switchuser]="\uf518"
-icons[logout]="\uf842"
-icons[suspend]="\uf9b1"
-icons[hibernate]="\uf7c9"
-icons[reboot]="\ufc07"
-icons[shutdown]="\uf011"
-icons[cancel]="\u00d7"
-icons[displayoff]=""
+# swap the current node and the biggest window
+super + g
+	bspc node -s biggest.window
 
-declare -A actions
-actions[lockscreen]="loginctl lock-session ${XDG_SESSION_ID-}"
-#actions[switchuser]="???"
-actions[logout]="loginctl terminate-session ${XDG_SESSION_ID-}"
-actions[suspend]="systemctl suspend"
-actions[hibernate]="systemctl hibernate"
-actions[reboot]="systemctl reboot"
-actions[shutdown]="systemctl poweroff"
-actions[displayoff]="xset dpms force off"
+#
+# state/flags
+#
 
-# By default, ask for confirmation for actions that are irreversible
-confirmations=(reboot shutdown logout)
+# set the window state
+super + {t,shift + t,s,f}
+	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
-# By default, no dry run
-dryrun=false
-showsymbols=true
+# set the node flags
+super + ctrl + {m,x,y,z}
+	bspc node -g {marked,locked,sticky,private}
 
-function check_valid {
-    option="$1"
-    shift 1
-    for entry in "${@}"
-    do
-        if [ -z "${actions[$entry]+x}" ]
-        then
-            echo "Invalid choice in $1: $entry" >&2
-            exit 1
-        fi
-    done
-}
+#
+# focus/swap
+#
 
-# Parse command-line options
-parsed=$(getopt --options=h --longoptions=help,dry-run,confirm:,choices:,choose:,symbols,no-symbols --name "$0" -- "$@")
-if [ $? -ne 0 ]; then
-    echo 'Terminating...' >&2
-    exit 1
-fi
-eval set -- "$parsed"
-unset parsed
-while true; do
-    case "$1" in
-        "-h"|"--help")
-            echo "rofi-power-menu - a power menu mode for Rofi"
-            echo
-            echo "Usage: rofi-power-menu [--choices CHOICES] [--confirm CHOICES]"
-            echo "                       [--choose CHOICE] [--dry-run] [--symbols|--no-symbols]"
-            echo
-            echo "Use with Rofi in script mode. For instance, to ask for shutdown or reboot:"
-            echo
-            echo "  rofi -show menu -modi \"menu:rofi-power-menu --choices=shutdown/reboot\""
-            echo
-            echo "Available options:"
-            echo "  --dry-run          Don't perform the selected action but print it to stderr."
-            echo "  --choices CHOICES  Show only the selected choices in the given order. Use / "
-            echo "                     as the separator. Available choices are lockscreen, logout,"
-            echo "                     suspend, hibernate, reboot and shutdown. By default, all"
-            echo "                     available choices are shown."
-            echo "  --confirm CHOICES  Require confirmation for the gives choices only. Use / as"
-            echo "                     the separator. Available choices are lockscreen, logout,"
-            echo "                     suspend, hibernate, reboot and shutdown. By default, only"
-            echo "                     irreversible actions logout, reboot and shutdown require"
-            echo "                     confirmation."
-            echo "  --choose CHOICE    Preselect the given choice and only ask for a confirmation"
-            echo "                     (if confirmation is set to be requested). It is strongly"
-            echo "                     recommended to combine this option with --confirm=CHOICE"
-            echo "                     if the choice wouldn't require confirmation by default."
-            echo "                     Available choices are lockscreen, logout, suspend,"
-            echo "                     hibernate, reboot and shutdown."
-            echo "  --[no-]symbols     Show Unicode symbols or not. Requires a font with support"
-            echo "                     for the symbols. Use, for instance, fonts from the"
-            echo "                     Nerdfonts collection. By default, they are shown"
-            echo "  -h,--help          Show this help text."
-            exit 0
-            ;;
-        "--dry-run")
-            dryrun=true
-            shift 1
-            ;;
-        "--confirm")
-            IFS='/' read -ra confirmations <<< "$2"
-            check_valid "$1" "${confirmations[@]}"
-            shift 2
-            ;;
-        "--choices")
-            IFS='/' read -ra show <<< "$2"
-            check_valid "$1" "${show[@]}"
-            shift 2
-            ;;
-        "--choose")
-            # Check that the choice is valid
-            check_valid "$1" "$2"
-            selectionID="$2"
-            shift 2
-            ;;
-        "--symbols")
-            showsymbols=true
-            shift 1
-            ;;
-        "--no-symbols")
-            showsymbols=false
-            shift 1
-            ;;
-        "--")
-            shift
-            break
-            ;;
-        *)
-            echo "Internal error" >&2
-            exit 1
-            ;;
-    esac
-done
+# focus the node in the given direction
+super + {_,shift + }{h,j,k,l}
+	bspc node -{f,s} {west,south,north,east}
 
-# Define the messages after parsing the CLI options so that it is possible to
-# configure them in the future.
+# focus the node for the given path jump
+super + {p,b,comma,period}
+	bspc node -f @{parent,brother,first,second}
 
-function write_message {
-    icon="<span font_size=\"medium\">$1</span>"
-    text="<span font_size=\"medium\">$2</span>"
-    if [ "$showsymbols" = "true" ]
-    then
-        echo -n "\u200e$icon \u2068$text\u2069"
-    else
-        echo -n "$text"
-    fi
-}
+# focus the next/previous window in the current desktop
+super + {_,shift + }c
+	bspc node -f {next,prev}.local.!hidden.window
 
-function print_selection {
-    echo -e "$1" | $(read -r -d '' entry; echo "echo $entry")
-}
+# focus the next/previous desktop in the current monitor
+super + bracket{left,right}
+	bspc desktop -f {prev,next}.local
 
-declare -A messages
-declare -A confirmationMessages
-for entry in "${all[@]}"
-do
-    messages[$entry]=$(write_message "${icons[$entry]}" "${texts[$entry]^}")
-done
-for entry in "${all[@]}"
-do
-    confirmationMessages[$entry]=$(write_message "${icons[$entry]}" "Yes, ${texts[$entry]}")
-done
-confirmationMessages[cancel]=$(write_message "${icons[cancel]}" "No, cancel")
+# focus the last node/desktop
+super + {grave,Tab}
+	bspc {node,desktop} -f last
 
-if [ $# -gt 0 ]
-then
-    # If arguments given, use those as the selection
-    selection="${@}"
-else
-    # Otherwise, use the CLI passed choice if given
-    if [ -n "${selectionID+x}" ]
-    then
-        selection="${messages[$selectionID]}"
-    fi
-fi
+# focus the older or newer node in the focus history
+super + {o,i}
+	bspc wm -h off; \
+	bspc node {older,newer} -f; \
+	bspc wm -h on
 
-# Don't allow custom entries
-echo -e "\0no-custom\x1ftrue"
-# Use markup
-echo -e "\0markup-rows\x1ftrue"
+# focus or send to the given desktop
+super + {_,shift + }{1-9,0}
+	bspc {desktop -f,node -d} '^{1-9,10}'
 
-if [ -z "${selection+x}" ]
-then
-    echo -e "\0prompt\x1fPower menu"
-    for entry in "${show[@]}"
-    do
-        echo -e "${messages[$entry]}\0icon\x1f${icons[$entry]}"
-    done
-else
-    for entry in "${show[@]}"
-    do
-        if [ "$selection" = "$(print_selection "${messages[$entry]}")" ]
-        then
-            # Check if the selected entry is listed in confirmation requirements
-            for confirmation in "${confirmations[@]}"
-            do
-                if [ "$entry" = "$confirmation" ]
-                then
-                    # Ask for confirmation
-                    echo -e "\0prompt\x1fAre you sure"
-                    echo -e "${confirmationMessages[$entry]}\0icon\x1f${icons[$entry]}"
-                    echo -e "${confirmationMessages[cancel]}\0icon\x1f${icons[cancel]}"
-                    exit 0
-                fi
-            done
-            # If not, then no confirmation is required, so mark confirmed
-            selection=$(print_selection "${confirmationMessages[$entry]}")
-        fi
-        if [ "$selection" = "$(print_selection "${confirmationMessages[$entry]}")" ]
-        then
-            if [ $dryrun = true ]
-            then
-                # Tell what would have been done
-                echo "Selected: $entry" >&2
-            else
-                # Perform the action
-                ${actions[$entry]}
-            fi
-            exit 0
-        fi
-        if [ "$selection" = "$(print_selection "${confirmationMessages[cancel]}")" ]
-        then
-            # Do nothing
-            exit 0
-        fi
-    done
-    # The selection didn't match anything, so raise an error
-    echo "Invalid selection: $selection" >&2
-    exit 1
-fi
+#
+# preselect
+#
+
+# preselect the direction
+super + ctrl + {h,j,k,l}
+	bspc node -p {west,south,north,east}
+
+# preselect the ratio
+super + ctrl + {1-9}
+	bspc node -o 0.{1-9}
+
+# cancel the preselection for the focused node
+super + ctrl + space
+	bspc node -p cancel
+
+# cancel the preselection for the focused desktop
+super + ctrl + shift + space
+	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+#
+# move/resize
+#
+
+# expand a window by moving one of its side outward
+super + alt + {h,j,k,l}
+	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
+
+# contract a window by moving one of its side inward
+super + alt + shift + {h,j,k,l}
+	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
+
+# move a floating window
+super + {Left,Down,Up,Right}
+	bspc node -v {-20 0,0 20,0 -20,20 0}
+
+#+end_src
+
+* Install
+#+begin_src shell :tangle ./bin/rofi-power-menu :shebang "#!/bin/bash"
+
 #+end_src

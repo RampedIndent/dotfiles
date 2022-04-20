@@ -65,7 +65,7 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
 	git pull 
     else
 	echo "Cloning Dotfiles"
-	#git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
+	git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
     fi
     echo "Changing to Dotfiles Dir"
     cd $DOTFILES_DIR

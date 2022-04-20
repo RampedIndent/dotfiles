@@ -642,3 +642,16 @@
 
 (use-package yaml-mode
   :mode "\\.ya?ml\\'")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(yaml-mode which-key vterm visual-fill-column use-package rainbow-mode rainbow-delimiters projectile perspective org-roam org-bullets magit lsp-ui ivy-rich hydra general evil-org evil-collection doom-themes doom-modeline dired-single dired-ranger dired-rainbow dired-collapse dashboard counsel command-log-mode all-the-icons-dired)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
