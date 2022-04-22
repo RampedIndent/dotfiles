@@ -1,6 +1,7 @@
 #! /bin/bash
 
 export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
+export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake nitrogen"
 export UI_PACKAGES="polybar"
 export PROD_PACKAGES="blender inkscape krita"
 export DOTFILES_DIR=~/.dotfiles
@@ -72,18 +73,18 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     echo "Installing Terminal Packages"
-    sudo pacman -S $UBUNTU_PACKEGES --needed
+    sudo pacman -S $ARCH_PACKEGES --needed
     
    
     
 fi
 
-if [ -d "~/.oh-my-zsh" ]; then
+if [ -d ~/.oh-my-zsh ]; then
     echo "Installing Oh My ZSH"
     sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
-if [ -d "~/powerline10k" ]; then
+if [ -d ~/powerline10k ]; then
     echo "Installing zsh Powerline10k"
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 fi

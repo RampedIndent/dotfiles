@@ -1164,5 +1164,6 @@ super + {Left,Down,Up,Right}
 
 * Install
 #+begin_src shell :tangle ./bin/rofi-power-menu :shebang "#!/bin/bash"
-
+  
+  export  _PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
 #+end_src
