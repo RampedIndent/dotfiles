@@ -1,9 +1,9 @@
 #!/bin/bash
-export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
-export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
-export UI_PACKAGES="polybar nitrogen"
-export PROD_PACKAGES="blender inkscape krita"
-export DOTFILES_DIR=~/.dotfiles
+UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
+ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
+UI_PACKAGES="polybar nitrogen syncthing"
+PROD_PACKAGES="blender inkscape krita"
+DOTFILES_DIR=~/.dotfiles
 #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
 # Check if computer is ubuntu
@@ -74,7 +74,7 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     echo "Installing Terminal Packages"
     sudo pacman -S $ARCH_PACKEGES --needed
     echo "Installing UI Packages"
-    sudo pacman -S $UI_PACKEGES --needed
+    sudo pacman -S $UI_PACKAGES --needed
 
 fi
 

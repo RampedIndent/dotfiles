@@ -2313,7 +2313,8 @@ super + {Left,Down,Up,Right}
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
   /usr/lib/xfce4/notifyd/xfce4-notifyd &
   run volumeicon &
-  #nitrogen --restore &
+  run syncthing &
+  nitrogen --restore &
   #run caffeine &
   #run vivaldi-stable &
   #run firefox &
@@ -2780,11 +2781,11 @@ super + {Left,Down,Up,Right}
 
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash"
 
-  export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
-  export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
-  export UI_PACKAGES="polybar nitrogen"
-  export PROD_PACKAGES="blender inkscape krita"
-  export DOTFILES_DIR=~/.dotfiles
+  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
+  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
+  UI_PACKAGES="polybar nitrogen syncthing"
+  PROD_PACKAGES="blender inkscape krita"
+  DOTFILES_DIR=~/.dotfiles
   #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
   # Check if computer is ubuntu
@@ -2855,7 +2856,7 @@ super + {Left,Down,Up,Right}
       echo "Installing Terminal Packages"
       sudo pacman -S $ARCH_PACKEGES --needed
       echo "Installing UI Packages"
-      sudo pacman -S $UI_PACKEGES --needed
+      sudo pacman -S $UI_PACKAGES --needed
 
   fi
 
