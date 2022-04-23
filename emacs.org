@@ -1287,14 +1287,18 @@ Create Structure templates for Org mode.
 The avaliable language blocks for Org mode code blocks are located at https://orgmode.org/worg/org-contrib/babel/languages/index.html
 
 #+begin_src emacs-lisp
-(require 'org-tempo)
+  (require 'org-tempo)
 
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
+  (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
 
 
 #+end_src
+
+#+RESULTS:
+: ((conf . src conf) (ya . src yaml) (el . src emacs-lisp) (sh . src shell) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
 
 *** Auto-tangle Configuration Files
 
