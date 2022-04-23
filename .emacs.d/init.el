@@ -166,7 +166,10 @@
 (use-package perspective
   :ensure t
   :bind(("C-x k" . persp-kill-buffer*))
-  :init(persp-mode))
+  :init(persp-mode)
+  ;:config 
+  )
+  (setq persp-suppress-no-prefix-key-warning t)
 (use-package counsel-projectile
   :ensure t)
 
@@ -770,16 +773,3 @@
 
 (use-package yaml-mode
   :mode "\\.ya?ml\\'")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(org-roam org-bullets yaml-mode which-key vterm visual-fill-column use-package treemacs-tab-bar treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil rainbow-mode rainbow-delimiters perspective lsp-ui lsp-treemacs kubernetes ivy-rich general evil-org evil-collection emacsql-sqlite doom-themes doom-modeline dired-single dired-ranger dired-rainbow dired-collapse dashboard counsel-projectile command-log-mode all-the-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

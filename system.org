@@ -422,7 +422,7 @@ cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
 
 #+begin_src css :tangle ./.config/rofi/config.rasi
 configuration {
-	modi: "window,drun,ssh,file-browser,power-menu:~/.dotfiles/bin/rofi-power-menu";
+	modi: "window,drun,ssh,filebrowser,power-menu:~/.dotfiles/bin/rofi-power-menu";
 	width: 600; 
 	lines: 8;
 /*	columns: 1;*/
@@ -1015,29 +1015,125 @@ configuration {
 ** bspwmrc
 
 #+begin_src shell :tangle ./.config/bspwm/bspwmrc :shebang "#!/bin/sh"
-sxhkd & polybar example --config=~/.config/polybar/config.ini &
+  #LAUNCHERS
+  $HOME/.config/bspwm/autostart.sh
+  #fix for moving spotify to specific workspace
+  #bspc config external_rules_command ~/.config/bspwm/scripts/external_rules_command
+
+  #BSPWM configuration
+  #bspc config border_radius       8
+  bspc config border_width         2
+  bspc config window_gap           10
+  bspc config top_padding          30
+  bspc config bottom_padding       10
+  bspc config left_padding         10
+  bspc config right_padding        10
+  bspc config single_monocle       false
+  #bspc config click_to_focus       true
+  bspc config split_ratio          0.50
+  bspc config borderless_monocle   true
+  bspc config gapless_monocle      true
+  #bspc config focus_by_distance    true
+  bspc config focus_follows_pointer true
+  #bspc config history_aware_focus  true
+  bspc config pointer_modifier mod4
+  bspc config pointer_action1 move
+  bspc config pointer_action2 resize_side
+  bspc config pointer_action3 resize_corner
+  bspc config remove_disabled_monitors true
+  bspc config merge_overlapping_monitors true
+
+  #BSPWM coloring
+  bspc config normal_border_color		"#4c566a"
+  bspc config active_border_color		"#1e1e1e"
+  bspc config focused_border_color	"#5e81ac"
+  bspc config presel_feedback_color	"#5e81ac"
+  #bspc config urgent_border_color 	"#dd2727"
 
 
-bspc monitor -d I II III IV V VI VII VIII IX X
+  #Single monitor
+  bspc monitor -d 1 2 3 4 5 6 7 8 9 10
 
-bspc config border_width         2
-bspc config window_gap          12
+  #Dual monitor
+  #find out names with arandr or xrandr
+  #bspc monitor DP-2 -d 1 2 3 4 5 6 7 8 9
+  #bspc monitor LVDS1 -d 1 2 3 4
+  #bspc monitor DP3 -d  5 6 7 8 9
+  #bspc monitor HDMI-0 -d 1 2 3 4 5 6 7 8 9 10
+  #bspc monitor HDMI-1 -d 1 2 3 4 5 6 7 8 9 10
+  #bspc monitor HDMI1 -d 1 2 3 4 5
+  #bspc monitor HDMI2 -d 6 7 8 9 10
 
-bspc config split_ratio          0.52
-bspc config borderless_monocle   true
-bspc config gapless_monocle      true
+  #Fullscreen applications
+  bspc rule -a inkscape state=fullscreen
+  bspc rule -a Spotify state=fullscreen
+  bspc rule -a Vlc state=fullscreen
+  bspc rule -a VirtualBox Manager state=fullscreen
+  bspc rule -a VirtualBox Machine state=fullscreen
+  #bspc rule -a Gimp state=fullscreen
 
-bspc rule -a Gimp desktop='^8' state=floating follow=on
-bspc rule -a Chromium desktop='^2'
-bspc rule -a mplayer2 state=floating
-bspc rule -a Kupfer.py focus=on
-bspc rule -a Screenkey manage=off
+  #Floating applications
+  bspc rule -a Arandr state=floating
+  bspc rule -a Arcolinux-tweak-tool.py state=floating
+  bspc rule -a Arcolinux-welcome-app.py state=floating
+  bspc rule -a Arcolinux-calamares-tool.py state=floating
+  bspc rule -a feh state=floating
+  #bspc rule -a mpv state=floating sticky=on
+  #bspc rule -a Font-manager state=floating
+  bspc rule -a Galculator state=floating
+  #bspc rule -a Gpick state=floating sticky=on
+  #bspc rule -a Nitrogen state=floating
+  bspc rule -a Oblogout state=floating
+  #bspc rule -a Pavucontrol state=floating sticky=on
+  #bspc rule -a Peek state=floating
+  #bspc rule -a rofi state=floating sticky=on
+  #bspc rule -a Skype state=floating
+  #bspc rule -a Stacer state=floating
+  #bspc rule -a Xfce4-appfinder state=floating sticky=on
+  bspc rule -a Xfce4-terminal state=floating
+
+  #Tiled applications
+  bspc rule -a Gnome-disks state=tiled
+  bspc rule -a Xfce4-settings-manager state=tiled
+
+  #open applications on specific workspaces
+  #bspc rule -a Firefox desktop='^1' follow=on
+  #bspc rule -a Google-chrome desktop='^1' follow=on
+  #bspc rule -a Chromium desktop='^1'  follow=on
+  #bspc rule -a Subl desktop='^2' follow=on
+  #bspc rule -a Atom desktop='^2' follow=on
+  #bspc rule -a Steam desktop='^5'
+  #bspc rule -a vlc desktop='^6'  follow=on
+  #bspc rule -a mpv desktop='^6'  follow=on
+  #bspc rule -a Vivaldi-stable desktop='^6' follow=on
+  #bspc rule -a Vivaldi-snapshot desktop='^6' follow=on
+  #bspc rule -a Transmission-gtk desktop='^7' follow=on
+  #bspc rule -a Thunar desktop='^8' follow=on
+  #bspc rule -a discord desktop='^9' follow=on
+  #bspc rule -a Spotify desktop='^10' follow=on
+
+  #Spotify fix  --move desktop 10
+  #sleep 1
+  #wmctrl -r Spotify -t 10
+  #exit
+
+  #polybar hidden when fullscreen for vlc, youtube, mpv ...
+  #find out the name of your monitor with xrandr
+  #xdo below -t $(xdo id -n root) $(xdo id -a polybar-main_DP-1)
+  #xdo below -t $(xdo id -n root) $(xdo id -a polybar-main_HDMI1)
+  #xdo below -t $(xdo id -n root) $(xdo id -a polybar-main_HDMI2)
+
+  ###External rules
+  ##Pseudo automatic mode: always splits focused window when opening new window
+  #bspc config external_rules_command ~/.config/bspwm/scripts/pseudo_automatic_mode
+  ##Adjust new window: splits biggest windows to keep windows about the same size
+  #bspc config external_rules_command ~/.config/bspwm/scripts/adjust-new-window
 
 #+end_src
 
 ** sxhkdrc
 
-#+begin_src conf :tangle ./.config/sxhkd/sxhkdrc
+#+begin_src 
 # 
 # wm independent hotkeys
 #
@@ -1159,6 +1255,1133 @@ super + alt + shift + {h,j,k,l}
 # move a floating window
 super + {Left,Down,Up,Right}
 	bspc node -v {-20 0,0 20,0 -20,20 0}
+
+#+end_src
+
+
+#+begin_src conf :tangle ./.config/bspwm/sxhkd/sxhkdrc
+  #################################################################
+  # KEYBOARD BINDINGS FOR ANY TWM
+  #################################################################
+
+  #################################################################
+  # SUPER + FUNCTION KEYS
+  #################################################################
+
+  # Vivaldi
+  super + F1
+          vivaldi-stable
+
+  # Atom
+  super + F2
+          emacs
+
+  #Inkscape
+  super + F3
+      inkscape
+
+  #Gimp
+  super + F4
+      gimp
+
+  #Meld
+  super + F5
+      meld
+
+  #Vlc
+  super + F6
+      vlc --video-on-top
+
+  #Virtualbox
+  super + F7
+      virtualbox
+
+  #Thunar
+  super + F8
+      thunar
+
+  #Evolution
+  super + F9
+      evolution
+
+  #Spotify
+  super + F10
+      spotify
+
+  #Rofi Fullscreen
+  super + F11
+      rofi -theme-str 'window \{width: 100%;height: 100%;\}' -show drun
+
+  #Rofi
+  super + F12
+      rofi -show drun
+  #Move Floating Window
+  super + {Left,Down,Up,Right}
+        bspc node -v {-20 0,0 20,0 -20,20 0}
+
+
+  #################################################################
+  # SUPER + ... KEYS
+  #################################################################
+
+  #Atom
+  super + e
+      atom
+
+  #Browser
+  super + w
+      vivaldi-stable
+
+  #Conky-toggle
+  super + c
+      conky-toggle
+
+  #Htop
+  super + h
+      urxvt 'htop task manager' -e htop
+
+  #arcolinux-logout
+  super + x
+      arcolinux-logout
+
+  #Rofi theme selector
+  super + r
+      rofi-theme-selector
+
+  #Urxvt
+  super + t
+      urxvt
+
+  #Pavucontrol
+  super + v
+      pavucontrol
+
+  #Pragha
+  super + m
+      pragha
+
+  #alacritty
+  super + Return
+      alacritty
+
+  #Xkill
+  super + Escape
+      xkill
+
+  #Keyboard dependent
+  #alacritty
+  super + KP_Enter
+          alacritty
+
+  #################################################################
+  # SUPER + SHIFT KEYS
+  #################################################################
+
+  #File-Manager
+  super + shift + Return
+          thunar
+
+  #Keyboard dependent
+  #File-Manager
+  #super + shift + KP_Enter
+  #	thunar
+
+  #dmenu
+  super + shift + d
+       rofi -show drun
+  #reload sxhkd:
+  super + shift + s
+       pkill -USR1 -x sxhkd
+
+  #Keyboard dependent
+  #super + shift + KP_Enter
+  #	thunar
+
+
+  #################################################################
+  # CONTROL + ALT KEYS
+  #################################################################
+
+  #arcolinux-welcome-app
+  ctrl + alt + w
+       arcolinux-welcome-app
+
+  #arcolinux-tweak-tool
+  ctrl + alt + e
+      arcolinux-tweak-tool
+
+  #conky-rotate
+  ctrl + alt + Next
+       conky-rotate -n
+
+  #conky-rotate
+  ctrl + alt + Prior
+      conky-rotate -p
+
+  #File-Manager
+  ctrl + alt + b
+       thunar
+
+  #Catfish
+  ctrl + alt + c
+       catfish
+
+  #Chromium
+  ctrl + alt + g
+      chromium -no-default-browser-check
+
+  #Firefox
+  ctrl + alt + f
+       firefox
+
+  #Nitrogen
+  ctrl + alt + i
+       nitrogen
+
+  #arcolinux-logout
+  ctrl + alt + k
+       arcolinux-logout
+
+  #arcolinux-logout
+  ctrl + alt + l
+      arcolinux-logout
+
+  #Pamac-manager
+  ctrl + alt + p
+      pamac-manager
+
+  #Xfce4-settings-manager
+  ctrl + alt + m
+       xfce4-settings-manager
+
+  #Pulse Audio Control
+  ctrl + alt + u
+       pavucontrol
+
+  #Rofi theme selector
+  ctrl + alt + r
+    rofi-theme-selector
+
+  #Spotify
+  ctrl + alt + s
+     spotify
+
+  #alacritty
+  ctrl + alt + Return
+      alacritty
+
+  #alacritty
+  ctrl + alt + t
+      alacritty
+
+  #Vivaldi
+  ctrl + alt + v
+      vivaldi-stable
+
+  #Xfce4-appfinder
+  ctrl + alt + a
+      xfce4-appfinder
+
+
+  #Keyboard dependent
+  #alacritty
+  #ctrl + alt + KP_Enter
+  #     alacritty
+
+
+  #################################################################
+  # ALT + ... KEYS
+  #################################################################
+
+  #Wallpaper trash
+  alt + t
+      variety -t
+
+  #Wallpaper next
+  alt + n
+      variety -n
+
+  #Wallpaper previous
+  alt + p
+      variety -p
+
+  #Wallpaper favorite
+  alt + f
+      variety -f
+
+  #Wallpaper previous
+  alt + Left
+      variety -p
+
+  #Wallpaper next
+  alt + Right
+      variety -n
+
+  #Wallpaper toggle-pause
+  alt + Up
+      variety --toggle-pause
+
+  #Wallpaper resume
+  alt + Down
+      variety --resume
+
+  #Xfce appfinder
+  alt + F2
+      xfce4-appfinder --collapsed
+
+  #Xfce4-appfinder
+  alt + F3
+      xfce4-appfinder
+
+  #Xlunch app launcher
+  #alt + F5
+  #    xlunch --config ~/.config/xlunch/default.conf --input ~/.config/xlunch/entries.dsv   
+
+
+  #################################################################
+  #VARIETY KEYS WITH PYWAL
+  #################################################################
+
+  #Wallpaper trash
+  alt + shift + t
+      variety -t && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
+
+  #Wallpaper next
+  alt + shift + n
+      variety -n && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
+
+  #Wallpaper previous
+  alt + shift + p
+      variety -p && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
+
+  #Wallpaper favorite
+  alt + shift + f
+      variety -f && wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
+
+  #Wallpaper update
+  alt + shift + u
+      wal -i $(cat $HOME/.config/variety/wallpaper/wallpaper.jpg.txt)&
+
+  #################################################################
+  # CONTROL + SHIFT KEYS
+  #################################################################
+
+  #Xcfe4-TaskManager
+  ctrl + shift + Escape
+      xfce4-taskmanager
+
+
+  #################################################################
+  #     SCREENSHOTS
+  #################################################################
+
+  #Scrot
+  Print
+      scrot 'ArcoLinux-%Y-%m-%d-%s_screenshot_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir PICTURES)'
+
+  #screeenshooter
+  ctrl + Print
+       xfce4-screenshooter
+
+  #Gnome-Screenshot
+  ctrl + shift + Print
+       gnome-screenshot -i
+
+
+  #################################################################
+  #     FUNCTION KEYS
+  #################################################################
+
+  #xfce4-terminal dropdown
+  F12
+      xfce4-terminal --drop-down
+
+
+  #################################################################
+  #     MULTIMEDIA KEYS
+  #################################################################
+
+  #Raises volume
+  XF86AudioRaiseVolume
+      amixer set Master 10%+
+
+  #Lowers volume
+  XF86AudioLowerVolume
+      amixer set Master 10%-
+
+  #Mute
+  XF86AudioMute
+      amixer -D pulse set Master 1+ toggle
+
+  #Playerctl works for Pragha, Spotify and others
+  #Delete the line for playerctl if you want to use mpc
+  #and replace it with the corresponding code
+  #mpc works for e.g.ncmpcpp
+  #mpc toggle
+  #mpc next
+  #mpc prev
+  #mpc stop
+
+  #PLAY
+  XF86AudioPlay
+      playerctl play-pause
+
+  #Next
+  XF86AudioNext
+      playerctl next
+
+  #previous
+  XF86AudioPrev
+      playerctl previous
+
+  #Stop
+  XF86AudioStop
+      playerctl stop
+
+  #Brightness up
+  XF86MonBrightnessUp
+      xbacklight -inc 10
+
+  #Brightness down
+  XF86MonBrightnessDown
+      xbacklight -dec 10
+
+  #########################
+  #        POLYBAR        #
+  #########################
+
+  #Hide polybar
+  super + y
+      polybar-msg cmd toggle
+
+  #################################################################
+  #################################################################
+  ##################   DESKTOP SPECIFIC    ########################
+  #################################################################
+  #################################################################
+
+  #################################################################
+  # CTRL + ALT KEYS
+  #################################################################
+
+  #Picom Toggle
+  ctrl + alt + o
+      ~/.config/bspwm/scripts/picom-toggle.sh
+
+  #################################################################
+  # SUPER + KEYS
+  #################################################################
+
+  #Toggle fullscreen of window
+  super + f
+          bspc node --state \~fullscreen
+
+  # Toggle pseudo tiling of window
+  super + p
+          bspc node --state \~pseudo_tiled
+
+  #kill
+  super + q
+          bspc node -c
+
+  #################################################################
+  # SUPER KEYS
+  #################################################################
+
+  #Focus selected desktop
+  super + Tab
+          bspc desktop -f '^{1-9,10}'
+
+  # Increase/decrease window gap on focused desktop
+  super + bracket{left,right}
+          bspc config -d focused window_gap $((`bspc config -d focused window_gap` {-,+} 5 ))
+
+  # set the window state
+  super + space
+          bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
+
+  # Move focus to other monitor
+  super + BackSpace
+                  bspc monitor -f next
+
+  #################################################################
+  # SUPER + ALT KEYS
+  #################################################################
+
+  # Move floating window
+  super + alt + {_,shift + }{Left,Down,Up,Right}
+          ~/.config/bspwm/scripts/move-window {_,edge-}{west,south,north,east}
+
+  #################################################################
+  # SUPER + CONTROL KEYS
+  #################################################################
+
+  # Cancel preselection
+  super + ctrl + space
+          bspc node --presel-dir cancel
+
+  #################################################################
+  # SUPER + SHIFT KEYS
+  #################################################################
+
+
+  #Reload bspwm
+  super + shift + r
+          ~/.config/bspwm/bspwmrc
+
+  #kill
+  super + shift + q
+          bspc node -c
+
+  #Logout
+  #super + shift + x
+  #	bspc quit
+
+  # Focus/swap windows by direction
+  super + {_,shift + }{h,j,k,l}
+          bspc node --{focus,swap} {west,south,north,east}
+
+  # Flip layout vertically/horizontally
+  super + {_,shift + }a
+          bspc node @/ --flip {vertical,horizontal}
+
+  # Move focused window to other monitor
+  super + shift + Left
+          bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Right
+                  bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Up
+          bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Down
+                  bspc node -m next --follow
+
+  #################################################################
+  # SUPER + CONTROL KEYS
+  #################################################################
+
+  # Focus/swap windows by direction
+  super + ctrl + {Left,Down,Up,Right}
+          bspc node --{focus} {west,south,north,east}
+
+  # Contract tiled space
+  super + ctrl + {h,j,k,l}
+          bspc node {@east -r -10,@north -r +10,@south -r -10,@west -r +10}
+
+  # Focus parent/brother/first/second for preselection
+  super + ctrl + {e,r,t,y}
+          bspc node --focus @{parent,brother,first,second}
+
+  # Preselect the splitting area for next window on leaf/parent
+  super + ctrl + {u,i,o,p}
+          bspc node --presel-dir \~{west,south,north,east}
+
+  # Define splitting ratio for next window on leaf/parent
+  super + ctrl + {_,shift +}{1-9}
+          bspc node {_,@/} --presel-ratio 0.{1-9}
+
+
+  #################################################################
+  # ALT KEYS
+  #################################################################
+
+  #Focus selected desktop
+  alt + Tab
+          bspc desktop -f '^{1-9,10}'
+
+          #Focus selected desktop
+  alt + shift + Tab
+          bspc desktop -f '^{1-9,10}'
+
+  #Rotate desktop
+  alt + space
+          bspc node @/ --rotate {90,-90}
+
+  #################################################################
+  # ALT + SHIFT KEYS
+  #################################################################
+
+  # Expand tiled space
+  alt + shift + {h,j,k,l}
+          bspc node {@west -r -10,@south -r +10,@north -r -10,@east -r +10}
+
+  #################################################################
+  # CTRL + ALT KEYS
+  #################################################################
+
+  # Focus next/previous window
+  ctrl + alt + Left
+          bspc node --focus west
+
+  # Focus next/previous window
+  ctrl + alt + Right
+          bspc node --focus east
+
+  # Focus Up window
+  ctrl +alt + Up
+          bspc node --focus north
+
+  # Focus Down window
+  ctrl + alt + Down
+          bspc node --focus south
+
+  #################################################################
+  #################################################################
+  ##################   AZERTY/QWERTY/ ... KEYBOARD#################
+  #################################################################
+  #################################################################
+
+  #Switch here between qwerty and azerty or make new one
+  #Focus selected desktop FOR QWERTY KEYBOARDS
+  super + {1-9,0}
+          bspc desktop -f '^{1-9,10}'
+
+  #Focus selected desktop	FOR BELIGIAN AZERTY KEYBOARDS
+  #super + {ampersand,eacute,quotedbl,apostrophe,parenleft,section,egrave,exclam,ccedilla,agrave}
+  #    bspc desktop -f '^{1-9,10}'
+
+  #Focus selected desktop	FOR FRNECH AZERTY KEYBOARDS
+  #super + {ampersand,eacute,quotedbl,apostrophe,parenleft,minus,egrave,underscore,ccedilla,agrave}
+  #    bspc desktop -f '^{1-9,10}'
+
+  #################################################################
+
+  #Switch here between qwerty and azerty or make new one
+  #Move window to selected desktop FOR QWERTY KEYBOARDS
+  super + shift + {1-9,0}
+      id=$(bspc query -N -n); bspc node -d ^{1-9,10}; bspc node -f ${id}}
+
+  #Move window to selected desktop FOR AZERTY KEYBOARDS
+  #super + shift + {ampersand,eacute,quotedbl,apostrophe,parenleft,section,egrave,exclam,ccedilla,agrave}
+  #    id=$(bspc query -N -n); bspc node -d ^{1-9,10}; bspc node -f ${id}}
+
+  #################################################################
+
+
+  ## super & mouse scroll
+
+  # Focused desktop window gap
+  super + button{4,5}
+    bspc config -d focused window_gap $((`bspc config -d focused window_gap` {-,+} 2 ))
+
+#+end_src
+
+** AutoStart
+
+#+begin_src shell :tangle ./.config/bspwm/bspwmrc :shebang "#!/bin/bash"
+
+  function run {
+      if ! pgrep $1 ;
+      then
+          $@&
+      fi
+  }
+
+  #Find out your monitor name with xrandr or arandr (save and you get this line)
+  #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
+  #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
+  #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
+  #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
+  #autorandr horizontal
+
+  $HOME/.config/polybar/launch.sh &
+
+  #change your keyboard if you need it
+  #setxkbmap -layout be
+
+  keybLayout=$(setxkbmap -v | awk -F "+" '/symbols/ {print $2}')
+
+  if [ $keybLayout = "be" ]; then
+      run sxhkd -c ~/.config/bspwm/sxhkd/sxhkdrc-azerty &
+  else
+      run sxhkd -c ~/.config/bspwm/sxhkd/sxhkdrc &
+  fi
+
+  #Some ways to set your wallpaper besides variety or nitrogen
+  #feh --bg-scale ~/.config/bspwm/wall.png &
+  feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+  #feh --randomize --bg-fill ~/Képek/*
+  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
+
+  dex $HOME/.config/autostart/arcolinux-welcome-app.desktop
+  xsetroot -cursor_name left_ptr &
+
+  conky -c $HOME/.config/bspwm/system-overview &
+  run variety &
+  run nm-applet &
+  run pamac-tray &
+  run xfce4-power-manager &
+  numlockx on &
+  blueberry-tray &
+  picom --config $HOME/.config/bspwm/picom.conf &
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+  /usr/lib/xfce4/notifyd/xfce4-notifyd &
+  run volumeicon &
+  #nitrogen --restore &
+  #run caffeine &
+  #run vivaldi-stable &
+  #run firefox &
+  #run thunar &
+  #run dropbox &
+  #run insync start &
+  #run discord &
+  #run spotify &
+  #run atom &
+
+#+end_src
+
+** Pipcom
+
+#+begin_src conf :tangle ./.config/bspwm/pipcom.conf
+  #################################
+  #             Shadows           #
+  #################################
+
+
+  # Enabled client-side shadows on windows. Note desktop windows 
+  # (windows with '_NET_WM_WINDOW_TYPE_DESKTOP') never get shadow, 
+  # unless explicitly requested using the wintypes option.
+  #
+  # shadow = false
+  shadow = true;
+
+  # The blur radius for shadows, in pixels. (defaults to 12)
+  # shadow-radius = 12
+  shadow-radius = 7;
+
+  # The opacity of shadows. (0.0 - 1.0, defaults to 0.75)
+  # shadow-opacity = .75
+
+  # The left offset for shadows, in pixels. (defaults to -15)
+  # shadow-offset-x = -15
+  shadow-offset-x = -7;
+
+  # The top offset for shadows, in pixels. (defaults to -15)
+  # shadow-offset-y = -15
+  shadow-offset-y = -7;
+
+  # Avoid drawing shadows on dock/panel windows. This option is deprecated,
+  # you should use the *wintypes* option in your config file instead.
+  #
+  # no-dock-shadow = false
+
+  # Don't draw shadows on drag-and-drop windows. This option is deprecated, 
+  # you should use the *wintypes* option in your config file instead.
+  #
+  # no-dnd-shadow = false
+
+  # Red color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-red = 0
+
+  # Green color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-green = 0
+
+  # Blue color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-blue = 0
+
+  # Do not paint shadows on shaped windows. Note shaped windows 
+  # here means windows setting its shape through X Shape extension. 
+  # Those using ARGB background is beyond our control. 
+  # Deprecated, use 
+  #   shadow-exclude = 'bounding_shaped'
+  # or 
+  #   shadow-exclude = 'bounding_shaped && !rounded_corners'
+  # instead.
+  #
+  # shadow-ignore-shaped = ''
+
+  # Specify a list of conditions of windows that should have no shadow.
+  #
+  # examples:
+  #   shadow-exclude = "n:e:Notification";
+  #
+  # shadow-exclude = []
+  shadow-exclude = [
+  "name = 'Notification'",
+  "class_g ?= 'Notify-osd'",
+  "name = 'Plank'",
+  "name = 'Docky'",
+  "name = 'Kupfer'",
+  "name = 'xfce4-notifyd'",
+  "name *= 'VLC'",
+  "name *= 'compton'",
+  "name *= 'Chromium'",
+  "name *= 'Chrome'",
+  "class_g = 'Firefox' && argb",
+  "class_g = 'Conky'",
+  "class_g = 'Kupfer'",
+  "class_g = 'Synapse'",
+  "class_g ?= 'Notify-osd'",
+  "class_g ?= 'Cairo-dock'",
+  "class_g = 'Cairo-clock'",
+  "class_g ?= 'Xfce4-notifyd'",
+  "class_g ?= 'Xfce4-power-manager'",
+  "_GTK_FRAME_EXTENTS@:c",
+  ];
+
+  # Add this one too for ...
+  # "_NET_WM_STATE@:32a *= '_NET_WM_STATE_HIDDEN'"
+  # Add this one above to the list to have no shadow in Openbox menu
+  # "! name~=''",
+
+  # Specify a X geometry that describes the region in which shadow should not
+  # be painted in, such as a dock window region. Use 
+  #    shadow-exclude-reg = "x10+0+0"
+  # for example, if the 10 pixels on the bottom of the screen should not have shadows painted on.
+  #
+  # shadow-exclude-reg = "" 
+
+  # Crop shadow of a window fully on a particular Xinerama screen to the screen.
+  # xinerama-shadow-crop = false
+
+
+  #################################
+  #           Fading              #
+  #################################
+
+
+  # Fade windows in/out when opening/closing and when opacity changes,
+  #  unless no-fading-openclose is used.
+  # fading = false
+  fading = false
+
+  # Opacity change between steps while fading in. (0.01 - 1.0, defaults to 0.028)
+  # fade-in-step = 0.028
+  fade-in-step = 0.03;
+
+  # Opacity change between steps while fading out. (0.01 - 1.0, defaults to 0.03)
+  # fade-out-step = 0.03
+  fade-out-step = 0.03;
+
+  # The time between steps in fade step, in milliseconds. (> 0, defaults to 10)
+  # fade-delta = 10
+
+  # Specify a list of conditions of windows that should not be faded.
+  # fade-exclude = []
+
+  # Do not fade on window open/close.
+  # no-fading-openclose = false
+
+  # Do not fade destroyed ARGB windows with WM frame. Workaround of bugs in Openbox, Fluxbox, etc.
+  # no-fading-destroyed-argb = false
+
+
+  #################################
+  #   Transparency / Opacity      #
+  #################################
+
+
+  # Opacity of inactive windows. (0.1 - 1.0, defaults to 1.0)
+  # inactive-opacity = 1
+  inactive-opacity = 1;
+
+  # Opacity of window titlebars and borders. (0.1 - 1.0, disabled by default)
+  # frame-opacity = 1.0
+  frame-opacity = 1;
+
+  # Default opacity for dropdown menus and popup menus. (0.0 - 1.0, defaults to 1.0)
+  # menu-opacity = 1.0
+
+  # Let inactive opacity set by -i override the '_NET_WM_OPACITY' values of windows.
+  # inactive-opacity-override = true
+  inactive-opacity-override = false;
+
+  # Default opacity for active windows. (0.0 - 1.0, defaults to 1.0)
+  # active-opacity = 1.0
+
+  # Dim inactive windows. (0.0 - 1.0, defaults to 0.0)
+  # inactive-dim = 0.0
+
+  # Specify a list of conditions of windows that should always be considered focused.
+  # focus-exclude = []
+  focus-exclude = [ "class_g = 'Cairo-clock'" ];
+
+  # Use fixed inactive dim value, instead of adjusting according to window opacity.
+  # inactive-dim-fixed = 1.0
+
+  # Specify a list of opacity rules, in the format `PERCENT:PATTERN`, 
+  # like `50:name *= "Firefox"`. picom-trans is recommended over this. 
+  # Note we don't make any guarantee about possible conflicts with other 
+  # programs that set '_NET_WM_WINDOW_OPACITY' on frame or client windows.
+  # example:
+  #    opacity-rule = [ "80:class_g = 'URxvt'" ];
+  #
+  opacity-rule = [ "80:class_g = 'Alacritty'" ]
+
+
+  #################################
+  #     Background-Blurring       #
+  #################################
+
+
+  # Parameters for background blurring, see the *BLUR* section for more information.
+  # blur-method = 
+  # blur-size = 12
+  #
+  # blur-deviation = false
+
+  # Blur background of semi-transparent / ARGB windows. 
+  # Bad in performance, with driver-dependent behavior. 
+  # The name of the switch may change without prior notifications.
+  #
+  # blur-background = false
+
+  # Blur background of windows when the window frame is not opaque. 
+  # Implies:
+  #    blur-background 
+  # Bad in performance, with driver-dependent behavior. The name may change.
+  #
+  # blur-background-frame = false
+
+
+  # Use fixed blur strength rather than adjusting according to window opacity.
+  # blur-background-fixed = false
+
+
+  # Specify the blur convolution kernel, with the following format:
+  # example:
+  #   blur-kern = "5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1";
+  #
+  # blur-kern = ''
+  blur-kern = "3x3box";
+
+
+  # Exclude conditions for background blur.
+  # blur-background-exclude = []
+  blur-background-exclude = [
+  "window_type = 'dock'",
+  "window_type = 'desktop'",
+  "_GTK_FRAME_EXTENTS@:c"
+  ];
+
+  #################################
+  #       General Settings        #
+  #################################
+
+  # Daemonize process. Fork to background after initialization. Causes issues with certain (badly-written) drivers.
+  # daemon = false
+
+  # Specify the backend to use: `xrender`, `glx`, or `xr_glx_hybrid`.
+  # `xrender` is the default one.
+  #
+  # backend = "glx"
+  # backend = "xr_glx_hybrid"
+  backend = "xrender";
+
+  # Enable/disable VSync.
+  vsync = false
+  #vsync = true
+
+  # Enable remote control via D-Bus. See the *D-BUS API* section below for more details.
+  # dbus = false
+
+  # Try to detect WM windows (a non-override-redirect window with no 
+  # child that has 'WM_STATE') and mark them as active.
+  #
+  # mark-wmwin-focused = false
+  mark-wmwin-focused = true;
+
+  # Mark override-redirect windows that doesn't have a child window with 'WM_STATE' focused.
+  # mark-ovredir-focused = false
+  mark-ovredir-focused = true;
+
+  # Try to detect windows with rounded corners and don't consider them 
+  # shaped windows. The accuracy is not very high, unfortunately.
+  #
+  # detect-rounded-corners = false
+  detect-rounded-corners = true;
+
+  # Detect '_NET_WM_OPACITY' on client windows, useful for window managers
+  # not passing '_NET_WM_OPACITY' of client windows to frame windows.
+  #
+  # detect-client-opacity = false
+  detect-client-opacity = true;
+
+  # Specify refresh rate of the screen. If not specified or 0, picom will 
+  # try detecting this with X RandR extension.
+  #
+  # refresh-rate = 60
+  refresh-rate = 0
+
+  # Limit picom to repaint at most once every 1 / 'refresh_rate' second to 
+  # boost performance. This should not be used with 
+  #   vsync drm/opengl/opengl-oml
+  # as they essentially does sw-opti's job already, 
+  # unless you wish to specify a lower refresh rate than the actual value.
+  #
+  # sw-opti = 
+
+  # Use EWMH '_NET_ACTIVE_WINDOW' to determine currently focused window, 
+  # rather than listening to 'FocusIn'/'FocusOut' event. Might have more accuracy, 
+  # provided that the WM supports it.
+  #
+  # use-ewmh-active-win = false
+
+  # Unredirect all windows if a full-screen opaque window is detected, 
+  # to maximize performance for full-screen windows. Known to cause flickering 
+  # when redirecting/unredirecting windows.
+  #
+  # unredir-if-possible = false
+
+  # Delay before unredirecting the window, in milliseconds. Defaults to 0.
+  # unredir-if-possible-delay = 0
+
+  # Conditions of windows that shouldn't be considered full-screen for unredirecting screen.
+  # unredir-if-possible-exclude = []
+
+  # Use 'WM_TRANSIENT_FOR' to group windows, and consider windows 
+  # in the same group focused at the same time.
+  #
+  # detect-transient = false
+  detect-transient = true
+
+  # Use 'WM_CLIENT_LEADER' to group windows, and consider windows in the same 
+  # group focused at the same time. 'WM_TRANSIENT_FOR' has higher priority if 
+  # detect-transient is enabled, too.
+  #
+  # detect-client-leader = false
+  detect-client-leader = true
+
+  # Resize damaged region by a specific number of pixels. 
+  # A positive value enlarges it while a negative one shrinks it. 
+  # If the value is positive, those additional pixels will not be actually painted 
+  # to screen, only used in blur calculation, and such. (Due to technical limitations, 
+  # with use-damage, those pixels will still be incorrectly painted to screen.) 
+  # Primarily used to fix the line corruption issues of blur, 
+  # in which case you should use the blur radius value here 
+  # (e.g. with a 3x3 kernel, you should use `--resize-damage 1`, 
+  # with a 5x5 one you use `--resize-damage 2`, and so on). 
+  # May or may not work with *--glx-no-stencil*. Shrinking doesn't function correctly.
+  #
+  # resize-damage = 1
+
+  # Specify a list of conditions of windows that should be painted with inverted color. 
+  # Resource-hogging, and is not well tested.
+  #
+  # invert-color-include = []
+
+  # GLX backend: Avoid using stencil buffer, useful if you don't have a stencil buffer. 
+  # Might cause incorrect opacity when rendering transparent content (but never 
+  # practically happened) and may not work with blur-background. 
+  # My tests show a 15% performance boost. Recommended.
+  #
+  # glx-no-stencil = false
+
+  # GLX backend: Avoid rebinding pixmap on window damage. 
+  # Probably could improve performance on rapid window content changes, 
+  # but is known to break things on some drivers (LLVMpipe, xf86-video-intel, etc.).
+  # Recommended if it works.
+  #
+  # glx-no-rebind-pixmap = false
+
+  # Disable the use of damage information. 
+  # This cause the whole screen to be redrawn everytime, instead of the part of the screen
+  # has actually changed. Potentially degrades the performance, but might fix some artifacts.
+  # The opposing option is use-damage
+  #
+  # no-use-damage = false
+  use-damage = true
+
+  # Use X Sync fence to sync clients' draw calls, to make sure all draw 
+  # calls are finished before picom starts drawing. Needed on nvidia-drivers 
+  # with GLX backend for some users.
+  #
+  # xrender-sync-fence = false
+
+  # GLX backend: Use specified GLSL fragment shader for rendering window contents. 
+  # See `compton-default-fshader-win.glsl` and `compton-fake-transparency-fshader-win.glsl` 
+  # in the source tree for examples.
+  #
+  # glx-fshader-win = ''
+
+  # Force all windows to be painted with blending. Useful if you 
+  # have a glx-fshader-win that could turn opaque pixels transparent.
+  #
+  # force-win-blend = false
+
+  # Do not use EWMH to detect fullscreen windows. 
+  # Reverts to checking if a window is fullscreen based only on its size and coordinates.
+  #
+  # no-ewmh-fullscreen = false
+
+  # Dimming bright windows so their brightness doesn't exceed this set value. 
+  # Brightness of a window is estimated by averaging all pixels in the window, 
+  # so this could comes with a performance hit. 
+  # Setting this to 1.0 disables this behaviour. Requires --use-damage to be disabled. (default: 1.0)
+  #
+  # max-brightness = 1.0
+
+  # Make transparent windows clip other windows like non-transparent windows do,
+  # instead of blending on top of them.
+  #
+  # transparent-clipping = false
+
+  # Set the log level. Possible values are:
+  #  "trace", "debug", "info", "warn", "error"
+  # in increasing level of importance. Case doesn't matter. 
+  # If using the "TRACE" log level, it's better to log into a file 
+  # using *--log-file*, since it can generate a huge stream of logs.
+  #
+  # log-level = "debug"
+  log-level = "warn";
+
+  # Set the log file.
+  # If *--log-file* is never specified, logs will be written to stderr. 
+  # Otherwise, logs will to written to the given file, though some of the early 
+  # logs might still be written to the stderr. 
+  # When setting this option from the config file, it is recommended to use an absolute path.
+  #
+  # log-file = '~/.config/compton.log'
+
+  # Show all X errors (for debugging)
+  # show-all-xerrors = false
+
+  # Write process ID to a file.
+  # write-pid-path = '/path/to/your/log/file'
+
+  # Window type settings
+  # 
+  # 'WINDOW_TYPE' is one of the 15 window types defined in EWMH standard: 
+  #     "unknown", "desktop", "dock", "toolbar", "menu", "utility", 
+  #     "splash", "dialog", "normal", "dropdown_menu", "popup_menu", 
+  #     "tooltip", "notification", "combo", and "dnd".
+  # 
+  # Following per window-type options are available: ::
+  # 
+  #   fade, shadow:::
+  #     Controls window-type-specific shadow and fade settings.
+  # 
+  #   opacity:::
+  #     Controls default opacity of the window type.
+  # 
+  #   focus:::
+  #     Controls whether the window of this type is to be always considered focused. 
+  #     (By default, all window types except "normal" and "dialog" has this on.)
+  # 
+  #   full-shadow:::
+  #     Controls whether shadow is drawn under the parts of the window that you 
+  #     normally won't be able to see. Useful when the window has parts of it 
+  #     transparent, and you want shadows in those areas.
+  # 
+  #   redir-ignore:::
+  #     Controls whether this type of windows should cause screen to become 
+  #     redirected again after been unredirected. If you have unredir-if-possible
+  #     set, and doesn't want certain window to cause unnecessary screen redirection, 
+  #     you can set this to `true`.
+  #
+  wintypes:
+  {
+  tooltip = { fade = true; shadow = true; opacity = 0.9; focus = true; full-shadow = false; };
+  dock = { shadow = false; }
+  dnd = { shadow = false; }
+  popup_menu = { opacity = 0.9; }
+  dropdown_menu = { opacity = 0.9; }
+  };
 
 #+end_src
 

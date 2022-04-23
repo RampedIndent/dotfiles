@@ -280,7 +280,10 @@ t
   (use-package perspective
     :ensure t
     :bind(("C-x k" . persp-kill-buffer*))
-    :init(persp-mode))
+    :init(persp-mode)
+    ;:config 
+    )
+    (setq persp-suppress-no-prefix-key-warning t)
   (use-package counsel-projectile
     :ensure t)
 #+end_src
