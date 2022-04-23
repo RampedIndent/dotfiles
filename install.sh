@@ -72,9 +72,9 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     echo "Installing Terminal Packages"
-    sudo pacman -S $UBUNTU_PACKEGES --needed
-
-
+    sudo pacman -S $ARCH_PACKEGES --needed
+    echo "Installing UI Packages"
+    sudo pacman -S $UI_PACKEGES --needed
 
 fi
 
@@ -103,6 +103,6 @@ else
     echo "$FILE does not exist."
     ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
     echo "Run to check if ssh-agent is running" 
-    echo "eval \"$(ssh-agent -s)\""
+    echo "eval \"\$(ssh-agent -s)\""
     echo "ssh-add $FILE"
 fi
