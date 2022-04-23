@@ -1,8 +1,7 @@
-#! /bin/bash
-
+#!/bin/bash
 export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
-export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake nitrogen"
-export UI_PACKAGES="polybar"
+export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
+export UI_PACKAGES="polybar nitrogen"
 export PROD_PACKAGES="blender inkscape krita"
 export DOTFILES_DIR=~/.dotfiles
 #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
@@ -16,7 +15,7 @@ if [ "$UNAME" == "linux" ]; then
     # If available, use LSB to identify distribution
     if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
         export DISTRO=$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)
-    # Otherwise, use release info file
+        # Otherwise, use release info file
     else
         export DISTRO=$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* | grep -v "lsb" | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)
     fi
@@ -39,20 +38,20 @@ if [ "$DISTRO" == "Ubuntu" ]; then
     # Make Sure Dotfiles dir is up to date and installed
     echo "Making Sure Dotfiles dir is up to date and downloaded"
     if [ -d "$DOTFILES_DIR" ]; then
-	echo "Updating Dotfiles"
-	git pull 
+        echo "Updating Dotfiles"
+        git pull 
     else
-	echo "Cloning Dotfiles"
-	#git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
+        echo "Cloning Dotfiles"
+        #git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
     fi
     echo "Changing to Dotfiles Dir"
     cd $DOTFILES_DIR
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
-    
+
 fi
 
-    
+
 if [ "$DISTRO" == "ArcoLinux" ]; then
     echo "Updating to newest Arch Version"
     sudo pacman -Syu
@@ -62,29 +61,31 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     # Make Sure Dotfiles dir is up to date and installed
     echo "Making Sure Dotfiles dir is up to date and downloaded"
     if [ -d "$DOTFILES_DIR" ]; then
-	echo "Updating Dotfiles"
-	git pull 
+        echo "Updating Dotfiles"
+        git pull 
     else
-	echo "Cloning Dotfiles"
-	git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
+        echo "Cloning Dotfiles"
+        git clone https://github.com/RampedIndent/dotfiles.git $DOTFILES_DIR
     fi
     echo "Changing to Dotfiles Dir"
     cd $DOTFILES_DIR
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     echo "Installing Terminal Packages"
-    sudo pacman -S $ARCH_PACKEGES --needed
-    
-   
-    
+    sudo pacman -S $UBUNTU_PACKEGES --needed
+
+
+
 fi
 
-if [ -d ~/.oh-my-zsh ]; then
+OMZ_DIR=~/.oh-my-zsh
+if ! [ -d "$OMZ_DIR" ]; then
     echo "Installing Oh My ZSH"
-    sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
 fi
 
-if [ -d ~/powerline10k ]; then
+P10K_DIR=~/powerlevel10k
+if ! [ -d "$P10K_DIR" ]; then
     echo "Installing zsh Powerline10k"
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
 fi
@@ -94,3 +95,14 @@ fi
 #    echo "Installing zsh Powerline10k"
 #    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
 #fi
+
+FILE=~/.ssh/id_$HOSTNAME
+if [ -f "$FILE" ]; then
+    echo "$FILE exists."
+else 
+    echo "$FILE does not exist."
+    ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
+    echo "Run to check if ssh-agent is running" 
+    echo "eval \"$(ssh-agent -s)\""
+    echo "ssh-add $FILE"
+fi

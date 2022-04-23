@@ -1163,15 +1163,11 @@ super + {Left,Down,Up,Right}
 #+end_src
 
 * Install
-<<<<<<< HEAD
-#+begin_src shell :tangle ./bin/rofi-power-menu :shebang "#!/bin/bash"
-  
-  export  _PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
-=======
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash"
 
   export UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
-  export UI_PACKAGES="polybar"
+  export ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
+  export UI_PACKAGES="polybar nitrogen"
   export PROD_PACKAGES="blender inkscape krita"
   export DOTFILES_DIR=~/.dotfiles
   #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
@@ -1185,7 +1181,7 @@ super + {Left,Down,Up,Right}
       # If available, use LSB to identify distribution
       if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
           export DISTRO=$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)
-      # Otherwise, use release info file
+          # Otherwise, use release info file
       else
           export DISTRO=$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* | grep -v "lsb" | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)
       fi
@@ -1270,12 +1266,11 @@ super + {Left,Down,Up,Right}
   if [ -f "$FILE" ]; then
       echo "$FILE exists."
   else 
-    echo "$FILE does not exist."
-    ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
-    echo "Run to check if ssh-agent is running" 
-    echo "eval \"$(ssh-agent -s)\""
-    echo "ssh-add $FILE"
+      echo "$FILE does not exist."
+      ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
+      echo "Run to check if ssh-agent is running" 
+      echo "eval \"$(ssh-agent -s)\""
+      echo "ssh-add $FILE"
   fi
->>>>>>> origin/main
 #+end_src
 
