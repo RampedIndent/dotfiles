@@ -28,7 +28,7 @@ fi
 
 #Some ways to set your wallpaper besides variety or nitrogen
 #feh --bg-scale ~/.config/bspwm/wall.png &
-feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+#feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
 #feh --randomize --bg-fill ~/Képek/*
 #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
 
@@ -48,7 +48,7 @@ picom --config $HOME/.config/bspwm/picom.conf &
 run volumeicon &
 syncthing serve --no-browser &
 nitrogen --restore &
-emacs --daemon &
+run emacs --daemon &
 #run caffeine &
 #run vivaldi-stable &
 #run firefox &

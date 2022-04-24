@@ -1,5 +1,5 @@
 configuration {
-	modi: "window,drun,ssh,filebrowser,power-menu:~/.dotfiles/bin/rofi-power-menu";
+	modi: "window,drun,ssh,file-browser,power-menu:~/.dotfiles/bin/rofi-power-menu";
 	width: 600; 
 	lines: 8;
 /*	columns: 1;*/
