@@ -1,7 +1,7 @@
 #!/bin/bash
 UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake"
 ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake"
-UI_PACKAGES="polybar nitrogen syncthing"
+UI_PACKAGES="picom polybar nitrogen syncthing"
 PROD_PACKAGES="blender inkscape krita"
 DOTFILES_DIR=~/.dotfiles
 #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
@@ -48,6 +48,9 @@ if [ "$DISTRO" == "Ubuntu" ]; then
     cd $DOTFILES_DIR
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
+    sudo apt install $UBUNTU_PACKAGES
+
+    sudo apt install $UI_PACKAGES
 
 fi
 
