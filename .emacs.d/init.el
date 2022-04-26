@@ -84,6 +84,10 @@
   :init
   (ivy-rich-mode 1))
 
+(require 'server)
+(unless (server-running-p)
+    (server-start))
+
 (use-package all-the-icons)
 
 ;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
@@ -143,6 +147,29 @@
 	(flyspell-mode -1))
       ; else - flyspell is off, turn it on
       (flyspell-on-for-buffer-type)))
+
+(use-package wc-mode
+  :ensure t
+  :init
+  (add-to-list 'global-mode-string '("" wc-buffer-stats)))
+
+(use-package writegood-mode
+  :ensure t)
+
+(use-package evil-nerd-commenter
+:bind ("C-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package super-save
+  :defer 1
+  :diminish super-save-mode
+  :config
+  (super-save-mode +1)
+  (setq super-save-auto-save-when-idle t))
+
+(use-package paren
+  :config
+  (set-face-attribute 'show-paren-match-expression nil :background "#363e4a")
+  (show-paren-mode 1))
 
 (use-package projectile
   :diminish projectile-mode
@@ -282,21 +309,19 @@
                             ))
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
-    (setq dashboard-set-navigator nil)
+    (setq dashboard-set-navigator t)
     (setq dashboard-navigator-buttons
       `(;; line1
         ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
-         "Homepage"
-         "Browse homepage"
-         (lambda (&rest _) (browse-url "homepage")))
-        ("★" "Star" "Show stars" (lambda (&rest _) (show-stars)) warning)
-        ("?" "" "?/h" #'show-help nil "<" ">"))
+         "Org Roam Ui"
+         "Insert hover Text"
+         (lambda (&rest _) (browse-url "http://localhost:35901")))
          ;; line 2
-        ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
-          "Linkedin"
-          ""
-          (lambda (&rest _) (browse-url "homepage")))
-         ("⚑" nil "Show flags" (lambda (&rest _) (message "flag")) error))))
+        ;; ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+        ;;   "Linkedin"
+        ;;   ""
+        ;;   (lambda (&rest _) (browse-url "homepage"))))
+         )))
     (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
     )
   :config
@@ -470,8 +495,13 @@
 (viktorya/editor-keys
   "t"  '(:ignore t :which-key "toggles")
   "tt" '(counsel-load-theme :which-key "choose theme")
+  "tl" '(org-latex-preview :which-key "Toggle Latex Preview")
   "e" '(eval-buffer :which-key "Run the buffer")
   "g" '(magit :which-key "Runs Magit")
+  "n" '(org-roam-node-find :which-key "Finds Node in Org Roam")
+  "i" '(:ignore i :which-key "Insert commands")
+  "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
+  "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
   "f" '(:ignore f :which-key "file commands")
   "ff" '(counsel-find-file :which-key "Find File")
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
@@ -553,55 +583,83 @@
 (rainbow-mode t)
 
 (defun efs/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-(defun efs/org-mode-setup ()
-  (org-indent-mode)
-  (variable-pitch-mode 1)
-  (visual-line-mode 1))
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (defun efs/org-mode-setup ()
+      (org-indent-mode)
+      (variable-pitch-mode 1)
+      (visual-line-mode 1))
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-(use-package org
-  :pin elpa
-  :hook (org-mode . efs/org-mode-setup)
-  :config
-  (setq org-ellipsis " ▾")
-  (efs/org-font-setup))
+  (use-package org
+    :pin elpa
+    :hook (org-mode . efs/org-mode-setup)
+    :config
+    (setq org-ellipsis " ▾")
+    (efs/org-font-setup)
+    (setq org-modules
+          '(org-crypt
+            org-habit
+            org-bookmark
+            org-eshell
+            org-irc))
 
-(use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode)
-  ;;:custom
-  ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")
-  )
+    (setq org-refile-targets '((nil :maxlevel . 1)
+                               (org-agenda-files :maxlevel . 1)))
 
-(defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-refile-use-outline-path t)
+    (setq org-startup-with-inline-images t)
+    
+;; (setq org-image-actual-width 750)
 
-(use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (ledger . t)))
+
+    )
+
+  (use-package org-bullets
+    :after org
+    :hook (org-mode . org-bullets-mode)
+    ;;:custom
+    ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")
+    )
+
+  (defun efs/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
+
+  (use-package visual-fill-column
+    :hook (org-mode . efs/org-mode-visual-fill))
 
 (org-babel-do-load-languages
   'org-babel-load-languages
@@ -624,7 +682,7 @@
   (when (or (string-equal (buffer-file-name)
                       (expand-file-name "~/.dotfiles/emacs.org"))
                       (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/system.org"))
+                                    (expand-file-name "~/.dotfiles/system.org"))
                       )
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
@@ -661,16 +719,27 @@
   :hook
   (after-init . org-roam-mode)
   :custom
-  (org-roam-directory "~/documents/Notes/Org-Roam/")
+  (org-roam-directory "~/Documents/Notes/Org-Roam/")
   (org-roam-completion-everywhere t)
   (org-roam-completion-system 'default)
   (org-roam-capture-templates
-    '(("d" "default" plain
-       #'org-roam-capture--get-point
-       "%?"
-       :file-name "%<%Y%m%d%H%M%S>-${slug}"
-       :head "#+title: ${title}\n"
+    '(("d" "default" plain "%?"
+       ;; #'org-roam-capture--get-point
+       ;; "%?"
+       ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+       ;; :head "#+title: ${title}\n"
+       :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                      "#+title: ${title}\n")
        :unnarrowed t)
+      ("m" "default math" plain "%?"
+       ;; #'org-roam-capture--get-point
+       ;; "%?"
+       ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+       :head "#+title: ${title}\n#+STARTUP: latexpreview\n"
+       :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                      "#+title: ${title}\n")
+       :unnarrowed t)
+
       ("ll" "link note" plain
        #'org-roam-capture--get-point
        "* %^{Link}"
@@ -728,10 +797,32 @@
            ("C-c n r"   . org-roam-dailies-find-tomorrow)
            ("C-c n g"   . org-roam-graph))
          :map org-mode-map
-         (("C-c n i" . org-roam-insert))
-         (("C-c n I" . org-roam-insert-immediate))))
+         (("C-c n i" . org-roam-node-insert)))
+       :after
+       (org-roam-update-org-id-locations)
+       )
+
+(unless dw/is-termux
+    (use-package websocket
+    :after org-roam)
+
+    (use-package org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start nil)))
+
+(use-package org-download
+  :ensure t)
 
 (setq org-latex-create-formula-image-program 'dvipng)
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
 ;; (use-package ivy-xref
 ;;   :straight t

@@ -1,4 +1,5 @@
 #+PROPERTY: header-args :tangle ./.emacs.d/init.el
+#+STARTUP: content
 * Emacs Configuration file
 ** Basic Configuration
 The basic configuration for configuring emacs
@@ -130,6 +131,15 @@ Configure Swiper and ivy
 
 #+RESULTS:
 
+*** Server Mode
+#+begin_src emacs-lisp
+  (require 'server)
+  (unless (server-running-p)
+      (server-start))
+#+end_src
+
+#+RESULTS:
+
 *** Fonts
 Configure Emacs Fonts
 
@@ -231,10 +241,59 @@ This package us used to provide spellcheck to emacs.
 : flyspell-toggle
 
 *** wc mode
-A word count mode for emacs
-(add-to-list 'global-mode-string '("" wc-buffer-stats))
+A word count mode for emacs 
+#+begin_src emacs-lisp
+  (use-package wc-mode
+    :ensure t
+    :init
+    (add-to-list 'global-mode-string '("" wc-buffer-stats)))
+#+end_src
+
+#+RESULTS:
+
 *** Write Good
 A writing level checker
+
+#+begin_src emacs-lisp
+  (use-package writegood-mode
+    :ensure t)
+#+end_src
+
+#+RESULTS:
+
+*** Commenting Lines
+#+begin_src emacs-lisp
+  (use-package evil-nerd-commenter
+  :bind ("C-/" . evilnc-comment-or-uncomment-lines))
+#+end_src
+
+#+RESULTS:
+: evilnc-comment-or-uncomment-lines
+
+*** Autosave
+
+#+begin_src emacs-lisp
+  (use-package super-save
+    :defer 1
+    :diminish super-save-mode
+    :config
+    (super-save-mode +1)
+    (setq super-save-auto-save-when-idle t))
+#+end_src
+
+#+RESULTS:
+
+*** Highlight Matching Braces
+
+#+begin_src emacs-lisp
+  (use-package paren
+    :config
+    (set-face-attribute 'show-paren-match-expression nil :background "#363e4a")
+    (show-paren-mode 1))
+#+end_src
+
+#+RESULTS:
+: t
 
 ** Programs
 *** Projectile
@@ -260,7 +319,6 @@ Projectile is a project manager
 
 *** Magit
 Magit is a emacs git client
-t
 #+begin_src emacs-lisp
 
 (use-package magit
@@ -398,71 +456,69 @@ t
 *** Dashboard
 $\sqrt{2}$  
 #+begin_src emacs-lisp
-  (use-package dashboard
-    :ensure t
-    :init
-    (progn
-      (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+    (use-package dashboard
+      :ensure t
+      :init
+      (progn
+        (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
-      ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
+        ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
 
-      (setq dashboard-items '((recents  . 5)
-                              (bookmarks . 5)
-                              (projects . 5)
-                              ;(agenda . 5)
-                              ;(registers . 5)
-                              ))
-      (setq dashboard-set-heading-icons t)
-      (setq dashboard-set-file-icons t)
-      (setq dashboard-set-navigator nil)
-      (setq dashboard-navigator-buttons
-        `(;; line1
-          ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
-           "Homepage"
-           "Browse homepage"
-           (lambda (&rest _) (browse-url "homepage")))
-          ("★" "Star" "Show stars" (lambda (&rest _) (show-stars)) warning)
-          ("?" "" "?/h" #'show-help nil "<" ">"))
-           ;; line 2
-          ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
-            "Linkedin"
-            ""
-            (lambda (&rest _) (browse-url "homepage")))
-           ("⚑" nil "Show flags" (lambda (&rest _) (message "flag")) error))))
-      (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
+        (setq dashboard-items '((recents  . 5)
+                                (bookmarks . 5)
+                                (projects . 5)
+                                ;(agenda . 5)
+                                ;(registers . 5)
+                                ))
+        (setq dashboard-set-heading-icons t)
+        (setq dashboard-set-file-icons t)
+        (setq dashboard-set-navigator t)
+        (setq dashboard-navigator-buttons
+          `(;; line1
+            ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+             "Org Roam Ui"
+             "Insert hover Text"
+             (lambda (&rest _) (browse-url "http://localhost:35901")))
+             ;; line 2
+            ;; ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+            ;;   "Linkedin"
+            ;;   ""
+            ;;   (lambda (&rest _) (browse-url "homepage"))))
+             )))
+        (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
+        )
+      :config
+      (dashboard-setup-startup-hook))
+
+
+    (defun dashboard-insert-custom (list-size)
+      (dashboard-insert-heading "Journal")
+      (insert "\n")
+      (widget-create 'push-button 
+                     :value "Dailies Capture Yesterday"
+                     :format "    %[%v%]\n"
+                     :notify (lambda (widget &rest ignore)
+                                (org-roam-dailies-capture-yesterday 1)))
+      (widget-create 'push-button 
+                     :value "Dailies Capture Today"
+                     :format "    %[%v%]\n"
+                     :notify (lambda (widget &rest ignore)
+                                (org-roam-dailies-capture-today)))
+      (widget-create 'push-button 
+                     :value "Dailies Capture Tomorrow"
+                     :format "    %[%v%]\n"
+                     :notify (lambda (widget &rest ignore)
+                                (org-roam-dailies-capture-tomorrow 1)))
+
+     (widget-create 'push-button 
+                     :value "Dailies Capture Date"
+                     :format "    %[%v%]\n"
+                     :notify (lambda (widget &rest ignore)
+                                (org-roam-dailies-capture-date)))
       )
-    :config
-    (dashboard-setup-startup-hook))
-
-
-  (defun dashboard-insert-custom (list-size)
-    (dashboard-insert-heading "Journal")
-    (insert "\n")
-    (widget-create 'push-button 
-                   :value "Dailies Capture Yesterday"
-                   :format "    %[%v%]\n"
-                   :notify (lambda (widget &rest ignore)
-                              (org-roam-dailies-capture-yesterday 1)))
-    (widget-create 'push-button 
-                   :value "Dailies Capture Today"
-                   :format "    %[%v%]\n"
-                   :notify (lambda (widget &rest ignore)
-                              (org-roam-dailies-capture-today)))
-    (widget-create 'push-button 
-                   :value "Dailies Capture Tomorrow"
-                   :format "    %[%v%]\n"
-                   :notify (lambda (widget &rest ignore)
-                              (org-roam-dailies-capture-tomorrow 1)))
-
-   (widget-create 'push-button 
-                   :value "Dailies Capture Date"
-                   :format "    %[%v%]\n"
-                   :notify (lambda (widget &rest ignore)
-                              (org-roam-dailies-capture-date)))
-    )
-    ;(insert "org-roam-dailies-capture-date"))
-  (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
-  (add-to-list 'dashboard-items '(custom) t)
+      ;(insert "org-roam-dailies-capture-date"))
+    (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+    (add-to-list 'dashboard-items '(custom) t)
 
 #+end_src
 
@@ -605,6 +661,7 @@ $\sqrt{2}$
 
 ** Keybindings
 
+*** General Keybindings
 #+begin_src emacs-lisp
 
 (use-package which-key
@@ -625,8 +682,13 @@ $\sqrt{2}$
 (viktorya/editor-keys
   "t"  '(:ignore t :which-key "toggles")
   "tt" '(counsel-load-theme :which-key "choose theme")
+  "tl" '(org-latex-preview :which-key "Toggle Latex Preview")
   "e" '(eval-buffer :which-key "Run the buffer")
   "g" '(magit :which-key "Runs Magit")
+  "n" '(org-roam-node-find :which-key "Finds Node in Org Roam")
+  "i" '(:ignore i :which-key "Insert commands")
+  "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
+  "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
   "f" '(:ignore f :which-key "file commands")
   "ff" '(counsel-find-file :which-key "Find File")
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
@@ -1215,10 +1277,10 @@ Turns emacs Transparent
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  (defun efs/org-mode-setup ()
-    (org-indent-mode)
-    (variable-pitch-mode 1)
-    (visual-line-mode 1))
+    (defun efs/org-mode-setup ()
+      (org-indent-mode)
+      (variable-pitch-mode 1)
+      (visual-line-mode 1))
     ;; Set faces for heading levels
     (dolist (face '((org-level-1 . 1.2)
                     (org-level-2 . 1.1)
@@ -1244,7 +1306,35 @@ Turns emacs Transparent
     :hook (org-mode . efs/org-mode-setup)
     :config
     (setq org-ellipsis " ▾")
-    (efs/org-font-setup))
+    (efs/org-font-setup)
+    (setq org-modules
+          '(org-crypt
+            org-habit
+            org-bookmark
+            org-eshell
+            org-irc))
+
+    (setq org-refile-targets '((nil :maxlevel . 1)
+                               (org-agenda-files :maxlevel . 1)))
+
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-refile-use-outline-path t)
+    (setq org-startup-with-inline-images t)
+    
+;; (setq org-image-actual-width 750)
+
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (ledger . t)))
+
+    )
 
   (use-package org-bullets
     :after org
@@ -1303,18 +1393,18 @@ The avaliable language blocks for Org mode code blocks are located at https://or
 *** Auto-tangle Configuration Files
 
 #+begin_src emacs-lisp
-;; Automatically tangle our Emacs.org config file when we save it
-(defun efs/org-babel-tangle-config ()
-  (when (or (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/emacs.org"))
-                      (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/system.org"))
-                      )
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
+  ;; Automatically tangle our Emacs.org config file when we save it
+  (defun efs/org-babel-tangle-config ()
+    (when (or (string-equal (buffer-file-name)
+                        (expand-file-name "~/.dotfiles/emacs.org"))
+                        (string-equal (buffer-file-name)
+                                      (expand-file-name "~/.dotfiles/system.org"))
+                        )
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
 #+RESULTS:
@@ -1351,92 +1441,136 @@ The avaliable language blocks for Org mode code blocks are located at https://or
 *** Org Roam
 
 #+begin_src emacs-lisp
-(use-package org-roam
-  ;;:straight t
-  :hook
-  (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/documents/Notes/Org-Roam/")
-  (org-roam-completion-everywhere t)
-  (org-roam-completion-system 'default)
-  (org-roam-capture-templates
-    '(("d" "default" plain
-       #'org-roam-capture--get-point
-       "%?"
-       :file-name "%<%Y%m%d%H%M%S>-${slug}"
-       :head "#+title: ${title}\n"
-       :unnarrowed t)
-      ("ll" "link note" plain
-       #'org-roam-capture--get-point
-       "* %^{Link}"
-       :file-name "Inbox"
-       :olp ("Links")
-       :unnarrowed t
-       :immediate-finish)
-      ("lt" "link task" entry
-       #'org-roam-capture--get-point
-       "* TODO %^{Link}"
-       :file-name "Inbox"
-       :olp ("Tasks")
-       :unnarrowed t
-       :immediate-finish)))
-  (org-roam-dailies-directory "Journal/")
-  (org-roam-dailies-capture-templates
-    '(("d" "default" entry
-       #'org-roam-capture--get-point
-       "* %?"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("t" "Task" entry
-       #'org-roam-capture--get-point
-       "* TODO %?\n  %U\n  %a\n  %i"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Tasks")
-       :empty-lines 1
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("j" "journal" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("l" "log entry" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - %?"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("m" "meeting" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
-       :bind (:map org-roam-mode-map
-          (("C-c n l"   . org-roam)
-           ("C-c n f"   . org-roam-find-file)
-           ("C-c n d"   . org-roam-dailies-find-date)
-           ("C-c n c"   . org-roam-dailies-capture-today)
-           ("C-c n C r" . org-roam-dailies-capture-tomorrow)
-           ("C-c n t"   . org-roam-dailies-find-today)
-           ("C-c n y"   . org-roam-dailies-find-yesterday)
-           ("C-c n r"   . org-roam-dailies-find-tomorrow)
-           ("C-c n g"   . org-roam-graph))
-         :map org-mode-map
-         (("C-c n i" . org-roam-insert))
-         (("C-c n I" . org-roam-insert-immediate))))
+  (use-package org-roam
+    ;;:straight t
+    :hook
+    (after-init . org-roam-mode)
+    :custom
+    (org-roam-directory "~/Documents/Notes/Org-Roam/")
+    (org-roam-completion-everywhere t)
+    (org-roam-completion-system 'default)
+    (org-roam-capture-templates
+      '(("d" "default" plain "%?"
+         ;; #'org-roam-capture--get-point
+         ;; "%?"
+         ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         ;; :head "#+title: ${title}\n"
+         :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                        "#+title: ${title}\n")
+         :unnarrowed t)
+        ("m" "default math" plain "%?"
+         ;; #'org-roam-capture--get-point
+         ;; "%?"
+         ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n#+STARTUP: latexpreview\n"
+         :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                        "#+title: ${title}\n")
+         :unnarrowed t)
+
+        ("ll" "link note" plain
+         #'org-roam-capture--get-point
+         "* %^{Link}"
+         :file-name "Inbox"
+         :olp ("Links")
+         :unnarrowed t
+         :immediate-finish)
+        ("lt" "link task" entry
+         #'org-roam-capture--get-point
+         "* TODO %^{Link}"
+         :file-name "Inbox"
+         :olp ("Tasks")
+         :unnarrowed t
+         :immediate-finish)))
+    (org-roam-dailies-directory "Journal/")
+    (org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "Journal/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+        ("t" "Task" entry
+         #'org-roam-capture--get-point
+         "* TODO %?\n  %U\n  %a\n  %i"
+         :file-name "Journal/%<%Y-%m-%d>"
+         :olp ("Tasks")
+         :empty-lines 1
+         :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+        ("j" "journal" entry
+         #'org-roam-capture--get-point
+         "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
+         :file-name "Journal/%<%Y-%m-%d>"
+         :olp ("Log")
+         :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+        ("l" "log entry" entry
+         #'org-roam-capture--get-point
+         "* %<%I:%M %p> - %?"
+         :file-name "Journal/%<%Y-%m-%d>"
+         :olp ("Log")
+         :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+        ("m" "meeting" entry
+         #'org-roam-capture--get-point
+         "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
+         :file-name "Journal/%<%Y-%m-%d>"
+         :olp ("Log")
+         :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
+         :bind (:map org-roam-mode-map
+            (("C-c n l"   . org-roam)
+             ("C-c n f"   . org-roam-find-file)
+             ("C-c n d"   . org-roam-dailies-find-date)
+             ("C-c n c"   . org-roam-dailies-capture-today)
+             ("C-c n C r" . org-roam-dailies-capture-tomorrow)
+             ("C-c n t"   . org-roam-dailies-find-today)
+             ("C-c n y"   . org-roam-dailies-find-yesterday)
+             ("C-c n r"   . org-roam-dailies-find-tomorrow)
+             ("C-c n g"   . org-roam-graph))
+           :map org-mode-map
+           (("C-c n i" . org-roam-node-insert)))
+         :after
+         (org-roam-update-org-id-locations)
+         )
 #+end_src
 
 #+RESULTS:
-: org-roam-insert-immediate
 
+*** Org Roam Ui
+
+#+begin_src emacs-lisp
+    (unless dw/is-termux
+      (use-package websocket
+      :after org-roam)
+
+      (use-package org-roam-ui
+      :after org-roam ;; or :after org
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  ;;  :hook (after-init . org-roam-ui-mode)
+      :config
+      (setq org-roam-ui-sync-theme t
+            org-roam-ui-follow t
+            org-roam-ui-update-on-save t
+            org-roam-ui-open-on-start nil)))
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Org Download
+Insert Images Into Orgmode
+#+begin_src emacs-lisp
+  (use-package org-download
+    :ensure t)
+#+end_src
+
+#+RESULTS:
 *** LaTeX Fragments
 #+begin_src emacs-lisp
 (setq org-latex-create-formula-image-program 'dvipng)
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 #+end_src
 
 #+RESULTS:
-: dvipng
+| :foreground | default | :background | default | :scale | 2.0 | :html-foreground | Black | :html-background | Transparent | :html-scale | 1.0 | :matchers | (begin $1 $ $$ \( \[) |
 
 ** Languages
 *** Lsp mode
