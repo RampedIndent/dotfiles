@@ -88,13 +88,23 @@
 (unless (server-running-p)
     (server-start))
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :ensure t
+  :after
+  (all-the-icons-install-fonts)
+  )
+
 
 ;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
 (set-face-attribute 'variable-pitch nil 
-                     :font "Inconsolata Go Nerd Font")
+                    :font "Inconsolata GO Nerd Font"
+                    :height 1.6)
 (set-face-attribute 'fixed-pitch nil 
-                     :font "Inconsolata Go Nerd Font")
+                    :font "Inconsolata Go Nerd Font"
+                    :height 0.8)
+
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "opera")
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
@@ -193,10 +203,11 @@
 (use-package perspective
   :ensure t
   :bind(("C-x k" . persp-kill-buffer*))
-  :init(persp-mode)
-  ;:config 
-  )
+  :init
   (setq persp-suppress-no-prefix-key-warning t)
+  :config 
+  (persp-mode)
+  )
 (use-package counsel-projectile
   :ensure t)
 
@@ -316,6 +327,10 @@
          "Org Roam Ui"
          "Insert hover Text"
          (lambda (&rest _) (browse-url "http://localhost:35901")))
+          (,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+         "Syncthing"
+         "Insert hover Text"
+         (lambda (&rest _) (browse-url "http://localhost:8384")))
          ;; line 2
         ;; ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
         ;;   "Linkedin"

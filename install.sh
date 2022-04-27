@@ -108,4 +108,5 @@ else
     echo "Run to check if ssh-agent is running" 
     echo "eval \"\$(ssh-agent -s)\""
     echo "ssh-add $FILE"
+    echo "Remember to add key to github https://github.com/settings/keys"
 fi

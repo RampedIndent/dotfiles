@@ -145,16 +145,33 @@ Configure Emacs Fonts
 
 #+begin_src emacs-lisp
 
-(use-package all-the-icons)
+  (use-package all-the-icons
+    :ensure t
+    :after
+    (all-the-icons-install-fonts)
+    )
 
-;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
-(set-face-attribute 'variable-pitch nil 
-                     :font "Inconsolata Go Nerd Font")
-(set-face-attribute 'fixed-pitch nil 
-                     :font "Inconsolata Go Nerd Font")
+
+  ;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+  (set-face-attribute 'variable-pitch nil 
+                      :font "Inconsolata GO Nerd Font"
+                      :height 1.6)
+  (set-face-attribute 'fixed-pitch nil 
+                      :font "Inconsolata Go Nerd Font"
+                      :height 0.8)
 #+end_src
 
 #+RESULTS:
+
+*** Default Applications
+
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "opera")
+#+end_src
+
+#+RESULTS:
+: opera
 
 ** Editor Configuration
 *** Configure Line Numbers 
@@ -335,15 +352,16 @@ Magit is a emacs git client
 
 #+begin_src emacs-lisp
 
-  (use-package perspective
-    :ensure t
-    :bind(("C-x k" . persp-kill-buffer*))
-    :init(persp-mode)
-    ;:config 
-    )
-    (setq persp-suppress-no-prefix-key-warning t)
-  (use-package counsel-projectile
-    :ensure t)
+    (use-package perspective
+      :ensure t
+      :bind(("C-x k" . persp-kill-buffer*))
+      :init
+      (setq persp-suppress-no-prefix-key-warning t)
+      :config 
+      (persp-mode)
+      )
+    (use-package counsel-projectile
+      :ensure t)
 #+end_src
 
 #+RESULTS:
@@ -456,69 +474,73 @@ Magit is a emacs git client
 *** Dashboard
 $\sqrt{2}$  
 #+begin_src emacs-lisp
-    (use-package dashboard
-      :ensure t
-      :init
-      (progn
-        (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+      (use-package dashboard
+        :ensure t
+        :init
+        (progn
+          (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 
-        ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
+          ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
 
-        (setq dashboard-items '((recents  . 5)
-                                (bookmarks . 5)
-                                (projects . 5)
-                                ;(agenda . 5)
-                                ;(registers . 5)
-                                ))
-        (setq dashboard-set-heading-icons t)
-        (setq dashboard-set-file-icons t)
-        (setq dashboard-set-navigator t)
-        (setq dashboard-navigator-buttons
-          `(;; line1
-            ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
-             "Org Roam Ui"
-             "Insert hover Text"
-             (lambda (&rest _) (browse-url "http://localhost:35901")))
-             ;; line 2
-            ;; ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
-            ;;   "Linkedin"
-            ;;   ""
-            ;;   (lambda (&rest _) (browse-url "homepage"))))
-             )))
-        (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
+          (setq dashboard-items '((recents  . 5)
+                                  (bookmarks . 5)
+                                  (projects . 5)
+                                  ;(agenda . 5)
+                                  ;(registers . 5)
+                                  ))
+          (setq dashboard-set-heading-icons t)
+          (setq dashboard-set-file-icons t)
+          (setq dashboard-set-navigator t)
+          (setq dashboard-navigator-buttons
+            `(;; line1
+              ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+               "Org Roam Ui"
+               "Insert hover Text"
+               (lambda (&rest _) (browse-url "http://localhost:35901")))
+                (,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+               "Syncthing"
+               "Insert hover Text"
+               (lambda (&rest _) (browse-url "http://localhost:8384")))
+               ;; line 2
+              ;; ((,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+              ;;   "Linkedin"
+              ;;   ""
+              ;;   (lambda (&rest _) (browse-url "homepage"))))
+               )))
+          (setq dashboard-projects-switch-function 'counsel-projectile-switch-project-by-name)
+          )
+        :config
+        (dashboard-setup-startup-hook))
+
+
+      (defun dashboard-insert-custom (list-size)
+        (dashboard-insert-heading "Journal")
+        (insert "\n")
+        (widget-create 'push-button 
+                       :value "Dailies Capture Yesterday"
+                       :format "    %[%v%]\n"
+                       :notify (lambda (widget &rest ignore)
+                                  (org-roam-dailies-capture-yesterday 1)))
+        (widget-create 'push-button 
+                       :value "Dailies Capture Today"
+                       :format "    %[%v%]\n"
+                       :notify (lambda (widget &rest ignore)
+                                  (org-roam-dailies-capture-today)))
+        (widget-create 'push-button 
+                       :value "Dailies Capture Tomorrow"
+                       :format "    %[%v%]\n"
+                       :notify (lambda (widget &rest ignore)
+                                  (org-roam-dailies-capture-tomorrow 1)))
+
+       (widget-create 'push-button 
+                       :value "Dailies Capture Date"
+                       :format "    %[%v%]\n"
+                       :notify (lambda (widget &rest ignore)
+                                  (org-roam-dailies-capture-date)))
         )
-      :config
-      (dashboard-setup-startup-hook))
-
-
-    (defun dashboard-insert-custom (list-size)
-      (dashboard-insert-heading "Journal")
-      (insert "\n")
-      (widget-create 'push-button 
-                     :value "Dailies Capture Yesterday"
-                     :format "    %[%v%]\n"
-                     :notify (lambda (widget &rest ignore)
-                                (org-roam-dailies-capture-yesterday 1)))
-      (widget-create 'push-button 
-                     :value "Dailies Capture Today"
-                     :format "    %[%v%]\n"
-                     :notify (lambda (widget &rest ignore)
-                                (org-roam-dailies-capture-today)))
-      (widget-create 'push-button 
-                     :value "Dailies Capture Tomorrow"
-                     :format "    %[%v%]\n"
-                     :notify (lambda (widget &rest ignore)
-                                (org-roam-dailies-capture-tomorrow 1)))
-
-     (widget-create 'push-button 
-                     :value "Dailies Capture Date"
-                     :format "    %[%v%]\n"
-                     :notify (lambda (widget &rest ignore)
-                                (org-roam-dailies-capture-date)))
-      )
-      ;(insert "org-roam-dailies-capture-date"))
-    (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
-    (add-to-list 'dashboard-items '(custom) t)
+        ;(insert "org-roam-dailies-capture-date"))
+      (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
+      (add-to-list 'dashboard-items '(custom) t)
 
 #+end_src
 
