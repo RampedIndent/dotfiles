@@ -1,6 +1,7 @@
 #!/bin/bash
-UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip"
-ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip"
+UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandocf"
+ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc"
+ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
 UI_PACKAGES="picom polybar nitrogen syncthing"
 PROD_PACKAGES="blender inkscape krita"
 DOTFILES_DIR=~/.dotfiles

@@ -112,10 +112,10 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
-. <(flux completion zsh) 
-. <(kubectl completion zsh) 
-. <(helm completion zsh) 
-
+[[ ! -f /usr/local/bin/flux    ]] || . <(flux completion zsh) 
+[[ ! -f /usr/local/bin/kubectl ]] || . <(kubectl completion zsh) 
+[[ ! -f /usr/sbin/helm         ]] || . <(helm completion zsh) 
+[[ ! -f ~/.local/bin/velero    ]] || . <(velero completion zsh)
 # Aliases
 alias reload='source ~/.zshrc'
 alias ls="exa -la"
@@ -124,3 +124,36 @@ alias git="emacsclient -c -a emacs -q --eval \"(magit)\""
 alias gitcli="/bin/git"
 alias ..="cd .."
 alias back="cd -"
+alias khc="cd ~/Documents/Kubernetes-Home-Cluster"
+alias dtf="cd ~/.dotfiles"
+
+vterm_printf(){
+    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
+        # Tell tmux to pass the escape sequences through
+        printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+    elif [ "${TERM%%-*}" = "screen" ]; then
+        # GNU screen (screen, screen-256color, screen-256color-bce)
+        printf "\eP\e]%s\007\e\\" "$1"
+    else
+        printf "\e]%s\e\\" "$1"
+    fi
+}
+
+# Accepts one history line number as argument.
+# Alternatively, you can do `dc -1` to remove the last line.
+dc () {
+  # Prevent the specified history line from being saved.
+  local HISTORY_IGNORE="${(b)$(fc -ln $1 $1)}"
+
+  # Write out the history to file, excluding lines that match `$HISTORY_IGNORE`.
+  fc -W
+
+  # Dispose of the current history and read the new history from file.
+  fc -p $HISTFILE $HISTSIZE $SAVEHIST
+
+  # TA-DA!
+  print "Deleted '$HISTORY_IGNORE' from history."
+}
+zshaddhistory() {
+ [[ $1 != 'dc '* ]]
+}

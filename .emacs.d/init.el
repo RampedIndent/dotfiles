@@ -77,7 +77,11 @@
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
-	 ))
+         )
+  :config
+    (setq ivy-use-virtual-buffers t
+          ivy-count-format "%d/%d ")
+  )
 
 
 (use-package ivy-rich
@@ -96,9 +100,17 @@
 
 
 ;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
+;; (set-face-attribute 'heading-variable-pitch nil 
+;;                     :font "Signika Negative"
+;;                     :height 1.6
+;;                     :weight 'extra-light
+;;                     :width  'ultra-expanded )
+
 (set-face-attribute 'variable-pitch nil 
-                    :font "Inconsolata GO Nerd Font"
-                    :height 1.6)
+                    :font "Signika Negative"
+                    :height 1.6
+                    :weight 'extra-light
+                    :width  'ultra-expanded )
 (set-face-attribute 'fixed-pitch nil 
                     :font "Inconsolata Go Nerd Font"
                     :height 0.8)
@@ -138,13 +150,13 @@
   (if (not (symbol-value flyspell-mode)) ; if not already on
     (progn
       (if (derived-mode-p 'prog-mode)
-	(progn
-	  (message "Flyspell on (code)")
-	  (flyspell-prog-mode))
-	;; else
-	(progn
-	  (message "Flyspell on (text)")
-	  (flyspell-mode 1)))
+        (progn
+          (message "Flyspell on (code)")
+          (flyspell-prog-mode))
+        ;; else
+        (progn
+          (message "Flyspell on (text)")
+          (flyspell-mode 1)))
       ;; I tried putting (flyspell-buffer) here but it didn't seem to work
       )))
 
@@ -153,8 +165,8 @@
   (interactive)
   (if (symbol-value flyspell-mode)
       (progn ; flyspell is on, turn it off
-	(message "Flyspell off")
-	(flyspell-mode -1))
+        (message "Flyspell off")
+        (flyspell-mode -1))
       ; else - flyspell is off, turn it on
       (flyspell-on-for-buffer-type)))
 
@@ -192,6 +204,8 @@
   (when (file-directory-p "~/documents/Projects/Code")
     (setq projectile-project-search-path '("~/documents/Projects/Code")))
   (setq projectile-switch-project-action #'projectile-dired))
+(use-package counsel-projectile
+    :ensure t)
 
 (use-package magit
   :custom
@@ -208,13 +222,14 @@
   :config 
   (persp-mode)
   )
-(use-package counsel-projectile
-  :ensure t)
 
 (use-package vterm
   :commands vterm
   :config
   (setq vterm-max-scrollback 10000))
+
+(use-package multi-vterm
+  :ensure t)
 
 (use-package all-the-icons-dired)
 
@@ -492,6 +507,24 @@
   :ensure t
   :config (treemacs-set-scope-type 'Tabs))
 
+(use-package edit-server
+:ensure t
+:if window-system
+:commands edit-server-start
+:init (if after-init-time
+            (edit-server-start)
+          (add-hook 'after-init-hook
+                    #'(lambda() (edit-server-start))))
+:config (setq edit-server-new-frame-alist
+              '((name . "Edit with Emacs FRAME")
+                (top . 200)
+                (left . 200)
+                (width . 80)
+                (height . 25)
+                (minibuffer . t)
+                (menu-bar-lines . t)
+                (window-system . x))))
+
 (use-package which-key
   :init (which-key-mode)
   :diminish which-key-mode
@@ -521,6 +554,7 @@
   "ff" '(counsel-find-file :which-key "Find File")
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
   "fs" '(save-buffer :which-key "Save Current Buffer")
+  "fS" '(write-file :which-key "Save Current Buffer as")
   "w" '(:ignore w :which-key "file commands")
   "wv" '(evil-window-vsplit :which-key "Vertical Window Split")
   "wh" '(evil-window-split :which-key "Horizontal Window Split")
@@ -534,7 +568,7 @@
   "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
   "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
   "bt" '(treemacs :which-key "Toggle Treemacs")
-  "v" '(vterm :which-key "Start vterm")
+  "v" '(multi-vterm :which-key "Start vterm")
   "<ESC>" '(evil-normal-state :which-key "Default Evil state")
   )
 
@@ -602,6 +636,9 @@
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (font-lock-add-keywords 'org-mode
+                            '(("^[[:space:]]*\\(-\\) "
+                               0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—")))))
     (defun efs/org-mode-setup ()
       (org-indent-mode)
       (variable-pitch-mode 1)
@@ -630,6 +667,7 @@
     :pin elpa
     :hook (org-mode . efs/org-mode-setup)
     :config
+    ;; (setq org-ellipsis " -")
     (setq org-ellipsis " ▾")
     (efs/org-font-setup)
     (setq org-modules
@@ -645,7 +683,7 @@
     (setq org-outline-path-complete-in-steps nil)
     (setq org-refile-use-outline-path t)
     (setq org-startup-with-inline-images t)
-    
+
 ;; (setq org-image-actual-width 750)
 
     (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
@@ -692,18 +730,22 @@
 (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
 (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
 
-;; Automatically tangle our Emacs.org config file when we save it
-(defun efs/org-babel-tangle-config ()
-  (when (or (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/emacs.org"))
-                      (string-equal (buffer-file-name)
-                                    (expand-file-name "~/.dotfiles/system.org"))
-                      )
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
+;; ;; Automatically tangle our Emacs.org config file when we save it
+;; (defun efs/org-babel-tangle-config ()
+;;   (when (or (string-equal (buffer-file-name)
+;;                       (expand-file-name "~/.dotfiles/emacs.org"))
+;;                       (string-equal (buffer-file-name)
+;;                                     (expand-file-name "~/.dotfiles/system.org"))
+;;                       )
+;;     ;; Dynamic scoping to the rescue
+;;     (let ((org-confirm-babel-evaluate nil))
+;;       (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+;; (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+(use-package org-auto-tangle
+;; :load-path "site-lisp/org-auto-tangle/"    ;; this line is necessary only if you cloned the repo in your site-lisp directory 
+:defer t
+:hook (org-mode . org-auto-tangle-mode))
 
 (use-package evil-org
   :after org
@@ -730,108 +772,118 @@
   "ox"  '(org-export-dispatch t :which-key "export"))
 
 (use-package org-roam
-  ;;:straight t
+  :ensure t
   :hook
   (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/Documents/Notes/Org-Roam/")
-  (org-roam-completion-everywhere t)
-  (org-roam-completion-system 'default)
-  (org-roam-capture-templates
-    '(("d" "default" plain "%?"
-       ;; #'org-roam-capture--get-point
-       ;; "%?"
-       ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
-       ;; :head "#+title: ${title}\n"
-       :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
-                      "#+title: ${title}\n")
-       :unnarrowed t)
-      ("m" "default math" plain "%?"
-       ;; #'org-roam-capture--get-point
-       ;; "%?"
-       ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
-       :head "#+title: ${title}\n#+STARTUP: latexpreview\n"
-       :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
-                      "#+title: ${title}\n")
-       :unnarrowed t)
+  :config
+  (setq org-roam-directory "~/Documents/Notes/Org-Roam/")
+  (setq org-roam-completion-everywhere t)
+  (setq org-roam-completion-system 'default)
+  (setq org-roam-capture-templates
+   '(("d" "default" plain "* ${title} \n%?"
+      ;; #'org-roam-capture--get-point
+      ;; "%?"
+      ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+      ;; :head "#+title: ${title}\n"
+      :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                         "#+title: ${title}\n")
+      :unnarrowed t)
+     ("m" "default math" plain
+      "#+STARTUP: latexpreview\n* ${title} \n%?"
+      ;; #'org-roam-capture--get-point
+      ;; "%?"
+      ;; :file-name "%<%Y%m%d%H%M%S>-${slug}"
+      :head "#+title: ${title}\n"
+      :target (file+head "${slug}-%<%Y%m%d%H%M%S>.org"
+                         "#+title: ${title}\n")
+      :unnarrowed t)
 
-      ("ll" "link note" plain
-       #'org-roam-capture--get-point
-       "* %^{Link}"
-       :file-name "Inbox"
-       :olp ("Links")
-       :unnarrowed t
-       :immediate-finish)
-      ("lt" "link task" entry
-       #'org-roam-capture--get-point
-       "* TODO %^{Link}"
-       :file-name "Inbox"
-       :olp ("Tasks")
-       :unnarrowed t
-       :immediate-finish)))
-  (org-roam-dailies-directory "Journal/")
-  (org-roam-dailies-capture-templates
-    '(("d" "default" entry
-       #'org-roam-capture--get-point
-       "* %?"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("t" "Task" entry
-       #'org-roam-capture--get-point
-       "* TODO %?\n  %U\n  %a\n  %i"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Tasks")
-       :empty-lines 1
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("j" "journal" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("l" "log entry" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - %?"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-      ("m" "meeting" entry
-       #'org-roam-capture--get-point
-       "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
-       :file-name "Journal/%<%Y-%m-%d>"
-       :olp ("Log")
-       :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
-       :bind (:map org-roam-mode-map
-          (("C-c n l"   . org-roam)
-           ("C-c n f"   . org-roam-find-file)
-           ("C-c n d"   . org-roam-dailies-find-date)
-           ("C-c n c"   . org-roam-dailies-capture-today)
-           ("C-c n C r" . org-roam-dailies-capture-tomorrow)
-           ("C-c n t"   . org-roam-dailies-find-today)
-           ("C-c n y"   . org-roam-dailies-find-yesterday)
-           ("C-c n r"   . org-roam-dailies-find-tomorrow)
-           ("C-c n g"   . org-roam-graph))
-         :map org-mode-map
-         (("C-c n i" . org-roam-node-insert)))
-       :after
-       (org-roam-update-org-id-locations)
-       )
+     ("ll" "link note" plain
+      ;; #'org-roam-capture--get-point
+      "* %^{Link}"
+      :file-name "Inbox"
+      :olp ("Links")
+      :unnarrowed t
+      :immediate-finish)
+     ("lt" "link task" entry
+      ;; #'org-roam-capture--get-point
+      "* TODO %^{Link}"
+      :file-name "Inbox"
+      :olp ("Tasks")
+      :unnarrowed t
+      :immediate-finish)))
+  (setq org-roam-dailies-directory "Journal/")
+  (setq org-roam-dailies-capture-templates
+   '(("d" "default" entry
+      ;; #'org-roam-capture--get-point
+      "* %?"
+      ;; :file-name "Journal/%<%Y-%m-%d>"
+      ;; :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n"
+      :target (file+head "${slug}.org"
+                         "#+title: ${title}\n"))
 
-(unless dw/is-termux
-    (use-package websocket
-    :after org-roam)
+     ("t" "Task" entry
+      ;; #'org-roam-capture--get-point
+      "* TODO %?\n  %U\n  %a\n  %i"
+      :file-name "Journal/%<%Y-%m-%d>"
+      :olp ("Tasks")
+      :empty-lines 1
+      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+     ("j" "journal" entry
+      ;; #'org-roam-capture--get-point
+      "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
+      :file-name "Journal/%<%Y-%m-%d>"
+      :olp ("Log")
+      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+     ("l" "log entry" entry
+      ;; #'org-roam-capture--get-point
+      "* %<%I:%M %p> - %?"
+      :file-name "Journal/%<%Y-%m-%d>"
+      :olp ("Log")
+      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+     ("m" "meeting" entry
+      ;; #'org-roam-capture--get-point
+      "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
+      :file-name "Journal/%<%Y-%m-%d>"
+      :olp ("Log")
+      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
 
-    (use-package org-roam-ui
-    :after org-roam ;; or :after org
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start nil)))
+  (org-roam-update-org-id-locations)
+  (org-roam-db-autosync-mode t)
+  :bind (:map org-roam-mode-map
+              (("C-c n l"   . org-roam)
+               ("C-c n f"   . org-roam-find-file)
+               ("C-c n d"   . org-roam-dailies-find-date)
+               ("C-c n c"   . org-roam-dailies-capture-today)
+               ("C-c n C r" . org-roam-dailies-capture-tomorrow)
+               ("C-c n t"   . org-roam-dailies-find-today)
+               ("C-c n y"   . org-roam-dailies-find-yesterday)
+               ("C-c n r"   . org-roam-dailies-find-tomorrow)
+               ("C-c n g"   . org-roam-graph))
+              :map org-mode-map
+              (("C-c n i" . org-roam-node-insert)))
+  )
+
+(use-package websocket
+  :unless dw/is-termux
+  :after org-roam)
+
+(use-package org-roam-ui
+  :unless dw/is-termux
+  :after org-roam ;; or :after org
+  ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+  ;;         a hookable mode anymore, you're advised to pick something yourself
+  ;;         if you don't care about startup time, use
+  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start nil)
+  (unless (org-roam-ui-mode)
+    (org-roam-ui-mode t))
+
+  )
 
 (use-package org-download
   :ensure t)
