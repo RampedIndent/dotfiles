@@ -62,7 +62,7 @@
   (setq scroll-step 1) ;; keyboard scroll one line at a time
   (setq use-dialog-box nil)) ;; Disable dialog boxes since they weren't working in Mac OSX
 (use-package fast-scroll
-  :ensure t
+  :straight t
   :config
   (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
   (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
@@ -87,42 +87,51 @@
   (package-install 'use-package))
 
 (require 'use-package)
-(setq use-package-always-ensure t)
+;; (setq use-package-always-ensure t)
 
 (use-package command-log-mode)
-(use-package swiper)
+  (use-package swiper)
 
 
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)	
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         )
-  :config
-    (setq ivy-use-virtual-buffers t
-          ivy-count-format "%d/%d ")
-  )
+  (use-package ivy
+    :diminish
+    :bind (("C-s" . swiper)
+           :map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)	
+           ("C-l" . ivy-alt-done)
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line)
+           )
+    :config
+      (setq ivy-use-virtual-buffers t
+            ivy-count-format "%d/%d ")
+    )
 
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+         ("C-x b" . counsel-ibuffer)
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)))
 
-(use-package ivy-rich
-  :init
-  (ivy-rich-mode 1))
+  ;; (use-package ivy-rich
+  ;;   :init
+  ;;   (ivy-rich-mode 1)
+  ;;   )
 
 (require 'server)
 (unless (server-running-p)
     (server-start))
 
 (use-package all-the-icons
-  :ensure t
+  :straight t
   :after
   (all-the-icons-install-fonts)
   )
-
-
+(use-package unicode-fonts
+  :straight t
+  :config
+  (unicode-fonts-setup))
 ;;(set-face-attribute 'default nil :font "DejaVu Sans Mono")
 ;; (set-face-attribute 'heading-variable-pitch nil 
 ;;                     :font "Signika Negative"
@@ -161,13 +170,6 @@
   :hook (prog-mode . rainbow-delimiters-mode)
   :init(rainbow-delimiters-mode t))
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)))
-
 (defun flyspell-on-for-buffer-type ()
   "Enable Flyspell appropriately for the major mode of the current buffer.  Uses `flyspell-prog-mode' for modes derived from `prog-mode', so only strings and comments get checked.  All other buffers get `flyspell-mode' to check all text.  If flyspell is already enabled, does nothing."
   (interactive)
@@ -195,12 +197,12 @@
       (flyspell-on-for-buffer-type)))
 
 (use-package wc-mode
-  :ensure t
+  :straight t
   :init
   (add-to-list 'global-mode-string '("" wc-buffer-stats)))
 
 (use-package writegood-mode
-  :ensure t)
+  :straight t)
 
 (use-package evil-nerd-commenter
 :bind ("C-/" . evilnc-comment-or-uncomment-lines))
@@ -234,7 +236,7 @@
     (setq projectile-project-search-path '("~/documents/Projects/Code")))
   (setq projectile-switch-project-action #'projectile-dired))
 (use-package counsel-projectile
-    :ensure t)
+    :straight t)
 
 (use-package magit
   :custom
@@ -244,7 +246,7 @@
  ;; :after magit)
 
 (use-package perspective
-  :ensure t
+  :straight t
   :bind(("C-x k" . persp-kill-buffer*))
   :init
   (setq persp-suppress-no-prefix-key-warning t)
@@ -258,12 +260,12 @@
   (setq vterm-max-scrollback 10000))
 
 (use-package multi-vterm
-  :ensure t)
+  :straight t)
 
 (use-package all-the-icons-dired)
 
 (use-package dired
-  :ensure nil
+  :straight nil
   ;;:straight nil
   :defer 1
   :commands (dired dired-jump)
@@ -349,7 +351,7 @@
 ;;   "de"  `(,(dw/dired-link "~/.emacs.d") :which-key ".emacs.d"))
 
 (use-package dashboard
-  :ensure t
+  :straight t
   :init
   (progn
     (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
@@ -419,7 +421,7 @@
 (unless t
 
   (use-package kubernetes
-    :ensure t
+    :straight t
     :commands (kubernetes-overview)
     ;:config
     ;(setq kubernetes-poll-frequency 3600
@@ -427,7 +429,7 @@
     ))
 
 (use-package treemacs
-  :ensure t
+  :straight t
   :defer t
   :init
   (with-eval-after-load 'winum
@@ -512,32 +514,32 @@
 
 (use-package treemacs-evil
   :after (treemacs evil)
-  :ensure t)
+  :straight t)
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
-  :ensure t)
+  :straight t)
 
 (use-package treemacs-icons-dired
   :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
+  :straight t)
 
 (use-package treemacs-magit
   :after (treemacs magit)
-  :ensure t)
+  :straight t)
 
 (use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
   :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-  :ensure t
+  :straight t
   :config (treemacs-set-scope-type 'Perspectives))
 
 (use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
   :after (treemacs)
-  :ensure t
+  :straight t
   :config (treemacs-set-scope-type 'Tabs))
 
 (use-package edit-server
-:ensure t
+:straight t
 :if window-system
 :commands edit-server-start
 :init (if after-init-time
@@ -561,7 +563,7 @@
   (setq which-key-idle-delay 1))
 
 (use-package general
-  :ensure t)
+  :straight t)
 
 (general-create-definer viktorya/editor-keys
   :keymaps '(normal insert visual emacs)
@@ -643,7 +645,7 @@
   (evil-collection-init))
 
 (use-package doom-modeline
-  :ensure t
+  :straight t
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 10)))
 
@@ -664,7 +666,7 @@
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—"))))))
     (font-lock-add-keywords 'org-mode
                             '(("^[[:space:]]*\\(-\\) "
                                0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—")))))
@@ -743,13 +745,56 @@
   (use-package visual-fill-column
     :hook (org-mode . efs/org-mode-visual-fill))
 
+(add-hook 'org-mode-hook (lambda ()
+                           "Beautify Org Checkbox Symbol"
+                           (push '("[ ]" .  "☐") prettify-symbols-alist)
+                           (push '("[X]" . "☑" ) prettify-symbols-alist)
+                           (push '("[-]" . "❍" ) prettify-symbols-alist)
+                           (prettify-symbols-mode)))
+(defface org-checkbox-todo-text
+  '((t (:inherit org-todo)))
+  "Face for the text part of an unchecked org-mode checkbox.")
+
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
+ 'append)
+
+(defface org-checkbox-done-text
+  '((t (:inherit org-done)))
+  "Face for the text part of a checked org-mode checkbox.")
+
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-done-text prepend))
+ 'append)
+
+;; (defface org-checkbox-empty-text
+;;   '((t (:foreground "#ff2afc" :strike-through nil)))
+;;   "Face for the text part of a checked org-mode checkbox.")
+;; (defface org-checkbox-done-text
+;;   '((t (:foreground "#a7da1e" :strike-through nil)))
+;;   "Face for the text part of a checked org-mode checkbox.")
+
+;; (font-lock-add-keywords
+;;  'org-mode
+;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+;;     1 'org-checkbox-empty-text prepend))
+;;  'append)
+;; (font-lock-add-keywords
+;;  'org-mode
+;;  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+;;     1 'org-checkbox-done-text prepend))
+;;  'append)
+
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
-    (python . t)))
+    (python . t)
+    (shell . t)))
 
 (setq org-confirm-babel-evaluate nil)
-
+(setq org-babel-python-command "python3")
 (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
 (require 'org-tempo)
@@ -802,7 +847,7 @@
   "ox"  '(org-export-dispatch t :which-key "export"))
 
 (use-package org-roam
-  :ensure t
+  :straight t
   :hook
   (after-init . org-roam-mode)
   :config
@@ -916,7 +961,7 @@
   )
 
 (use-package org-download
-  :ensure t)
+  :straight t)
 
 (setq org-latex-create-formula-image-program 'dvipng)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))

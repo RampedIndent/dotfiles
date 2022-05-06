@@ -81,7 +81,7 @@
   ;modules-center = filesystem pulseaudio eth cpu memory temperature date
   modules-right = filesystem pulseaudio eth cpu memory temperature date bluetooth powermenu 
 
-  tray-position = off
+  tray-position = none
   tray-padding = 2
   ;tray-background = #0063ff
 
@@ -3157,13 +3157,61 @@ super + {Left,Down,Up,Right}
 
 * Install
 
-#+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash"
+#+NAME: toggle-packages-list
+- Choose items [3/4]  
+  - [X] Cli package
+  - [X] Ui Packages
+  - [ ] Production packages
+  - [X] Kubernetes packages
+
+
+#+NAME: toggle-packages
+#+begin_src python :var x=toggle-packages-list[,1,1:-1] :noweb eval
+  test = []
+  packages = {}
+  for li in x:
+        item = li[0][3:].split(" ")
+        test.append([li[0][:3], item[1]])
+  for item in test:
+        if item[0] == "[ ]":
+             # packages.append(False)
+             packages[item[1]] = "false"
+        elif item[0] == "[X]":
+             # packages.append(True)
+             packages[item[1]] = "true"
+        else:
+             # packages.append("Error")
+             packages[item[1]] = "Error"
+  try: p
+  except NameError: p = None
+
+  if p is None:
+       return packages
+  else:
+       return packages[p]
+#+end_src
+
+#+RESULTS: toggle-packages
+| Cli | : | true | Ui | : | true | Production | : | False | Kubernetes | : | true |
+
+#+begin_src shell :noweb yes
+  if "<<toggle-packages(p="Ui")>>"; then
+      echo "True"
+  else
+   echo "False"
+  fi
+#+end_src
+
+#+RESULTS:
+: True
+
+#+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb yes
 
   UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
   ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
   UI_PACKAGES="picom polybar nitrogen syncthing"
-  PROD_PACKAGES="blender inkscape krita"
+  PROD_PACKAGES="inkscape krita"
   DOTFILES_DIR=~/.dotfiles
   #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
@@ -3210,9 +3258,10 @@ super + {Left,Down,Up,Right}
       echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
       stow .
       sudo apt install $UBUNTU_PACKAGES
-
-      sudo apt install $UI_PACKAGES
-
+      if "<<toggle-packages(p="Ui")>>"
+      then
+          sudo apt install $UI_PACKAGES
+      fi 
   fi
 
 
@@ -3241,35 +3290,37 @@ super + {Left,Down,Up,Right}
       sudo pacman -S $UI_PACKAGES --needed
 
   fi
+  
+  if "<<toggle-packages(p="Cli")>>";then
+      OMZ_DIR=~/.oh-my-zsh
+      if ! [ -d "$OMZ_DIR" ]; then
+          echo "Installing Oh My ZSH"
+          sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
+      fi
 
-  OMZ_DIR=~/.oh-my-zsh
-  if ! [ -d "$OMZ_DIR" ]; then
-      echo "Installing Oh My ZSH"
-      sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
-  fi
-
-  P10K_DIR=~/powerlevel10k
-  if ! [ -d "$P10K_DIR" ]; then
-      echo "Installing zsh Powerline10k"
-      git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
-  fi
+      P10K_DIR=~/powerlevel10k
+      if ! [ -d "$P10K_DIR" ]; then
+          echo "Installing zsh Powerline10k"
+          git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+      fi
 
 
-  #if [ -d "~/powerline10k" ]; then
-  #    echo "Installing zsh Powerline10k"
-  #    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
-  #fi
+      #if [ -d "~/powerline10k" ]; then
+      #    echo "Installing zsh Powerline10k"
+      #    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
+      #fi
 
-  FILE=~/.ssh/id_$HOSTNAME
-  if [ -f "$FILE" ]; then
-      echo "$FILE exists."
-  else 
-      echo "$FILE does not exist."
-      ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
-      echo "Run to check if ssh-agent is running" 
-      echo "eval \"\$(ssh-agent -s)\""
-      echo "ssh-add $FILE"
-      echo "Remember to add key to github https://github.com/settings/keys"
+      FILE=~/.ssh/id_$HOSTNAME
+      if [ -f "$FILE" ]; then
+          echo "$FILE exists."
+      else 
+          echo "$FILE does not exist."
+          ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
+          echo "Run to check if ssh-agent is running" 
+          echo "eval \"\$(ssh-agent -s)\""
+          echo "ssh-add $FILE"
+          echo "Remember to add key to github https://github.com/settings/keys"
+      fi
   fi
 #+end_src
 

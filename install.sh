@@ -3,7 +3,7 @@ UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake
 ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
 ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
 UI_PACKAGES="picom polybar nitrogen syncthing"
-PROD_PACKAGES="blender inkscape krita"
+PROD_PACKAGES="inkscape krita"
 DOTFILES_DIR=~/.dotfiles
 #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
@@ -50,9 +50,10 @@ if [ "$DISTRO" == "Ubuntu" ]; then
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     sudo apt install $UBUNTU_PACKAGES
-
-    sudo apt install $UI_PACKAGES
-
+    if "true"
+    then
+        sudo apt install $UI_PACKAGES
+    fi 
 fi
 
 
@@ -82,32 +83,34 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
 
 fi
 
-OMZ_DIR=~/.oh-my-zsh
-if ! [ -d "$OMZ_DIR" ]; then
-    echo "Installing Oh My ZSH"
-    sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
-fi
+if "true";then
+    OMZ_DIR=~/.oh-my-zsh
+    if ! [ -d "$OMZ_DIR" ]; then
+        echo "Installing Oh My ZSH"
+        sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" 
+    fi
 
-P10K_DIR=~/powerlevel10k
-if ! [ -d "$P10K_DIR" ]; then
-    echo "Installing zsh Powerline10k"
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
-fi
+    P10K_DIR=~/powerlevel10k
+    if ! [ -d "$P10K_DIR" ]; then
+        echo "Installing zsh Powerline10k"
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+    fi
 
 
-#if [ -d "~/powerline10k" ]; then
-#    echo "Installing zsh Powerline10k"
-#    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
-#fi
+    #if [ -d "~/powerline10k" ]; then
+    #    echo "Installing zsh Powerline10k"
+    #    git clone --depth=1 https://github.com/ryanoasis/nerd-fonts.git ~/nerdfonts
+    #fi
 
-FILE=~/.ssh/id_$HOSTNAME
-if [ -f "$FILE" ]; then
-    echo "$FILE exists."
-else 
-    echo "$FILE does not exist."
-    ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
-    echo "Run to check if ssh-agent is running" 
-    echo "eval \"\$(ssh-agent -s)\""
-    echo "ssh-add $FILE"
-    echo "Remember to add key to github https://github.com/settings/keys"
+    FILE=~/.ssh/id_$HOSTNAME
+    if [ -f "$FILE" ]; then
+        echo "$FILE exists."
+    else 
+        echo "$FILE does not exist."
+        ssh-keygen -t ed25519 -C "RampedIndent@gmail.com" -f $FILE
+        echo "Run to check if ssh-agent is running" 
+        echo "eval \"\$(ssh-agent -s)\""
+        echo "ssh-add $FILE"
+        echo "Remember to add key to github https://github.com/settings/keys"
+    fi
 fi
