@@ -44,10 +44,11 @@
   foreground-alt = #afafaf
   primary = #ffb52a
   secondary = #ff2afc
+  red = #f90000
   alert = #bd2c40
 
   [bar/example]
-  monitor = ${env:MONITOR:HDMI-1}
+  monitor = ${env:MONITOR:HDMI-0}
   width = 100%
   height = 27
   ;offset-x = 1%
@@ -71,7 +72,7 @@
   module-margin-right = 2
 
   font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
-  font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;2
+  font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;3
   font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=32;7
   font-3 = unifont:fontformat=truetype:size=13:antialias=false;0
   font-4 = siji:pixelsize=13;1
@@ -80,7 +81,7 @@
   ;modules-center = filesystem pulseaudio eth cpu memory temperature date
   modules-right = filesystem pulseaudio eth cpu memory temperature date bluetooth powermenu 
 
-  tray-position = center
+  tray-position = off
   tray-padding = 2
   ;tray-background = #0063ff
 
@@ -575,14 +576,15 @@
 #+end_src
 
 *** Rofi-Bluetooth
-
+-font= 3
 #+begin_src conf :tangle ./.config/polybar/config.ini
 
-[module/bluetooth]
-type = custom/script
-exec = ~/.dotfiles/bin/rofi-bluetooth --status
-interval = 1
-click-left = ~/.dotfiles/bin/rofi-bluetooth &
+  [module/bluetooth]
+  type = custom/script
+  exec = ~/.dotfiles/bin/rofi-bluetooth --status
+  interval = 1
+  label-font= 2
+  click-left = ~/.dotfiles/bin/rofi-bluetooth &
 #+end_src
 
 ** Autostart
@@ -3157,8 +3159,8 @@ super + {Left,Down,Up,Right}
 
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash"
 
-  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandocf"
-  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc"
+  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
+  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
   UI_PACKAGES="picom polybar nitrogen syncthing"
   PROD_PACKAGES="blender inkscape krita"
@@ -3275,3 +3277,6 @@ super + {Left,Down,Up,Right}
 * Troubleshooting
 ** Fix Bluetooth audio
 https://askubuntu.com/a/1207648
+
+** Setting up SSH with yubikey
+https://gist.github.com/artizirk/d09ce3570021b0f65469cb450bee5e29

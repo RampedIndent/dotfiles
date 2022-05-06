@@ -1,6 +1,6 @@
 #!/bin/bash
-UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandocf"
-ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc"
+UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
+ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
 ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
 UI_PACKAGES="picom polybar nitrogen syncthing"
 PROD_PACKAGES="blender inkscape krita"

@@ -1,3 +1,19 @@
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
+
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 
@@ -45,6 +61,14 @@
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
   (setq scroll-step 1) ;; keyboard scroll one line at a time
   (setq use-dialog-box nil)) ;; Disable dialog boxes since they weren't working in Mac OSX
+(use-package fast-scroll
+  :ensure t
+  :config
+  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+  (fast-scroll-config)
+  (fast-scroll-mode 1)
+  )
 
 ;; Initalize package sources
 (require 'package)
@@ -180,6 +204,11 @@
 
 (use-package evil-nerd-commenter
 :bind ("C-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package smart-newline
+  :custom  
+  (smart-newline-mode 1)
+  )
 
 (use-package super-save
   :defer 1
@@ -330,8 +359,8 @@
     (setq dashboard-items '((recents  . 5)
                             (bookmarks . 5)
                             (projects . 5)
-                            ;(agenda . 5)
-                            ;(registers . 5)
+                            (agenda . 5)
+                            ;; (registers . 5)
                             ))
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
@@ -729,6 +758,7 @@
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
 (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 ;; ;; Automatically tangle our Emacs.org config file when we save it
 ;; (defun efs/org-babel-tangle-config ()

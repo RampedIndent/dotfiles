@@ -21,6 +21,10 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 install.sh
-\*.org
+\.*.org
 .on-login.sh
 .stow-local-ignore
+etc
+bin
+ltximg
+README.md

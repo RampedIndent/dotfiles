@@ -4,6 +4,31 @@
 * Emacs Configuration file
 ** Basic Configuration
 The basic configuration for configuring emacs
+
+*** Bootstrap straight.el
+
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
+
+#+end_src
+
+#+RESULTS:
+: t
+
 *** Startup Performance
 This measures startup performance
 #+begin_src emacs-lisp
@@ -65,13 +90,24 @@ This measures startup performance
 *** Improve Scrolling
 
 #+begin_src emacs-lisp
-(unless dw/is-termux
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-  (setq scroll-step 1) ;; keyboard scroll one line at a time
-  (setq use-dialog-box nil)) ;; Disable dialog boxes since they weren't working in Mac OSX
+  (unless dw/is-termux
+    (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+    (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+    (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+    (setq scroll-step 1) ;; keyboard scroll one line at a time
+    (setq use-dialog-box nil)) ;; Disable dialog boxes since they weren't working in Mac OSX
+  (use-package fast-scroll
+    :ensure t
+    :config
+    (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+    (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+    (fast-scroll-config)
+    (fast-scroll-mode 1)
+    )
 #+end_src
+
+#+RESULTS:
+: t
 
 *** Package installer
 This is the configuration for package and use package
@@ -302,6 +338,17 @@ A writing level checker
 #+RESULTS:
 : evilnc-comment-or-uncomment-lines
 
+*** Smart Newline
+
+#+begin_src emacs-lisp
+  (use-package smart-newline
+    :custom  
+    (smart-newline-mode 1)
+    )
+#+end_src
+
+#+RESULTS:
+
 *** Autosave
 
 #+begin_src emacs-lisp
@@ -349,7 +396,6 @@ Projectile is a project manager
 #+end_src
 
 #+RESULTS:
-| lambda | nil | (interactive) | (use-package-autoload-keymap 'projectile-command-map 'projectile nil) |
 
 *** Magit
 Magit is a emacs git client
@@ -509,8 +555,8 @@ $\sqrt{2}$
           (setq dashboard-items '((recents  . 5)
                                   (bookmarks . 5)
                                   (projects . 5)
-                                  ;(agenda . 5)
-                                  ;(registers . 5)
+                                  (agenda . 5)
+                                  ;; (registers . 5)
                                   ))
           (setq dashboard-set-heading-icons t)
           (setq dashboard-set-file-icons t)
@@ -569,7 +615,7 @@ $\sqrt{2}$
 #+end_src
 
 #+RESULTS:
-: ((recents . 5) (bookmarks . 5) (projects . 5) (custom))
+: ((recents . 5) (bookmarks . 5) (projects . 5) (agenda . 5) (registers . 5) (custom))
 
 *** Kubernetes
 
@@ -1459,6 +1505,7 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
   (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
 
 #+end_src
