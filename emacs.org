@@ -1544,7 +1544,7 @@ To execute or export code in org-mode code blocks, you’ll need to set up org-b
 #+end_src
 
 #+RESULTS:
-: ((conf-unix . conf-unix) (conf-unix . conf-unix) (conf-unix . conf-unix) (C . c) (C++ . c++) (asymptote . asy) (bash . sh) (beamer . latex) (calc . fundamental) (cpp . c++) (ditaa . artist) (desktop . conf-desktop) (dot . fundamental) (elisp . emacs-lisp) (ocaml . tuareg) (screen . shell-script) (shell . sh) (sqlite . sql) (toml . conf-toml))
+: ((conf-unix . conf-unix) (conf-unix . conf-unix) (C . c) (C++ . c++) (asymptote . asy) (bash . sh) (beamer . latex) (calc . fundamental) (cpp . c++) (ditaa . artist) (desktop . conf-desktop) (dot . fundamental) (elisp . emacs-lisp) (ocaml . tuareg) (screen . shell-script) (shell . sh) (sqlite . sql) (toml . conf-toml))
 
 *** Structure Templates
 Create Structure templates for Org mode. 
@@ -1585,10 +1585,14 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   :defer t
   :hook (org-mode . org-auto-tangle-mode))
 
+  (setq org-auto-tangle-babel-safelist '(
+                                         ("/home/rampedindent/.dotfiles/system.org")
+                                         ))
+
 #+end_src
 
 #+RESULTS:
-| org-auto-tangle-mode | evil-org-mode | (lambda nil (add-hook 'after-save-hook #'efs/org-babel-tangle-config)) | org-tempo-setup | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | efs/org-mode-visual-fill | efs/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
+| /home/rampedindent/.dotfiles/system.org |
 
 *** Evil Org Mode
 

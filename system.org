@@ -3156,14 +3156,13 @@ super + {Left,Down,Up,Right}
 #+end_src
 
 * Install
-
+** Toggle package list
 #+NAME: toggle-packages-list
 - Choose items [3/4]  
-  - [X] Cli package
+  - [X] Cli Terminal Configuration
   - [X] Ui Packages
   - [ ] Production packages
   - [X] Kubernetes packages
-
 
 #+NAME: toggle-packages
 #+begin_src python :var x=toggle-packages-list[,1,1:-1] :noweb eval
@@ -3204,7 +3203,7 @@ super + {Left,Down,Up,Right}
 
 #+RESULTS:
 : True
-
+** Install script
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb yes
 
   UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
@@ -3258,8 +3257,7 @@ super + {Left,Down,Up,Right}
       echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
       stow .
       sudo apt install $UBUNTU_PACKAGES
-      if "<<toggle-packages(p="Ui")>>"
-      then
+      if "<<toggle-packages(p="Ui")>>"; then
           sudo apt install $UI_PACKAGES
       fi 
   fi
@@ -3286,11 +3284,13 @@ super + {Left,Down,Up,Right}
       stow .
       echo "Installing Terminal Packages"
       sudo pacman -S $ARCH_PACKEGES --needed
-      echo "Installing UI Packages"
-      sudo pacman -S $UI_PACKAGES --needed
 
+      if "<<toggle-packages(p="Ui")>>"; then
+          echo "Installing UI Packages"
+          sudo pacman -S $UI_PACKAGES --needed
+      fi
   fi
-  
+
   if "<<toggle-packages(p="Cli")>>";then
       OMZ_DIR=~/.oh-my-zsh
       if ! [ -d "$OMZ_DIR" ]; then
@@ -3324,6 +3324,15 @@ super + {Left,Down,Up,Right}
   fi
 #+end_src
 
+** Install ssh authorised keys
+
+#+begin_src bash
+  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin/authorized_keys.sh
+
+  EDITOR=nano crontab -e 
+
+  */15 * * * * ~/.bin/authorized_keys.sh
+#+end_src
 
 * Troubleshooting
 ** Fix Bluetooth audio
