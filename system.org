@@ -3210,7 +3210,7 @@ super + {Left,Down,Up,Right}
   ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
   UI_PACKAGES="picom polybar nitrogen syncthing"
-  PROD_PACKAGES="inkscape krita"
+  PROD_PACKAGES="inkscape krita opera opera-ffmpeg"
   DOTFILES_DIR=~/.dotfiles
   #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
@@ -3327,8 +3327,8 @@ super + {Left,Down,Up,Right}
 ** Install ssh authorised keys
 
 #+begin_src bash
-  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin/authorized_keys.sh
-
+  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin
+  chmod +x ~/.bin/authorised_keys.sh
   EDITOR=nano crontab -e 
 
   */15 * * * * ~/.bin/authorized_keys.sh
@@ -3340,3 +3340,9 @@ https://askubuntu.com/a/1207648
 
 ** Setting up SSH with yubikey
 https://gist.github.com/artizirk/d09ce3570021b0f65469cb450bee5e29
+
+** Kill emacs
+#+begin_src emacs-lisp
+  (kill-emacs)
+#+end_src
+

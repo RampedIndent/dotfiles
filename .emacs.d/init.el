@@ -238,12 +238,19 @@
 (use-package counsel-projectile
     :straight t)
 
+(defun cust-git-pull (&rest _args)
+  (magit-pull-from-pushremote nil)
+  )
+
 (use-package magit
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (global-set-key (kbd "<ESCAPE>") 'magit-dispatch)
+  :config
+  (advice-add 'magit :after 'cust-git-pull)
+  )
 
-;;(use-package evil-magit
- ;; :after magit)
+;; (cust-git-pull)
 
 (use-package perspective
   :straight t
@@ -414,7 +421,7 @@
                  :notify (lambda (widget &rest ignore)
                             (org-roam-dailies-capture-date)))
   )
-  ;(insert "org-roam-dailies-capture-date"))
+ ;; ((insert "org-roam-dailies-capture-date"))
 (add-to-list 'dashboard-item-generators  '(custom . dashboard-insert-custom))
 (add-to-list 'dashboard-items '(custom) t)
 
@@ -644,6 +651,25 @@
   :config
   (evil-collection-init))
 
+(viktorya/editor-keys
+"o"   '(:ignore t :which-key "org mode")
+
+"oi"  '(:ignore t :which-key "insert")
+"oil" '(org-insert-link :which-key "insert link")
+"oid" '(org-deadline :which-key "insert deadline")
+"ois" '(org-schedule :which-key "insert sechedule")
+"oie" '(org-set-effort :which-key "insert effort")
+"oip" '(org-set-property :which-key "insert property")
+
+"on"  '(org-toggle-narrow-to-subtree :which-key "toggle narrow")
+
+;; "os"  '(dw/counsel-rg-org-files :which-key "search notes")
+
+"os"  '(org-agenda :which-key "status")
+"ot"  '(org-todo-list :which-key "todos")
+"oc"  '(org-capture t :which-key "capture")
+"ox"  '(org-export-dispatch t :which-key "export"))
+
 (use-package doom-modeline
   :straight t
   :init (doom-modeline-mode 1)
@@ -663,87 +689,136 @@
 (rainbow-mode t)
 
 (defun efs/org-font-setup ()
-    ;; Replace list hyphen with dot
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—"))))))
-    (font-lock-add-keywords 'org-mode
-                            '(("^[[:space:]]*\\(-\\) "
-                               0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—")))))
-    (defun efs/org-mode-setup ()
-      (org-indent-mode)
-      (variable-pitch-mode 1)
-      (visual-line-mode 1))
-    ;; Set faces for heading levels
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—"))))))
+  (font-lock-add-keywords 'org-mode
+                          '(("^[[:space:]]*\\(-\\) "
+                             0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "—")))))
+  (defun efs/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1))
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
-    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-  (use-package org
-    :pin elpa
-    :hook (org-mode . efs/org-mode-setup)
-    :config
-    ;; (setq org-ellipsis " -")
-    (setq org-ellipsis " ▾")
-    (efs/org-font-setup)
-    (setq org-modules
-          '(org-crypt
-            org-habit
-            org-bookmark
-            org-eshell
-            org-irc))
+;; (add-to-list 'org-modules 'org-habit)
 
-    (setq org-refile-targets '((nil :maxlevel . 1)
-                               (org-agenda-files :maxlevel . 1)))
+(use-package org
+  :pin elpa
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  ;; (setq org-ellipsis " -")
+  (setq org-ellipsis " ▾")
+  (efs/org-font-setup)
+  (setq org-modules
+        '(org-crypt
+          org-habit
+          org-bookmark
+          org-habit
+          org-eshell
+          org-irc))
 
-    (setq org-outline-path-complete-in-steps nil)
-    (setq org-refile-use-outline-path t)
-    (setq org-startup-with-inline-images t)
 
-;; (setq org-image-actual-width 750)
+  (setq org-habit-graph-column 60)
 
-    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
-    (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
+  (setq org-refile-targets '((nil :maxlevel . 1)
+                             (org-agenda-files :maxlevel . 1)))
 
-    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
-    (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+  (setq org-outline-path-complete-in-steps nil)
+  (setq org-refile-use-outline-path t)
+  (setq org-startup-with-inline-images t)
+  (setq org-agenda-files
+        '("~/documents/syncthing/Todo Lists /school.org"
+          "~/documents/syncthing/Todo Lists /Life.org"
+          "~/documents/syncthing/Todo Lists /Emacs.org"
+          "~/Documents/Notes/Habits.org"
+          "~/documents/syncthing/Todo Lists /kubernetes.org"))
+  (setq org-refile-targets
+        '(("~/documents/syncthing/Todo Lists /Archive.org" :maxlevel . 2)
+          ("~/documents/syncthing/Todo Lists /Life.org" :maxlevel . 1)))
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (ledger . t)))
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
 
-    )
 
-  (use-package org-bullets
-    :after org
-    :hook (org-mode . org-bullets-mode)
-    ;;:custom
-    ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")
-    )
+  (setq org-image-actual-width 750)
 
-  (defun efs/org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
-          visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
 
-  (use-package visual-fill-column
-    :hook (org-mode . efs/org-mode-visual-fill))
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (ledger . t)))
+
+  )
+
+(require 'org-habit)
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  ;;:custom
+  ;;(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")
+  )
+
+(defun efs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . efs/org-mode-visual-fill))
+
+(setq org-capture-templates
+`(;;("t" "Tasks / Projects")
+  ;; ("tt" "Task" entry (file+olp "~/Projects/Code/emacs-from-scratch/OrgFiles/Tasks.org" "Inbox")
+  ;;      "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+  ;; ("j" "Journal Entries")
+  ;; ("jj" "Journal" entry
+  ;;      (file+olp+datetree "~/Documents/Notes/Journal.org")
+  ;;      "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+  ;;      ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+  ;;      :clock-in :clock-resume
+  ;;      :empty-lines 1)
+  ;; ("jm" "Meeting" entry
+  ;;      (file+olp+datetree "~/Documents/Notes/Journal.org")
+  ;;      "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+  ;;      :clock-in :clock-resume
+  ;;      :empty-lines 1)
+
+  ;; ("w" "Workflows")
+  ;; ("we" "Checking Email" entry (file+olp+datetree "~/Projects/Documents/Notes/Journal.org")
+  ;;      "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+  ("m" "Metrics Capture")
+  ("mw" "Weight" table-line (file+headline "~/Projects/Documents/Notes/Metrics.org" "Weight")
+   "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)
+  ))
 
 (add-hook 'org-mode-hook (lambda ()
                            "Beautify Org Checkbox Symbol"
@@ -822,6 +897,10 @@
 :defer t
 :hook (org-mode . org-auto-tangle-mode))
 
+(setq org-auto-tangle-babel-safelist '(
+                                       ("/home/rampedindent/.dotfiles/system.org")
+                                       ))
+
 (use-package evil-org
   :after org
   :hook ((org-mode . evil-org-mode)
@@ -830,21 +909,6 @@
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-
-(viktorya/editor-keys
-  "o"   '(:ignore t :which-key "org mode")
-
-  "oi"  '(:ignore t :which-key "insert")
-  "oil" '(org-insert-link :which-key "insert link")
-
-  "on"  '(org-toggle-narrow-to-subtree :which-key "toggle narrow")
-
-  "os"  '(dw/counsel-rg-org-files :which-key "search notes")
-
-  "oa"  '(org-agenda :which-key "status")
-  "ot"  '(org-todo-list :which-key "todos")
-  "oc"  '(org-capture t :which-key "capture")
-  "ox"  '(org-export-dispatch t :which-key "export"))
 
 (use-package org-roam
   :straight t
@@ -960,8 +1024,8 @@
 
   )
 
-(use-package org-download
-  :straight t)
+;; # # (use-package org-download
+  ;; :straight t)
 
 (setq org-latex-create-formula-image-program 'dvipng)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
