@@ -90,34 +90,85 @@
 ;; (setq use-package-always-ensure t)
 
 (use-package command-log-mode)
-  (use-package swiper)
+(use-package swiper)
 
 
-  (use-package ivy
-    :diminish
-    :bind (("C-s" . swiper)
-           :map ivy-minibuffer-map
-           ("TAB" . ivy-alt-done)	
-           ("C-l" . ivy-alt-done)
-           ("C-j" . ivy-next-line)
-           ("C-k" . ivy-previous-line)
-           )
-    :config
-      (setq ivy-use-virtual-buffers t
-            ivy-count-format "%d/%d ")
-    )
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)	
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         )
+  :config
+  (setq ivy-use-virtual-buffers t
+        ivy-count-format "%d/%d ")
+  )
 
 (use-package counsel
   :bind (("M-x" . counsel-M-x)
          ("C-x b" . counsel-ibuffer)
          ("C-x C-f" . counsel-find-file)
          :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)))
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1)
+  :after counsel
+  :config
+  (setq ivy-format-function #'ivy-format-function-line)
+  (setq ivy-rich-display-transformers-list
+        (plist-put ivy-rich-display-transformers-list
+                   'ivy-switch-buffer
+                   '(:columns
+                     ((ivy-rich-candidate (:width 40))
+                      (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right)); return the buffer indicators
+                      (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))          ; return the major mode info
+                      (ivy-rich-switch-buffer-project (:width 15 :face success))             ; return project name using `projectile'
+                      (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))  ; return file path relative to project root or `default-directory' if project is nil
+                     :predicate
+                     (lambda (cand)
+                       (if-let ((buffer (get-buffer cand)))
+                           ;; Don't mess with EXWM buffers
+                           (with-current-buffer buffer
+                             (not (derived-mode-p 'exwm-mode)))))))))
+(use-package flx  ;; Improves sorting for fuzzy-matched results
+  :after ivy
+  :defer t
+  :init
+  (setq ivy-flx-limit 10000))
 
-  ;; (use-package ivy-rich
-  ;;   :init
-  ;;   (ivy-rich-mode 1)
-  ;;   )
+(use-package wgrep)
+
+(use-package ivy-posframe
+  :disabled
+  :custom
+  (ivy-posframe-width      115)
+  (ivy-posframe-min-width  115)
+  (ivy-posframe-height     10)
+  (ivy-posframe-min-height 10)
+  :config
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  (setq ivy-posframe-parameters '((parent-frame . nil)
+                                  (left-fringe . 8)
+                                  (right-fringe . 8)))
+  (ivy-posframe-mode 1))
+
+(use-package prescient
+  :after counsel
+  :config
+  (prescient-persist-mode 1))
+
+(use-package ivy-prescient
+  :after prescient
+  :config
+  (ivy-prescient-mode 1))
 
 (require 'server)
 (unless (server-running-p)
@@ -756,6 +807,7 @@
         '(("~/documents/syncthing/Todo Lists /Archive.org" :maxlevel . 2)
           ("~/documents/syncthing/Todo Lists /Life.org" :maxlevel . 1)))
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  (advice-add 'org-agenda-todo :after 'org-save-all-org-buffers)
 
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
@@ -770,10 +822,10 @@
   (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
   (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
 
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (ledger . t)))
+  ;; (org-babel-do-load-languages
+  ;;  'org-babel-load-languages
+  ;;  '((emacs-lisp . t)
+  ;;    (ledger . t)))
 
   )
 
@@ -898,8 +950,14 @@
 :hook (org-mode . org-auto-tangle-mode))
 
 (setq org-auto-tangle-babel-safelist '(
-                                       ("/home/rampedindent/.dotfiles/system.org")
+                                       "/home/rampedindent/.dotfiles/system.org"
+                                       "/home/rampedindent/tmp/test.org"
                                        ))
+
+(setq org-auto-tangle-babel-safelist '(
+                                     "/home/rampedindent/.dotfiles/system.org"
+                                     "/home/rampedindent/tmp/test.org"
+                                     ))
 
 (use-package evil-org
   :after org

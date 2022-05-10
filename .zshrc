@@ -11,6 +11,11 @@ fi
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+export PATH=/usr/bin:$PATH
+export DOCKER_HOST=unix:///run/user/1000/docker.sock
+
+
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -126,6 +131,8 @@ alias ..="cd .."
 alias back="cd -"
 alias khc="cd ~/Documents/Kubernetes-Home-Cluster"
 alias dtf="cd ~/.dotfiles"
+alias tracert="traceroute"
+alias docker-compose="/usr/libexec/docker/cli-plugins/docker-compose"
 
 vterm_printf(){
     if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then

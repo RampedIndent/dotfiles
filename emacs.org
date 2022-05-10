@@ -159,26 +159,76 @@ Configure Swiper and ivy
            ("C-k" . ivy-previous-line)
            )
     :config
-      (setq ivy-use-virtual-buffers t
-            ivy-count-format "%d/%d ")
+    (setq ivy-use-virtual-buffers t
+          ivy-count-format "%d/%d ")
     )
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)))
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+           ("C-x b" . counsel-ibuffer)
+           ("C-x C-f" . counsel-find-file)
+           :map minibuffer-local-map
+           ("C-r" . 'counsel-minibuffer-history))
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+    :config
+    (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
+  (use-package ivy-rich
+    :init
+    (ivy-rich-mode 1)
+    :after counsel
+    :config
+    (setq ivy-format-function #'ivy-format-function-line)
+    (setq ivy-rich-display-transformers-list
+          (plist-put ivy-rich-display-transformers-list
+                     'ivy-switch-buffer
+                     '(:columns
+                       ((ivy-rich-candidate (:width 40))
+                        (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right)); return the buffer indicators
+                        (ivy-rich-switch-buffer-major-mode (:width 12 :face warning))          ; return the major mode info
+                        (ivy-rich-switch-buffer-project (:width 15 :face success))             ; return project name using `projectile'
+                        (ivy-rich-switch-buffer-path (:width (lambda (x) (ivy-rich-switch-buffer-shorten-path x (ivy-rich-minibuffer-width 0.3))))))  ; return file path relative to project root or `default-directory' if project is nil
+                       :predicate
+                       (lambda (cand)
+                         (if-let ((buffer (get-buffer cand)))
+                             ;; Don't mess with EXWM buffers
+                             (with-current-buffer buffer
+                               (not (derived-mode-p 'exwm-mode)))))))))
+  (use-package flx  ;; Improves sorting for fuzzy-matched results
+    :after ivy
+    :defer t
+    :init
+    (setq ivy-flx-limit 10000))
 
-  ;; (use-package ivy-rich
-  ;;   :init
-  ;;   (ivy-rich-mode 1)
-  ;;   )
+  (use-package wgrep)
 
+  (use-package ivy-posframe
+    :disabled
+    :custom
+    (ivy-posframe-width      115)
+    (ivy-posframe-min-width  115)
+    (ivy-posframe-height     10)
+    (ivy-posframe-min-height 10)
+    :config
+    (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    (setq ivy-posframe-parameters '((parent-frame . nil)
+                                    (left-fringe . 8)
+                                    (right-fringe . 8)))
+    (ivy-posframe-mode 1))
+
+  (use-package prescient
+    :after counsel
+    :config
+    (prescient-persist-mode 1))
+
+  (use-package ivy-prescient
+    :after prescient
+    :config
+    (ivy-prescient-mode 1))
 #+end_src
 
 #+RESULTS:
-: counsel-minibuffer-history
+: t
 
 *** Server Mode
 #+begin_src emacs-lisp
@@ -1496,6 +1546,7 @@ To export an orgmode file C+c C+e l o
           '(("~/documents/syncthing/Todo Lists /Archive.org" :maxlevel . 2)
             ("~/documents/syncthing/Todo Lists /Life.org" :maxlevel . 1)))
     (advice-add 'org-refile :after 'org-save-all-org-buffers)
+    (advice-add 'org-agenda-todo :after 'org-save-all-org-buffers)
 
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
@@ -1510,10 +1561,10 @@ To export an orgmode file C+c C+e l o
     (evil-define-key '(normal insert visual) org-mode-map (kbd "M-j") 'org-metadown)
     (evil-define-key '(normal insert visual) org-mode-map (kbd "M-k") 'org-metaup)
 
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (ledger . t)))
+    ;; (org-babel-do-load-languages
+    ;;  'org-babel-load-languages
+    ;;  '((emacs-lisp . t)
+    ;;    (ledger . t)))
 
     )
   
@@ -1537,7 +1588,7 @@ To export an orgmode file C+c C+e l o
 #+end_src
 
 #+RESULTS:
-| evil-org-mode | org-auto-tangle-mode | org-tempo-setup | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | (lambda nil Beautify Org Checkbox Symbol (setq prettify-symbols-alist (cons '([ ] . ☐) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([X] . ☑) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([-] . ❍) prettify-symbols-alist)) (prettify-symbols-mode)) | efs/org-mode-visual-fill | efs/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
+| evil-org-mode | org-auto-tangle-mode | org-tempo-setup | (lambda nil Beautify Org Checkbox Symbol (setq prettify-symbols-alist (cons '([ ] . ☐) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([X] . ☑) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([-] . ❍) prettify-symbols-alist)) (prettify-symbols-mode)) | efs/org-mode-visual-fill | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | efs/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
 
 *** Org capture templates
 
@@ -1682,16 +1733,24 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   :hook (org-mode . org-auto-tangle-mode))
 
   (setq org-auto-tangle-babel-safelist '(
-                                         ("/home/rampedindent/.dotfiles/system.org")
+                                         "/home/rampedindent/.dotfiles/system.org"
+                                         "/home/rampedindent/tmp/test.org"
                                          ))
 
 #+end_src
 
 #+RESULTS:
-| /home/rampedindent/.dotfiles/system.org |
+| /home/rampedindent/.dotfiles/system.org | /home/rampedindent/tmp/test.org |
+
+#+begin_src emacs-lisp
+    (setq org-auto-tangle-babel-safelist '(
+                                         "/home/rampedindent/.dotfiles/system.org"
+                                         "/home/rampedindent/tmp/test.org"
+                                         ))
+#+end_src
 
 *** Evil Org Mode
-
+https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el
 #+begin_src emacs-lisp
 (use-package evil-org
   :after org

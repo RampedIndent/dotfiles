@@ -3165,7 +3165,7 @@ super + {Left,Down,Up,Right}
   - [X] Kubernetes packages
 
 #+NAME: toggle-packages
-#+begin_src python :var x=toggle-packages-list[,1,1:-1] :noweb eval
+#+begin_src python :var x=toggle-packages-list[,1,1:-1] :noweb yes
   test = []
   packages = {}
   for li in x:
@@ -3191,7 +3191,7 @@ super + {Left,Down,Up,Right}
 #+end_src
 
 #+RESULTS: toggle-packages
-| Cli | : | true | Ui | : | true | Production | : | False | Kubernetes | : | true |
+| Cli | : | true | Ui | : | true | Production | : | false | Kubernetes | : | true |
 
 #+begin_src shell :noweb yes
   if "<<toggle-packages(p="Ui")>>"; then
@@ -3205,11 +3205,11 @@ super + {Left,Down,Up,Right}
 : True
 ** Install script
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb yes
-
-  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
-  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
+ 
+  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
+  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
-  UI_PACKAGES="picom polybar nitrogen syncthing"
+  UI_PACKAGES="picom polybar nitrogen syncthing mousepad"
   PROD_PACKAGES="inkscape krita opera opera-ffmpeg"
   DOTFILES_DIR=~/.dotfiles
   #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
@@ -3328,11 +3328,15 @@ super + {Left,Down,Up,Right}
 
 #+begin_src bash
   wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin
-  chmod +x ~/.bin/authorised_keys.sh
+  chmod +x ~/.bin/authorized_keys.sh
   EDITOR=nano crontab -e 
 
   */15 * * * * ~/.bin/authorized_keys.sh
 #+end_src
+
+** Disable lid suspend
+/etc/systemd/logind.conf
+systemctl restart systemd
 
 * Troubleshooting
 ** Fix Bluetooth audio
