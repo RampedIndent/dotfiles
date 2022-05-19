@@ -215,7 +215,7 @@
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
+(add-hook 'org-src-mode-hook 'display-line-numbers-mode)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
@@ -292,6 +292,9 @@
 (defun cust-git-pull (&rest _args)
   (magit-pull-from-pushremote nil)
   )
+(defun cust-git-push (&rest _args)
+  (magit-push-current-to-pushremote nil)
+  )
 
 (use-package magit
   :custom
@@ -299,7 +302,12 @@
   (global-set-key (kbd "<ESCAPE>") 'magit-dispatch)
   :config
   (advice-add 'magit :after 'cust-git-pull)
+  ;; (advice-add 'magit-commit :after 'cust-git-push)
+  (setq magit-post-commit-hook 'cust-git-push)
   )
+(add-hook 'with-editor-mode-hook 'evil-insert-state)
+  (setq magit-post-commit-hook 'cust-git-push)
+  (setf (alist-get 'unpushed magit-section-initial-visibility-alist) 'show)
 
 ;; (cust-git-pull)
 
@@ -802,6 +810,7 @@
           "~/documents/syncthing/Todo Lists /Life.org"
           "~/documents/syncthing/Todo Lists /Emacs.org"
           "~/Documents/Notes/Habits.org"
+          ;; "~/Documents/Notes/Org-Roam/"
           "~/documents/syncthing/Todo Lists /kubernetes.org"))
   (setq org-refile-targets
         '(("~/documents/syncthing/Todo Lists /Archive.org" :maxlevel . 2)
@@ -929,6 +938,7 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
+(add-to-list 'org-structure-template-alist '("to" . "src toml :tangle ./"))
 (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
@@ -1082,11 +1092,41 @@
 
   )
 
-;; # # (use-package org-download
-  ;; :straight t)
+(use-package org-download
+  :straight t)
 
 (setq org-latex-create-formula-image-program 'dvipng)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+
+(use-package ox-hugo
+  :straight t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+
+  (with-eval-after-load 'org-capture
+  (defun org-hugo-new-subtree-post-capture-template ()
+    "Returns `org-capture' template string for new Hugo post.
+See `org-capture-templates' for more information."
+    (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
+           (fname (org-hugo-slug title)))
+      (mapconcat #'identity
+                 `(
+                   ,(concat "* TODO " title)
+                   ":PROPERTIES:"
+                   ,(concat ":EXPORT_FILE_NAME: " fname)
+                   ":END:"
+                   "%?\n")          ;Place the cursor here finally
+                 "\n")))
+
+  (add-to-list 'org-capture-templates
+               '("h"                ;`org-capture' binding + h
+                 "Hugo post"
+                 entry
+                 ;; It is assumed that below file is present in `org-directory'
+                 ;; and that it has a "Blog Ideas" heading. It can even be a
+                 ;; symlink pointing to the actual location of all-posts.org!
+                 (file+olp "all-posts.org" "Art")
+                 (function org-hugo-new-subtree-post-capture-template))))
 
 ;; (use-package ivy-xref
 ;;   :straight t

@@ -1,5 +1,5 @@
 #+STARTUP: content
-#+PROPERTY: header-args:mkdirp yes
+#+PROPERTY: header-args :mkdirp yes
 #+auto_tangle: t
 * Polybar
 ** Config
@@ -378,6 +378,7 @@
     animation-charging-foreground = ${colors.foreground-alt}
     animation-charging-framerate = 750
 
+    animation-discharging-0 =  
     animation-discharging-foreground = ${colors.foreground-alt}
     animation-discharging-framerate = 750
 
@@ -521,7 +522,7 @@
   ws-icon-8 = 9;
   ws-icon-9 = 10;
   ws-icon-default = " "
-
+                  
 
   format = <label-state> 
 
@@ -808,7 +809,7 @@ case $desktop in
     leftwm|/usr/share/xsessions/leftwm)
     if type "xrandr" > /dev/null; then
       for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config &
+        MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config.ini &
       done
     else
     polybar --reload mainbar-leftwm -c ~/.config/polybar/config &
@@ -1226,7 +1227,7 @@ configuration {
   actions[hibernate]="systemctl hibernate"
   actions[reboot]="systemctl reboot"
   actions[shutdown]="systemctl poweroff"
-  actions[displayoff]="xset dpms force off"
+  actions[displayoff]="~/.dotfiles/bin/rofi-power-menu-sleep"
 
   # By default, ask for confirmation for actions that are irreversible
   confirmations=(reboot shutdown logout)
@@ -1426,6 +1427,16 @@ configuration {
       echo "Invalid selection: $selection" >&2
       exit 1
   fi
+#+end_src
+*** Power-Menu Sleep
+#+begin_src python :tangle ./bin/rofi-power-menu-sleep :shebang "#!/usr/bin/python3"
+
+import sys, select, subprocess
+while True:
+    p = subprocess.Popen(['xset', 'dpms', 'force', 'off'], 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+        break
 #+end_src
 
 *** Wifi menu
@@ -1898,132 +1909,6 @@ configuration {
 #+end_src
 
 ** sxhkdrc
-
-#+begin_src 
-# 
-# wm independent hotkeys
-#
-
-# terminal emulator
-super + Return
-	urxvt
-
-# program launcher
-super + @space
-	rofi -show drun -show-icons
-
-# make sxhkd reload its configuration files:
-super + Escape
-	pkill -USR1 -x sxhkd
-
-#
-# bspwm hotkeys
-#
-
-# quit/restart bspwm
-super + alt + {q,r}
-	bspc {quit,wm -r}
-
-# close and kill
-super + {_,shift + }w
-	bspc node -{c,k}
-
-# alternate between the tiled and monocle layout
-super + m
-	bspc desktop -l next
-
-# send the newest marked node to the newest preselected node
-super + y
-	bspc node newest.marked.local -n newest.!automatic.local
-
-# swap the current node and the biggest window
-super + g
-	bspc node -s biggest.window
-
-#
-# state/flags
-#
-
-# set the window state
-super + {t,shift + t,s,f}
-	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
-
-# set the node flags
-super + ctrl + {m,x,y,z}
-	bspc node -g {marked,locked,sticky,private}
-
-#
-# focus/swap
-#
-
-# focus the node in the given direction
-super + {_,shift + }{h,j,k,l}
-	bspc node -{f,s} {west,south,north,east}
-
-# focus the node for the given path jump
-super + {p,b,comma,period}
-	bspc node -f @{parent,brother,first,second}
-
-# focus the next/previous window in the current desktop
-super + {_,shift + }c
-	bspc node -f {next,prev}.local.!hidden.window
-
-# focus the next/previous desktop in the current monitor
-super + bracket{left,right}
-	bspc desktop -f {prev,next}.local
-
-# focus the last node/desktop
-super + {grave,Tab}
-	bspc {node,desktop} -f last
-
-# focus the older or newer node in the focus history
-super + {o,i}
-	bspc wm -h off; \
-	bspc node {older,newer} -f; \
-	bspc wm -h on
-
-# focus or send to the given desktop
-super + {_,shift + }{1-9,0}
-	bspc {desktop -f,node -d} '^{1-9,10}'
-
-#
-# preselect
-#
-
-# preselect the direction
-super + ctrl + {h,j,k,l}
-	bspc node -p {west,south,north,east}
-
-# preselect the ratio
-super + ctrl + {1-9}
-	bspc node -o 0.{1-9}
-
-# cancel the preselection for the focused node
-super + ctrl + space
-	bspc node -p cancel
-
-# cancel the preselection for the focused desktop
-super + ctrl + shift + space
-	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
-
-#
-# move/resize
-#
-
-# expand a window by moving one of its side outward
-super + alt + {h,j,k,l}
-	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
-
-# contract a window by moving one of its side inward
-super + alt + shift + {h,j,k,l}
-	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
-
-# move a floating window
-super + {Left,Down,Up,Right}
-	bspc node -v {-20 0,0 20,0 -20,20 0}
-
-#+end_src
-
 
 #+begin_src conf :tangle ./.config/bspwm/sxhkd/sxhkdrc
   #################################################################
@@ -3155,6 +3040,142 @@ super + {Left,Down,Up,Right}
 
 #+end_src
 
+
+* LeftWM
+** Keybindings
+#+begin_src toml :tangle ~/.config/leftwm/config.toml
+
+  [[keybind]]
+  command = "Execute"
+  value = "emacs"
+  modifier = ["modkey"]
+  key = "F2"
+
+  [[keybind]]
+  command = "Execute"
+  value = "rofi -show drun"
+  modifier = ["modkey", "Shift"]
+  key = "d"
+
+
+#+end_src
+
+** Autostart
+#+begin_src shell :tangle ~/.config/leftwm/autostart.sh :shebang "#!/bin/bash"
+
+  function run {
+      if ! pgrep $1 ;
+      then
+          $@&
+      fi
+  }
+
+  #Find out your monitor name with xrandr or arandr (save and you get this line)
+  #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
+  #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
+  #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
+  #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
+  #autorandr horizontal
+  xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+
+
+  $HOME/.config/polybar/launch.sh &
+
+  #change your keyboard if you need it
+  #setxkbmap -layout be
+
+  #Some ways to set your wallpaper besides variety or nitrogen
+  #feh --bg-scale ~/.config/bspwm/wall.png &
+  #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+  #feh --randomize --bg-fill ~/Képek/*
+  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
+
+  xsetroot -cursor_name left_ptr &
+
+  conky -c $HOME/.config/bspwm/system-overview &
+  run variety &
+  run nm-applet &
+  run pamac-tray &
+  run xfce4-power-manager &
+  numlockx on &
+  picom --config $HOME/.config/bspwm/picom.conf &
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+  /usr/lib/xfce4/notifyd/xfce4-notifyd &
+  run volumeicon &
+  syncthing serve --no-browser &
+  nitrogen --restore &
+  run emacs --daemon &
+  #run caffeine &
+  #run vivaldi-stable &
+  #run firefox &
+  #run thunar &
+  #run dropbox &
+  #run insync start &
+  #run discord &
+  #run spotify &
+  #run atom &
+
+#+end_src
+
+** Themes
+*** Custom Theme
+**** Up
+#+begin_src shell :tangle:tangle ~/.config/leftwm/themes/custom-theme/up :shebang "#!/bin/bash"
+  export SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+  # Down the last running theme
+  if [ -f "/tmp/leftwm-theme-down" ]; then
+      /tmp/leftwm-theme-down
+      rm /tmp/leftwm-theme-down
+  fi
+  ln -s $SCRIPTPATH/down /tmp/leftwm-theme-down
+
+    xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+
+
+  $HOME/.config/polybar/launch.sh &
+
+  #change your keyboard if you need it
+  #setxkbmap -layout be
+
+  #Some ways to set your wallpaper besides variety or nitrogen
+  #feh --bg-scale ~/.config/bspwm/wall.png &
+  #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+  #feh --randomize --bg-fill ~/Képek/*
+  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
+
+  xsetroot -cursor_name left_ptr &
+
+  conky -c $HOME/.config/bspwm/system-overview &
+  run variety &
+  run nm-applet &
+  run xfce4-power-manager &
+  numlockx on &
+  picom --config $HOME/.config/bspwm/picom.conf &
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+  /usr/lib/xfce4/notifyd/xfce4-notifyd &
+  run volumeicon &
+  nitrogen --restore &
+
+#+end_src
+
+**** Down
+
+#+begin_src shell :tangle:tangle ~/.config/leftwm/themes/custom-theme/down :shebang "#!/bin/bash"
+    pkill picom
+    pkill polybar
+
+#+end_src
+
+**** Theme
+#+begin_src toml :tangle ~/.config/leftwm/themes/custom-theme/theme.toml
+  border_width = 1
+  margin = 20 
+  default_border_color = "#222222"
+  floating_border_color = "#005500"
+  focused_border_color = "#FFB53A"
+#+end_src
+
 * Install
 ** Toggle package list
 #+NAME: toggle-packages-list
@@ -3204,7 +3225,8 @@ super + {Left,Down,Up,Right}
 #+RESULTS:
 : True
 ** Install script
-#+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb yes
+curl https://sh.rustup.rs -sSf | sh
+#+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb no
  
   UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
   ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"

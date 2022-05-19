@@ -301,12 +301,13 @@ This is to configure line numbers in the application. Line numbers can be turned
                   eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-  ;; (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
+  (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
 
 
 #+end_src
 
 #+RESULTS:
+| display-line-numbers-mode | org-src-babel-configure-edit-buffer | org-src-mode-configure-edit-buffer | doom-modeline-set-org-src-modeline |
 
 *** Rainbow Delimiters
 This package matches parenthises by coloring them
@@ -453,6 +454,9 @@ Magit is a emacs git client
   (defun cust-git-pull (&rest _args)
     (magit-pull-from-pushremote nil)
     )
+  (defun cust-git-push (&rest _args)
+    (magit-push-current-to-pushremote nil)
+    )
 
   (use-package magit
     :custom
@@ -460,12 +464,16 @@ Magit is a emacs git client
     (global-set-key (kbd "<ESCAPE>") 'magit-dispatch)
     :config
     (advice-add 'magit :after 'cust-git-pull)
+    ;; (advice-add 'magit-commit :after 'cust-git-push)
+    (setq magit-post-commit-hook 'cust-git-push)
     )
-
+  (add-hook 'with-editor-mode-hook 'evil-insert-state)
+    (setq magit-post-commit-hook 'cust-git-push)
+    (setf (alist-get 'unpushed magit-section-initial-visibility-alist) 'show)
 #+end_src
 
 #+RESULTS:
-: t
+: show
 
 #+begin_src emacs-lisp
   ;; (cust-git-pull)
@@ -1541,6 +1549,7 @@ To export an orgmode file C+c C+e l o
             "~/documents/syncthing/Todo Lists /Life.org"
             "~/documents/syncthing/Todo Lists /Emacs.org"
             "~/Documents/Notes/Habits.org"
+            ;; "~/Documents/Notes/Org-Roam/"
             "~/documents/syncthing/Todo Lists /kubernetes.org"))
     (setq org-refile-targets
           '(("~/documents/syncthing/Todo Lists /Archive.org" :maxlevel . 2)
@@ -1588,7 +1597,7 @@ To export an orgmode file C+c C+e l o
 #+end_src
 
 #+RESULTS:
-| evil-org-mode | org-auto-tangle-mode | org-tempo-setup | (lambda nil Beautify Org Checkbox Symbol (setq prettify-symbols-alist (cons '([ ] . ☐) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([X] . ☑) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([-] . ❍) prettify-symbols-alist)) (prettify-symbols-mode)) | efs/org-mode-visual-fill | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | efs/org-mode-setup | (lambda nil (display-line-numbers-mode 0)) |
+| #[0 \205 \301 \205 \302\303\301 !\304P!\305!\205 \306!\262\207 [org-ctags-enabled-p buffer-file-name expand-file-name file-name-directory /TAGS file-exists-p visit-tags-table] 3] | #[0 \305\306	>\203 \307 |
 
 *** Org capture templates
 
@@ -1703,6 +1712,7 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
+  (add-to-list 'org-structure-template-alist '("to" . "src toml :tangle ./"))
   (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
@@ -1710,7 +1720,7 @@ The avaliable language blocks for Org mode code blocks are located at https://or
 #+end_src
 
 #+RESULTS:
-: ((conf . src conf) (ya . src yaml) (el . src emacs-lisp) (sh . src shell) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
+: ((to . src toml :tangle ./) (to . src toml) (py . src python) (conf . src conf) (ya . src yaml) (el . src emacs-lisp) (sh . src shell) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
 
 *** Auto-tangle Configuration Files
 
@@ -1896,8 +1906,8 @@ https://github.com/Somelauw/evil-org-mode/blob/master/evil-org-agenda.el
 *** Org Download
 Insert Images Into Orgmode
 #+begin_src emacs-lisp
-  ;; # # (use-package org-download
-    ;; :straight t)
+  (use-package org-download
+    :straight t)
 #+end_src
 
 #+RESULTS:
@@ -1909,6 +1919,46 @@ Insert Images Into Orgmode
 
 #+RESULTS:
 | :foreground | default | :background | default | :scale | 2.0 | :html-foreground | Black | :html-background | Transparent | :html-scale | 1.0 | :matchers | (begin $1 $ $$ \( \[) |
+
+*** Org Exporter Hugo
+
+#+begin_src emacs-lisp
+  (use-package ox-hugo
+  :straight t   ;Auto-install the package from Melpa
+  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+  :after ox)
+
+  (with-eval-after-load 'org-capture
+  (defun org-hugo-new-subtree-post-capture-template ()
+    "Returns `org-capture' template string for new Hugo post.
+See `org-capture-templates' for more information."
+    (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
+           (fname (org-hugo-slug title)))
+      (mapconcat #'identity
+                 `(
+                   ,(concat "* TODO " title)
+                   ":PROPERTIES:"
+                   ,(concat ":EXPORT_FILE_NAME: " fname)
+                   ":END:"
+                   "%?\n")          ;Place the cursor here finally
+                 "\n")))
+
+  (add-to-list 'org-capture-templates
+               '("h"                ;`org-capture' binding + h
+                 "Hugo post"
+                 entry
+                 ;; It is assumed that below file is present in `org-directory'
+                 ;; and that it has a "Blog Ideas" heading. It can even be a
+                 ;; symlink pointing to the actual location of all-posts.org!
+                 (file+olp "all-posts.org" "Art")
+                 (function org-hugo-new-subtree-post-capture-template))))
+#+end_src
+
+#+RESULTS:
+| h  | Hugo post       | entry      | (file+olp all-posts.org Art)                                  | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
+| h  | Hugo post       | entry      | (file+olp all-posts.org Blog Ideas)                           | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
+| m  | Metrics Capture |            |                                                               |                                              |    |            |           |   |              |   |
+| mw | Weight          | table-line | (file+headline ~/Projects/Documents/Notes/Metrics.org Weight) |                                              | %U | %^{Weight} | %^{Notes} |   | :kill-buffer | t |
 
 ** Languages
 *** Lsp mode

@@ -1,9 +1,9 @@
 #!/bin/bash
-UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc"
-ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon"
+UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
+ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"
 ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
-UI_PACKAGES="picom polybar nitrogen syncthing"
-PROD_PACKAGES="inkscape krita"
+UI_PACKAGES="picom polybar nitrogen syncthing mousepad"
+PROD_PACKAGES="inkscape krita opera opera-ffmpeg"
 DOTFILES_DIR=~/.dotfiles
 #export DOTFILES_DIR="/home/rampedindent/.dotfiles"
 
@@ -50,8 +50,7 @@ if [ "$DISTRO" == "Ubuntu" ]; then
     echo "Using stow to create symbolic links for the items in the Dotfiles Dir"
     stow .
     sudo apt install $UBUNTU_PACKAGES
-    if "true"
-    then
+    if "<<toggle-packages(p="Ui")>>"; then
         sudo apt install $UI_PACKAGES
     fi 
 fi
@@ -78,12 +77,14 @@ if [ "$DISTRO" == "ArcoLinux" ]; then
     stow .
     echo "Installing Terminal Packages"
     sudo pacman -S $ARCH_PACKEGES --needed
-    echo "Installing UI Packages"
-    sudo pacman -S $UI_PACKAGES --needed
 
+    if "<<toggle-packages(p="Ui")>>"; then
+        echo "Installing UI Packages"
+        sudo pacman -S $UI_PACKAGES --needed
+    fi
 fi
 
-if "true";then
+if "<<toggle-packages(p="Cli")>>";then
     OMZ_DIR=~/.oh-my-zsh
     if ! [ -d "$OMZ_DIR" ]; then
         echo "Installing Oh My ZSH"
