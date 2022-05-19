@@ -38,9 +38,10 @@
   [colors]
   ;background = ${xrdb:color0:#222}
   background = #E60c0a20
+        
   background-alt = #E6020016
   ;foreground = ${xrdb:color7:#222}
-  foreground = #f6f6f6f
+  foreground = #f6f6f6
   foreground-alt = #afafaf
   primary = #ffb52a
   secondary = #ff2afc
@@ -237,7 +238,7 @@
 
     [module/wlan]
     type = internal/network
-    interface = wlp59s0
+    interface = wlp3s0
     interval = 3.0
 
     format-connected = <ramp-signal> <label-connected>
@@ -355,7 +356,7 @@
     format-charging = <animation-charging> <label-charging>
     format-charging-underline = #ffb52a
 
-    format-discharging = <animation-discharging> <label-discharging>
+    format-discharging = <ramp-capacity> <label-discharging>
     format-discharging-underline = ${self.format-charging-underline}
 
     ;format-full-prefix = " "
@@ -1787,7 +1788,7 @@ while True:
 
 * Bspwm
 ** bspwmrc
-
+ 
 #+begin_src shell :tangle ./.config/bspwm/bspwmrc :shebang "#!/bin/sh"
   #LAUNCHERS
   $HOME/.config/bspwm/autostart.sh
