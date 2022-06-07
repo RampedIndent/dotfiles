@@ -1,13 +1,0 @@
-[Bookmarks]
-T:\syncDocuments\Blender\/
-[Recent]
-/home/rampedindent/Documents/syncDocuments/Blender/objects/render/Blackhole Render 2/Clouds/
-/home/rampedindent/Documents/syncDocuments/Blender/objects/render/Blackhole Render 2/Black Hole/
-/home/rampedindent/Documents/syncDocuments/Blender/objects/render/Blackhole Render 2/Falling Particles/
-/home/rampedindent/Documents/syncDocuments/Blender/objects/render/Blackhole Render 2/Background/
-/home/rampedindent/Documents/syncDocuments/Blender/objects/render/Blackhole Render 1/
-/home/rampedindent/Documents/syncDocuments/Blender/objects/
-/home/rampedindent/Documents/syncDocuments/Blender/
-/tmp/
-/home/rampedindent/Documents/syncDocuments/Blender/Materials/hdri/
-/home/rampedindent/Documents/syncDocuments/Blender/fauna/

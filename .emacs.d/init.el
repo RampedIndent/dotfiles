@@ -176,8 +176,8 @@
 
 (use-package all-the-icons
   :straight t
-  :after
-  (all-the-icons-install-fonts)
+  ;; :config
+  ;; (all-the-icons-install-fonts)
   )
 (use-package unicode-fonts
   :straight t
@@ -202,10 +202,16 @@
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "opera")
 
-(column-number-mode)
-(global-display-line-numbers-mode t)
+(defun efs/lookup-password (&rest keys)
+  (let ((result (apply #'auth-source-search keys)))
+    (if result
+        (funcall (plist-get (car result) :secret))
+      nil)))
 
-(setq display-line-numbers 'relative)
+(column-number-mode)
+;; (global-display-line-numbers-mode t)
+
+(setq display-line-numbers-type 'relative)
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
                 term-mode-hook
@@ -216,10 +222,13 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
+(add-hook 'rustic-mode-hook 'display-line-numbers-mode)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode)
   :init(rainbow-delimiters-mode t))
+
+(electric-pair-mode t)
 
 (defun flyspell-on-for-buffer-type ()
   "Enable Flyspell appropriately for the major mode of the current buffer.  Uses `flyspell-prog-mode' for modes derived from `prog-mode', so only strings and comments get checked.  All other buffers get `flyspell-mode' to check all text.  If flyspell is already enabled, does nothing."
@@ -259,8 +268,13 @@
 :bind ("C-/" . evilnc-comment-or-uncomment-lines))
 
 (use-package smart-newline
-  :custom  
-  (smart-newline-mode 1)
+  :config  
+  (dolist (mode '(
+                org-mode-hook
+                rustic-mode-hook
+                ))
+  (add-hook mode (lambda () (smart-newline-mode 1))))
+
   )
 
 (use-package super-save
@@ -622,6 +636,128 @@
                 (menu-bar-lines . t)
                 (window-system . x))))
 
+(use-package helm) 
+(use-package helm-ag)
+
+(use-package company
+  :ensure
+  :custom
+  (company-idle-delay 0.5) ;; how long to wait until popup
+  ;; (company-begin-commands nil) ;; uncomment to disable popup
+  :bind
+  (:map company-active-map
+        ("C-n". company-select-next)
+        ("C-p". company-select-previous)
+        ("M-<". company-select-first)
+        ("M->". company-select-last))
+  (:map company-mode-map
+        ("<tab>". tab-indent-or-complete)
+        ("TAB". tab-indent-or-complete))
+  )
+
+(defun company-yasnippet-or-completion ()
+  (interactive)
+  (or (do-yas-expand)
+      (company-complete-common)))
+
+(defun check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "::") t nil)))))
+
+(defun do-yas-expand ()
+  (let ((yas/fallback-behavior 'return-nil))
+    (yas/expand)))
+
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas/minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
+
+(use-package yasnippet
+  :ensure
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode))
+
+(defun rk/open-compilation-buffer (&optional buffer-or-name shackle-alist shackle-plist)
+  "Helper for selecting window for opening *compilation* buffers."
+  ;; find existing compilation window left of the current window or left-most window
+  (let ((win (or (loop for win = (if win (window-left win) (get-buffer-window))
+                       when (or (not (window-left win))
+                                (string-prefix-p "*compilation" (buffer-name (window-buffer win))))
+                       return win)
+                 (get-buffer-window))))
+    ;; if the window is dedicated to a non-compilation buffer, use the current one instead
+    (when (window-dedicated-p win)
+      (let ((buf-name (buffer-name (window-buffer win))))
+        (unless (string-prefix-p "*compilation" buf-name)
+          (setq win (get-buffer-window)))))
+    (set-window-buffer win (get-buffer buffer-or-name))
+    (set-frame-selected-window (window-frame win) win)))
+
+
+(use-package shackle
+  :ensure
+  :diminish
+  :custom
+  (shackle-rules '((compilation-mode :custom rk/open-compilation-buffer :select t)
+                   ("\\*Apropos\\|Help\\|Occur\\|tide-references\\*" :regexp t :same t :select t :inhibit-window-quit t)
+                   ("\\*magit" :regexp t :same t :select t)
+                   ("\\*shell.*" :regexp t :same t :select t)
+                   ("\\*PowerShell.*" :regexp t :same t :select t)
+                   ("\\*Cargo.*" :regexp t :other t :select nil)
+                   ("*Messages*" :select nil :other t)
+                   ("*go-guru-output*" :select t :same t)
+                   ("*Proced*" :select t :same t)
+                   ("*Buffer List*" :select t :same t)
+                   ("\\*Pp Eval" :regexp t :same nil :select t :other t)
+                   ("*Messages*" :same nil :other t :select t :inhibit-window-quit t)
+
+                   ;; slime
+                   ("*slime-source*" :select nil :same nil :other t)
+                   ("*slime-description*" :select nil :other t :inhibit-window-quit t)
+                   ("\\*slime-repl" :regexp t :same nil :select nil :other t)
+                   ;; ("\\*sldb" :regexp t :other t :inhibit-window-quit t :select t)
+                   ("\\*slime-compilation" :regexp t :same nil :select nil :other t)
+                   ("*slime-scratch*" :same nil :select t :other t)
+
+                   ;; ert
+                   ("*ert*" :select nil :same nil :other t)
+
+                   ;; clojure
+                   ("*sesman CIDER browser*" :inhibit-window-quit t :select t :same t)
+                   ("\\*cider-repl" :regexp t :same nil :other t)
+                   ;; Org Babel
+
+                   ("\\*Org Src*" :regexp t :same t :select t)
+
+                   ))
+  (shackle-default-rule nil))
+
+(shackle-mode)
+
+(use-package flycheck :ensure)
+
+(use-package wakatime-mode
+:config
+(global-wakatime-mode)
+(setq wakatime-api-key 
+                         (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
+                         )
+)
+
+
+
 (use-package which-key
   :init (which-key-mode)
   :diminish which-key-mode
@@ -637,6 +773,10 @@
   :global-prefix "C-SPC"
   )
 
+(defun viktorya/org-insert-image-width ()
+  (interactive)
+  (insert "#+ATTR_HTML: :width 700")
+)  
 (viktorya/editor-keys
   "t"  '(:ignore t :which-key "toggles")
   "tt" '(counsel-load-theme :which-key "choose theme")
@@ -647,6 +787,7 @@
   "i" '(:ignore i :which-key "Insert commands")
   "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
   "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
+  "iI" '(viktorya/org-insert-image-width :which-key "Insert image Width")
   "f" '(:ignore f :which-key "file commands")
   "ff" '(counsel-find-file :which-key "Find File")
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
@@ -795,7 +936,7 @@
           org-habit
           org-eshell
           org-irc))
-
+  (setq org-support-shift-select t)
 
   (setq org-habit-graph-column 60)
 
@@ -821,9 +962,10 @@
   (setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
+  (setq org-todo-keywords
+  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)" "MISSED(m)")))
 
-
-  (setq org-image-actual-width 750)
+  (setq org-image-actual-width nil)
 
   (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
   (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
@@ -939,8 +1081,9 @@
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
 (add-to-list 'org-structure-template-alist '("to" . "src toml :tangle ./"))
-(add-to-list 'org-structure-template-alist '("conf" . "src conf"))
+(add-to-list 'org-structure-template-alist '("conf" . "src conf :tangle ./"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("rst" . "src rustic"))
 
 ;; ;; Automatically tangle our Emacs.org config file when we save it
 ;; (defun efs/org-babel-tangle-config ()
@@ -1118,15 +1261,26 @@ See `org-capture-templates' for more information."
                    "%?\n")          ;Place the cursor here finally
                  "\n")))
 
-  (add-to-list 'org-capture-templates
-               '("h"                ;`org-capture' binding + h
-                 "Hugo post"
+   (add-to-list 'org-capture-templates
+               '("A"                ;`org-capture' binding + h
+                 "Hugo Art post"
                  entry
                  ;; It is assumed that below file is present in `org-directory'
                  ;; and that it has a "Blog Ideas" heading. It can even be a
                  ;; symlink pointing to the actual location of all-posts.org!
                  (file+olp "all-posts.org" "Art")
-                 (function org-hugo-new-subtree-post-capture-template))))
+                 (function org-hugo-new-subtree-post-capture-template)))
+ (add-to-list 'org-capture-templates
+               '("T"                ;`org-capture' binding + h
+                 "Hugo Tech post"
+                 entry
+                 ;; It is assumed that below file is present in `org-directory'
+                 ;; and that it has a "Blog Ideas" heading. It can even be a
+                 ;; symlink pointing to the actual location of all-posts.org!
+                 (file+olp "all-posts.org" "Tech")
+                 (function org-hugo-new-subtree-post-capture-template)))
+
+  )
 
 ;; (use-package ivy-xref
 ;;   :straight t
@@ -1139,8 +1293,24 @@ See `org-capture-templates' for more information."
   :commands lsp
   :hook ((typescript-mode js2-mode web-mode) . lsp)
   :bind (:map lsp-mode-map
-         ("TAB" . completion-at-point))
-  :custom (lsp-headerline-breadcrumb-enable nil))
+              ("TAB" . completion-at-point))
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  :custom
+  (lsp-headerline-breadcrumb-enable nil)
+  ;; what to use when checking on-save. "check" is default, I prefer clippy
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.6)
+  ;; enable / disable the hints as you prefer:
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-rust-analyzer-display-parameter-hints nil)
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+  )
 
 (viktorya/editor-keys
   "l"  '(:ignore t :which-key "lsp")
@@ -1155,10 +1325,12 @@ See `org-capture-templates' for more information."
 
 (use-package lsp-ui
   ;;:straight t
+  :after lsp
   :hook (lsp-mode . lsp-ui-mode)
   :config
+  (setq lsp-ui-peek-always-show t)
   (setq lsp-ui-sideline-enable t)
-  (setq lsp-ui-sideline-show-hover nil)
+  (setq lsp-ui-sideline-show-hover t)
   (setq lsp-ui-doc-position 'bottom)
   (lsp-ui-doc-show))
 
@@ -1169,3 +1341,43 @@ See `org-capture-templates' for more information."
 
 (use-package yaml-mode
   :mode "\\.ya?ml\\'")
+
+(use-package rustic
+  :straight t
+  :bind (:map rustic-mode-map
+              ("M-j" . lsp-ui-imenu)
+              ("M-?" . lsp-find-references)
+              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c a" . lsp-execute-code-action)
+              ("C-c C-c r" . lsp-rename)
+              ("C-c C-c q" . lsp-workspace-restart)
+              ("C-c C-c Q" . lsp-workspace-shutdown)
+              ("C-c C-c s" . lsp-rust-analyzer-status))
+  :config
+  ;; uncomment for less flashiness
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-signature-auto-activate nil)
+
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t)
+  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+  (advice-add 'cargo-process-run :before #'viktorya/save-buffer)
+  )
+(defun rk/rustic-mode-hook ()
+  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+  ;; save rust buffers that are not file visiting. Once
+  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+  ;; no longer be necessary.
+  (when buffer-file-name
+    (setq-local buffer-save-without-query t)))
+
+(defun viktorya/save-buffer (&rest _args)
+  (save-buffer 1)
+  )
+
+(use-package cargo
+  :straight t
+  :config
+  (add-hook 'rust-mode-hook 'cargo-minor-mode)
+  )

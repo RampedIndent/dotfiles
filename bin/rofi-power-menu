@@ -15,7 +15,7 @@ set -e
 set -u
 
 # All supported choices logout lockscreen hibernate
-all=(shutdown reboot suspend logout displayoff )
+all=(shutdown reboot suspend hibernate logout displayoff )
 
 # By default, show all (i.e., just copy the array)
 show=("${all[@]}")
@@ -49,7 +49,7 @@ actions[suspend]="systemctl suspend"
 actions[hibernate]="systemctl hibernate"
 actions[reboot]="systemctl reboot"
 actions[shutdown]="systemctl poweroff"
-actions[displayoff]="xset dpms force off"
+actions[displayoff]="$HOME/.dotfiles/bin/rofi-power-menu-sleep"
 
 # By default, ask for confirmation for actions that are irreversible
 confirmations=(reboot shutdown logout)

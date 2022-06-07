@@ -247,8 +247,8 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Face-Attributes.html
 
   (use-package all-the-icons
     :straight t
-    :after
-    (all-the-icons-install-fonts)
+    ;; :config
+    ;; (all-the-icons-install-fonts)
     )
   (use-package unicode-fonts
     :straight t
@@ -283,15 +283,28 @@ https://www.gnu.org/software/emacs/manual/html_node/elisp/Face-Attributes.html
 #+RESULTS:
 : opera
 
+*** Lookup Password
+
+#+begin_src emacs-lisp
+  (defun efs/lookup-password (&rest keys)
+    (let ((result (apply #'auth-source-search keys)))
+      (if result
+          (funcall (plist-get (car result) :secret))
+        nil)))
+#+end_src
+
+#+RESULTS:
+: efs/lookup-password
+
 ** Editor Configuration
 *** Configure Line Numbers 
 This is to configure line numbers in the application. Line numbers can be turned off in certin buffers by adding the buffer hook to the dolist.
 #+begin_src emacs-lisp
 
   (column-number-mode)
-  (global-display-line-numbers-mode t)
+  ;; (global-display-line-numbers-mode t)
 
-  (setq display-line-numbers 'relative)
+  (setq display-line-numbers-type 'relative)
   ;; Disable line numbers for some modes
   (dolist (mode '(org-mode-hook
                   term-mode-hook
@@ -302,19 +315,20 @@ This is to configure line numbers in the application. Line numbers can be turned
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
   (add-hook 'org-src-mode-hook 'display-line-numbers-mode)
+  (add-hook 'rustic-mode-hook 'display-line-numbers-mode)
 
 
 #+end_src
 
 #+RESULTS:
-| display-line-numbers-mode | org-src-babel-configure-edit-buffer | org-src-mode-configure-edit-buffer | doom-modeline-set-org-src-modeline |
+| display-line-numbers-mode | rk/rustic-mode-hook | flymake-mode-off | flycheck-mode | rustic-setup-lsp | (lambda nil (smart-newline-mode 1)) |
 
 *** Rainbow Delimiters
 This package matches parenthises by coloring them
 #+begin_src emacs-lisp
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode)
-  :init(rainbow-delimiters-mode t))
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode)
+    :init(rainbow-delimiters-mode t))
 #+end_src
 
 #+RESULTS:
@@ -323,6 +337,15 @@ This package matches parenthises by coloring them
 
 #+RESULTS:
 : counsel-minibuffer-history
+
+*** Pair Braces
+
+#+begin_src emacs-lisp
+  (electric-pair-mode t)
+#+end_src
+
+#+RESULTS:
+: t
 
 *** Spell Check
 This package us used to provide spellcheck to emacs. 
@@ -377,8 +400,7 @@ A writing level checker
     :straight t)
 #+end_src
 
-#+RESULTS:
-
+#+RESULTS: 
 *** Commenting Lines
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
@@ -392,12 +414,18 @@ A writing level checker
 
 #+begin_src emacs-lisp
   (use-package smart-newline
-    :custom  
-    (smart-newline-mode 1)
+    :config  
+    (dolist (mode '(
+                  org-mode-hook
+                  rustic-mode-hook
+                  ))
+    (add-hook mode (lambda () (smart-newline-mode 1))))
+
     )
 #+end_src
 
 #+RESULTS:
+: t
 
 *** Autosave
 
@@ -847,74 +875,240 @@ $\sqrt{2}$
 #+RESULTS:
 : t
 
+*** Helm
+
+#+begin_src emacs-lisp
+ (use-package helm) 
+ (use-package helm-ag) 
+#+end_src
+
+#+RESULTS:
+
+*** Company
+
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure
+    :custom
+    (company-idle-delay 0.5) ;; how long to wait until popup
+    ;; (company-begin-commands nil) ;; uncomment to disable popup
+    :bind
+    (:map company-active-map
+          ("C-n". company-select-next)
+          ("C-p". company-select-previous)
+          ("M-<". company-select-first)
+          ("M->". company-select-last))
+    (:map company-mode-map
+          ("<tab>". tab-indent-or-complete)
+          ("TAB". tab-indent-or-complete))
+    )
+
+  (defun company-yasnippet-or-completion ()
+    (interactive)
+    (or (do-yas-expand)
+        (company-complete-common)))
+
+  (defun check-expansion ()
+    (save-excursion
+      (if (looking-at "\\_>") t
+        (backward-char 1)
+        (if (looking-at "\\.") t
+          (backward-char 1)
+          (if (looking-at "::") t nil)))))
+
+  (defun do-yas-expand ()
+    (let ((yas/fallback-behavior 'return-nil))
+      (yas/expand)))
+
+  (defun tab-indent-or-complete ()
+    (interactive)
+    (if (minibufferp)
+        (minibuffer-complete)
+      (if (or (not yas/minor-mode)
+              (null (do-yas-expand)))
+          (if (check-expansion)
+              (company-complete-common)
+            (indent-for-tab-command)))))
+
+  (use-package yasnippet
+    :ensure
+    :config
+    (yas-reload-all)
+    (add-hook 'prog-mode-hook 'yas-minor-mode)
+    (add-hook 'text-mode-hook 'yas-minor-mode))
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Shackle
+A program to manage how emacs opens new windows
+#+begin_src emacs-lisp
+  (defun rk/open-compilation-buffer (&optional buffer-or-name shackle-alist shackle-plist)
+    "Helper for selecting window for opening *compilation* buffers."
+    ;; find existing compilation window left of the current window or left-most window
+    (let ((win (or (loop for win = (if win (window-left win) (get-buffer-window))
+                         when (or (not (window-left win))
+                                  (string-prefix-p "*compilation" (buffer-name (window-buffer win))))
+                         return win)
+                   (get-buffer-window))))
+      ;; if the window is dedicated to a non-compilation buffer, use the current one instead
+      (when (window-dedicated-p win)
+        (let ((buf-name (buffer-name (window-buffer win))))
+          (unless (string-prefix-p "*compilation" buf-name)
+            (setq win (get-buffer-window)))))
+      (set-window-buffer win (get-buffer buffer-or-name))
+      (set-frame-selected-window (window-frame win) win)))
+
+
+  (use-package shackle
+    :ensure
+    :diminish
+    :custom
+    (shackle-rules '((compilation-mode :custom rk/open-compilation-buffer :select t)
+                     ("\\*Apropos\\|Help\\|Occur\\|tide-references\\*" :regexp t :same t :select t :inhibit-window-quit t)
+                     ("\\*magit" :regexp t :same t :select t)
+                     ("\\*shell.*" :regexp t :same t :select t)
+                     ("\\*PowerShell.*" :regexp t :same t :select t)
+                     ("\\*Cargo.*" :regexp t :other t :select nil)
+                     ("*Messages*" :select nil :other t)
+                     ("*go-guru-output*" :select t :same t)
+                     ("*Proced*" :select t :same t)
+                     ("*Buffer List*" :select t :same t)
+                     ("\\*Pp Eval" :regexp t :same nil :select t :other t)
+                     ("*Messages*" :same nil :other t :select t :inhibit-window-quit t)
+
+                     ;; slime
+                     ("*slime-source*" :select nil :same nil :other t)
+                     ("*slime-description*" :select nil :other t :inhibit-window-quit t)
+                     ("\\*slime-repl" :regexp t :same nil :select nil :other t)
+                     ;; ("\\*sldb" :regexp t :other t :inhibit-window-quit t :select t)
+                     ("\\*slime-compilation" :regexp t :same nil :select nil :other t)
+                     ("*slime-scratch*" :same nil :select t :other t)
+
+                     ;; ert
+                     ("*ert*" :select nil :same nil :other t)
+
+                     ;; clojure
+                     ("*sesman CIDER browser*" :inhibit-window-quit t :select t :same t)
+                     ("\\*cider-repl" :regexp t :same nil :other t)
+                     ;; Org Babel
+                     
+                     ("\\*Org Src*" :regexp t :same t :select t)
+
+                     ))
+    (shackle-default-rule nil))
+
+  (shackle-mode)
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Flycheck
+
+#+begin_src emacs-lisp
+  (use-package flycheck :ensure)
+#+end_src
+
+#+RESULTS:
+
+#+DOWNLOADED: file:///tmp/Spectacle.IbASzC/Screenshot_20220526_182601.png @ 2022-05-26 18:30:28
+[[file:Emacs_Configuration_file/2022-05-26_18-30-28_Screenshot_20220526_182601.png]]
+
+*** WakaTime
+
+#+begin_src emacs-lisp
+  (use-package wakatime-mode
+  :config
+  (global-wakatime-mode)
+  (setq wakatime-api-key 
+                           (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
+                           )
+  )
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Octave
+#+begin_src emacs-lisp
+  
+#+end_src
+
 ** Keybindings
 *** General Keybindings
 #+begin_src emacs-lisp
 
-(use-package which-key
-  :init (which-key-mode)
-  :diminish which-key-mode
-  :config
-  (setq which-key-idle-delay 1))
+  (use-package which-key
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 1))
 
-(use-package general
-  :straight t)
+  (use-package general
+    :straight t)
 
-(general-create-definer viktorya/editor-keys
-  :keymaps '(normal insert visual emacs)
-  :prefix "SPC"
-  :global-prefix "C-SPC"
-  )
+  (general-create-definer viktorya/editor-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC"
+    )
 
-(viktorya/editor-keys
-  "t"  '(:ignore t :which-key "toggles")
-  "tt" '(counsel-load-theme :which-key "choose theme")
-  "tl" '(org-latex-preview :which-key "Toggle Latex Preview")
-  "e" '(eval-buffer :which-key "Run the buffer")
-  "g" '(magit :which-key "Runs Magit")
-  "n" '(org-roam-node-find :which-key "Finds Node in Org Roam")
-  "i" '(:ignore i :which-key "Insert commands")
-  "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
-  "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
-  "f" '(:ignore f :which-key "file commands")
-  "ff" '(counsel-find-file :which-key "Find File")
-  "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
-  "fs" '(save-buffer :which-key "Save Current Buffer")
-  "fS" '(write-file :which-key "Save Current Buffer as")
-  "w" '(:ignore w :which-key "file commands")
-  "wv" '(evil-window-vsplit :which-key "Vertical Window Split")
-  "wh" '(evil-window-split :which-key "Horizontal Window Split")
-  "w <left>" '(evil-window-left :which-key "Move Active Window Left")
-  "w <right>" '(evil-window-right :which-key "Move Active Window Right")
-  "w <up>" '(evil-window-up :which-key "Move Active Window Up")
-  "w <down>" '(evil-window-down :which-key "Move Active Window Down")
-  "wq" '(evil-window-delete :which-key "Delete active window")
-  ;;"p" '(yank :which-key "Paste Text")
-  "b" '(:ignore b :which-key "Buffer commands")
-  "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
-  "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
-  "bt" '(treemacs :which-key "Toggle Treemacs")
-  "v" '(multi-vterm :which-key "Start vterm")
-  "<ESC>" '(evil-normal-state :which-key "Default Evil state")
-  )
-
-(defun revert-buffer-no-confirm ()
-    "Revert buffer without confirmation."
+  (defun viktorya/org-insert-image-width ()
     (interactive)
-    (revert-buffer :ignore-auto :noconfirm))
+    (insert "#+ATTR_HTML: :width 700")
+  )  
+  (viktorya/editor-keys
+    "t"  '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")
+    "tl" '(org-latex-preview :which-key "Toggle Latex Preview")
+    "e" '(eval-buffer :which-key "Run the buffer")
+    "g" '(magit :which-key "Runs Magit")
+    "n" '(org-roam-node-find :which-key "Finds Node in Org Roam")
+    "i" '(:ignore i :which-key "Insert commands")
+    "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
+    "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
+    "iI" '(viktorya/org-insert-image-width :which-key "Insert image Width")
+    "f" '(:ignore f :which-key "file commands")
+    "ff" '(counsel-find-file :which-key "Find File")
+    "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
+    "fs" '(save-buffer :which-key "Save Current Buffer")
+    "fS" '(write-file :which-key "Save Current Buffer as")
+    "w" '(:ignore w :which-key "file commands")
+    "wv" '(evil-window-vsplit :which-key "Vertical Window Split")
+    "wh" '(evil-window-split :which-key "Horizontal Window Split")
+    "w <left>" '(evil-window-left :which-key "Move Active Window Left")
+    "w <right>" '(evil-window-right :which-key "Move Active Window Right")
+    "w <up>" '(evil-window-up :which-key "Move Active Window Up")
+    "w <down>" '(evil-window-down :which-key "Move Active Window Down")
+    "wq" '(evil-window-delete :which-key "Delete active window")
+    ;;"p" '(yank :which-key "Paste Text")
+    "b" '(:ignore b :which-key "Buffer commands")
+    "bq" '(evil-delete-buffer :which-key "Delete the current buffer")
+    "bb" '(counsel-switch-buffer :which-key "Buffer Switcher")
+    "bt" '(treemacs :which-key "Toggle Treemacs")
+    "v" '(multi-vterm :which-key "Start vterm")
+    "<ESC>" '(evil-normal-state :which-key "Default Evil state")
+    )
+
+  (defun revert-buffer-no-confirm ()
+      "Revert buffer without confirmation."
+      (interactive)
+      (revert-buffer :ignore-auto :noconfirm))
 
 
-(use-package hydra)
+  (use-package hydra)
 
-(defhydra hydra-text-scale (:timeout 10)
-  "scale text"
-  ("j" text-scale-increase "in")
-  ("k" text-scale-decrease "out")
-  ("f" nil "finished" :exit t))
+  (defhydra hydra-text-scale (:timeout 10)
+    "scale text"
+    ("j" text-scale-increase "in")
+    ("k" text-scale-decrease "out")
+    ("f" nil "finished" :exit t))
 
-(viktorya/editor-keys
-  "t" '(:ignore t :which-key "Text Commands")
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
+  (viktorya/editor-keys
+    "t" '(:ignore t :which-key "Text Commands")
+    "ts" '(hydra-text-scale/body :which-key "scale text"))
 
 
 #+end_src
@@ -1534,7 +1728,7 @@ To export an orgmode file C+c C+e l o
             org-habit
             org-eshell
             org-irc))
-
+    (setq org-support-shift-select t)
 
     (setq org-habit-graph-column 60)
 
@@ -1560,9 +1754,10 @@ To export an orgmode file C+c C+e l o
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
     (setq org-log-into-drawer t)
+    (setq org-todo-keywords
+    '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)" "MISSED(m)")))
 
-
-    (setq org-image-actual-width 750)
+    (setq org-image-actual-width nil)
 
     (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)
     (evil-define-key '(normal insert visual) org-mode-map (kbd "C-k") 'org-previous-visible-heading)
@@ -1576,7 +1771,7 @@ To export an orgmode file C+c C+e l o
     ;;    (ledger . t)))
 
     )
-  
+
   (require 'org-habit)
   (use-package org-bullets
     :after org
@@ -1597,7 +1792,7 @@ To export an orgmode file C+c C+e l o
 #+end_src
 
 #+RESULTS:
-| #[0 \205 \301 \205 \302\303\301 !\304P!\305!\205 \306!\262\207 [org-ctags-enabled-p buffer-file-name expand-file-name file-name-directory /TAGS file-exists-p visit-tags-table] 3] | #[0 \305\306	>\203 \307 |
+| evil-org-mode | org-auto-tangle-mode | org-tempo-setup | (lambda nil Beautify Org Checkbox Symbol (setq prettify-symbols-alist (cons '([ ] . ☐) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([X] . ☑) prettify-symbols-alist)) (setq prettify-symbols-alist (cons '([-] . ❍) prettify-symbols-alist)) (prettify-symbols-mode)) | efs/org-mode-visual-fill | org-bullets-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | efs/org-mode-setup | (lambda nil (smart-newline-mode 1)) | (lambda nil (display-line-numbers-mode 0)) |
 
 *** Org capture templates
 
@@ -1713,14 +1908,15 @@ The avaliable language blocks for Org mode code blocks are located at https://or
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("ya" . "src yaml"))
   (add-to-list 'org-structure-template-alist '("to" . "src toml :tangle ./"))
-  (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
+  (add-to-list 'org-structure-template-alist '("conf" . "src conf :tangle ./"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("rst" . "src rustic"))
 
 
 #+end_src
 
 #+RESULTS:
-: ((to . src toml :tangle ./) (to . src toml) (py . src python) (conf . src conf) (ya . src yaml) (el . src emacs-lisp) (sh . src shell) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
+: ((rst . src rustic) (rs . src rustic) (conf . src conf :tangle ./) (py . src python) (conf . src conf) (to . src toml :tangle ./) (ya . src yaml) (el . src emacs-lisp) (sh . src shell) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
 
 *** Auto-tangle Configuration Files
 
@@ -1913,50 +2109,63 @@ Insert Images Into Orgmode
 #+RESULTS:
 *** LaTeX Fragments
 #+begin_src emacs-lisp
-(setq org-latex-create-formula-image-program 'dvipng)
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
+  (setq org-latex-create-formula-image-program 'dvipng)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 #+end_src
 
 #+RESULTS:
 | :foreground | default | :background | default | :scale | 2.0 | :html-foreground | Black | :html-background | Transparent | :html-scale | 1.0 | :matchers | (begin $1 $ $$ \( \[) |
 
 *** Org Exporter Hugo
-
+org-hugo-base-dir is set in the document
+the all posts file is linked into the default org dir which is ~/org
 #+begin_src emacs-lisp
-  (use-package ox-hugo
-  :straight t   ;Auto-install the package from Melpa
-  :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
-  :after ox)
+      (use-package ox-hugo
+      :straight t   ;Auto-install the package from Melpa
+      :pin melpa  ;`package-archives' should already have ("melpa" . "https://melpa.org/packages/")
+      :after ox)
 
-  (with-eval-after-load 'org-capture
-  (defun org-hugo-new-subtree-post-capture-template ()
-    "Returns `org-capture' template string for new Hugo post.
-See `org-capture-templates' for more information."
-    (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
-           (fname (org-hugo-slug title)))
-      (mapconcat #'identity
-                 `(
-                   ,(concat "* TODO " title)
-                   ":PROPERTIES:"
-                   ,(concat ":EXPORT_FILE_NAME: " fname)
-                   ":END:"
-                   "%?\n")          ;Place the cursor here finally
-                 "\n")))
+      (with-eval-after-load 'org-capture
+      (defun org-hugo-new-subtree-post-capture-template ()
+        "Returns `org-capture' template string for new Hugo post.
+    See `org-capture-templates' for more information."
+        (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
+               (fname (org-hugo-slug title)))
+          (mapconcat #'identity
+                     `(
+                       ,(concat "* TODO " title)
+                       ":PROPERTIES:"
+                       ,(concat ":EXPORT_FILE_NAME: " fname)
+                       ":END:"
+                       "%?\n")          ;Place the cursor here finally
+                     "\n")))
 
-  (add-to-list 'org-capture-templates
-               '("h"                ;`org-capture' binding + h
-                 "Hugo post"
-                 entry
-                 ;; It is assumed that below file is present in `org-directory'
-                 ;; and that it has a "Blog Ideas" heading. It can even be a
-                 ;; symlink pointing to the actual location of all-posts.org!
-                 (file+olp "all-posts.org" "Art")
-                 (function org-hugo-new-subtree-post-capture-template))))
+       (add-to-list 'org-capture-templates
+                   '("A"                ;`org-capture' binding + h
+                     "Hugo Art post"
+                     entry
+                     ;; It is assumed that below file is present in `org-directory'
+                     ;; and that it has a "Blog Ideas" heading. It can even be a
+                     ;; symlink pointing to the actual location of all-posts.org!
+                     (file+olp "all-posts.org" "Art")
+                     (function org-hugo-new-subtree-post-capture-template)))
+     (add-to-list 'org-capture-templates
+                   '("T"                ;`org-capture' binding + h
+                     "Hugo Tech post"
+                     entry
+                     ;; It is assumed that below file is present in `org-directory'
+                     ;; and that it has a "Blog Ideas" heading. It can even be a
+                     ;; symlink pointing to the actual location of all-posts.org!
+                     (file+olp "all-posts.org" "Tech")
+                     (function org-hugo-new-subtree-post-capture-template)))
+
+      )
 #+end_src
 
 #+RESULTS:
+| T  | Hugo Tech post  | entry      | (file+olp all-posts.org Tech)                                 | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
+| A  | Hugo Art post   | entry      | (file+olp all-posts.org Art)                                  | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
 | h  | Hugo post       | entry      | (file+olp all-posts.org Art)                                  | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
-| h  | Hugo post       | entry      | (file+olp all-posts.org Blog Ideas)                           | #'org-hugo-new-subtree-post-capture-template |    |            |           |   |              |   |
 | m  | Metrics Capture |            |                                                               |                                              |    |            |           |   |              |   |
 | mw | Weight          | table-line | (file+headline ~/Projects/Documents/Notes/Metrics.org Weight) |                                              | %U | %^{Weight} | %^{Notes} |   | :kill-buffer | t |
 
@@ -1975,8 +2184,24 @@ See `org-capture-templates' for more information."
     :commands lsp
     :hook ((typescript-mode js2-mode web-mode) . lsp)
     :bind (:map lsp-mode-map
-           ("TAB" . completion-at-point))
-    :custom (lsp-headerline-breadcrumb-enable nil))
+                ("TAB" . completion-at-point))
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    :custom
+    (lsp-headerline-breadcrumb-enable nil)
+    ;; what to use when checking on-save. "check" is default, I prefer clippy
+    (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-eldoc-render-all t)
+    (lsp-idle-delay 0.6)
+    ;; enable / disable the hints as you prefer:
+    (lsp-rust-analyzer-server-display-inlay-hints t)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+    (lsp-rust-analyzer-display-chaining-hints t)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+    (lsp-rust-analyzer-display-closure-return-type-hints t)
+    (lsp-rust-analyzer-display-parameter-hints nil)
+    (lsp-rust-analyzer-display-reborrow-hints nil)
+    )
 
   (viktorya/editor-keys
     "l"  '(:ignore t :which-key "lsp")
@@ -1991,10 +2216,12 @@ See `org-capture-templates' for more information."
 
   (use-package lsp-ui
     ;;:straight t
+    :after lsp
     :hook (lsp-mode . lsp-ui-mode)
     :config
+    (setq lsp-ui-peek-always-show t)
     (setq lsp-ui-sideline-enable t)
-    (setq lsp-ui-sideline-show-hover nil)
+    (setq lsp-ui-sideline-show-hover t)
     (setq lsp-ui-doc-position 'bottom)
     (lsp-ui-doc-show))
 
@@ -2015,6 +2242,55 @@ See `org-capture-templates' for more information."
 
 #+RESULTS:
 : ((\.ya?ml\' . yaml-mode) (\.at\' . autotest-mode) (\.gpg\(~\|\.~[0-9]+~\)?\' nil epa-file) (/git-rebase-todo\' . git-rebase-mode) (\.\(e?ya?\|ra\)ml\' . yaml-mode) (\.elc\' . elisp-byte-code-mode) (\.zst\' nil jka-compr) (\.dz\' nil jka-compr) (\.xz\' nil jka-compr) (\.lzma\' nil jka-compr) (\.lz\' nil jka-compr) (\.g?z\' nil jka-compr) (\.bz2\' nil jka-compr) (\.Z\' nil jka-compr) (\.vr[hi]?\' . vera-mode) (\(?:\.\(?:rbw?\|ru\|rake\|thor\|jbuilder\|rabl\|gemspec\|podspec\)\|/\(?:Gem\|Rake\|Cap\|Thor\|Puppet\|Berks\|Vagrant\|Guard\|Pod\)file\)\' . ruby-mode) (\.re?st\' . rst-mode) (\.py[iw]?\' . python-mode) (\.m\' . octave-maybe-mode) (\.less\' . less-css-mode) (\.scss\' . scss-mode) (\.awk\' . awk-mode) (\.\(u?lpc\|pike\|pmod\(\.in\)?\)\' . pike-mode) (\.idl\' . idl-mode) (\.java\' . java-mode) (\.m\' . objc-mode) (\.ii\' . c++-mode) (\.i\' . c-mode) (\.lex\' . c-mode) (\.y\(acc\)?\' . c-mode) (\.h\' . c-or-c++-mode) (\.c\' . c-mode) (\.\(CC?\|HH?\)\' . c++-mode) (\.[ch]\(pp\|xx\|\+\+\)\' . c++-mode) (\.\(cc\|hh\)\' . c++-mode) (\.\(bat\|cmd\)\' . bat-mode) (\.[sx]?html?\(\.[a-zA-Z_]+\)?\' . mhtml-mode) (\.svgz?\' . image-mode) (\.svgz?\' . xml-mode) (\.x[bp]m\' . image-mode) (\.x[bp]m\' . c-mode) (\.p[bpgn]m\' . image-mode) (\.tiff?\' . image-mode) (\.gif\' . image-mode) (\.png\' . image-mode) (\.jpe?g\' . image-mode) (\.te?xt\' . text-mode) (\.[tT]e[xX]\' . tex-mode) (\.ins\' . tex-mode) (\.ltx\' . latex-mode) (\.dtx\' . doctex-mode) (\.org\' . org-mode) (\.el\' . emacs-lisp-mode) (Project\.ede\' . emacs-lisp-mode) (\.\(scm\|stk\|ss\|sch\)\' . scheme-mode) (\.l\' . lisp-mode) (\.li?sp\' . lisp-mode) (\.[fF]\' . fortran-mode) (\.for\' . fortran-mode) (\.p\' . pascal-mode) (\.pas\' . pascal-mode) (\.\(dpr\|DPR\)\' . delphi-mode) (\.ad[abs]\' . ada-mode) (\.ad[bs]\.dg\' . ada-mode) (\.\([pP]\([Llm]\|erl\|od\)\|al\)\' . perl-mode) (Imakefile\' . makefile-imake-mode) (Makeppfile\(?:\.mk\)?\' . makefile-makepp-mode) (\.makepp\' . makefile-makepp-mode) (\.mk\' . makefile-gmake-mode) (\.make\' . makefile-gmake-mode) ([Mm]akefile\' . makefile-gmake-mode) (\.am\' . makefile-automake-mode) (\.texinfo\' . texinfo-mode) (\.te?xi\' . texinfo-mode) (\.[sS]\' . asm-mode) (\.asm\' . asm-mode) (\.css\' . css-mode) (\.mixal\' . mixal-mode) (\.gcov\' . compilation-mode) (/\.[a-z0-9-]*gdbinit . gdb-script-mode) (-gdb\.gdb . gdb-script-mode) ([cC]hange\.?[lL]og?\' . change-log-mode) ([cC]hange[lL]og[-.][0-9]+\' . change-log-mode) (\$CHANGE_LOG\$\.TXT . change-log-mode) (\.scm\.[0-9]*\' . scheme-mode) (\.[ckz]?sh\'\|\.shar\'\|/\.z?profile\' . sh-mode) (\.bash\' . sh-mode) (\(/\|\`\)\.\(bash_\(profile\|history\|log\(in\|out\)\)\|z?log\(in\|out\)\)\' . sh-mode) (\(/\|\`\)\.\(shrc\|zshrc\|m?kshrc\|bashrc\|t?cshrc\|esrc\)\' . sh-mode) (\(/\|\`\)\.\([kz]shenv\|xinitrc\|startxrc\|xsession\)\' . sh-mode) (\.m?spec\' . sh-mode) (\.m[mes]\' . nroff-mode) (\.man\' . nroff-mode) (\.sty\' . latex-mode) (\.cl[so]\' . latex-mode) (\.bbl\' . latex-mode) (\.bib\' . bibtex-mode) (\.bst\' . bibtex-style-mode) (\.sql\' . sql-mode) (\(acinclude\|aclocal\|acsite\)\.m4\' . autoconf-mode) (\.m[4c]\' . m4-mode) (\.mf\' . metafont-mode) (\.mp\' . metapost-mode) (\.vhdl?\' . vhdl-mode) (\.article\' . text-mode) (\.letter\' . text-mode) (\.i?tcl\' . tcl-mode) (\.exp\' . tcl-mode) (\.itk\' . tcl-mode) (\.icn\' . icon-mode) (\.sim\' . simula-mode) (\.mss\' . scribe-mode) (\.f9[05]\' . f90-mode) (\.f0[38]\' . f90-mode) (\.indent\.pro\' . fundamental-mode) (\.\(pro\|PRO\)\' . idlwave-mode) (\.srt\' . srecode-template-mode) (\.prolog\' . prolog-mode) (\.tar\' . tar-mode) (\.\(arc\|zip\|lzh\|lha\|zoo\|[jew]ar\|xpi\|rar\|cbr\|7z\|ARC\|ZIP\|LZH\|LHA\|ZOO\|[JEW]AR\|XPI\|RAR\|CBR\|7Z\)\' . archive-mode) (\.oxt\' . archive-mode) (\.\(deb\|[oi]pk\)\' . archive-mode) (\`/tmp/Re . text-mode) (/Message[0-9]*\' . text-mode) (\`/tmp/fol/ . text-mode) (\.oak\' . scheme-mode) (\.sgml?\' . sgml-mode) (\.x[ms]l\' . xml-mode) (\.dbk\' . xml-mode) (\.dtd\' . sgml-mode) (\.ds\(ss\)?l\' . dsssl-mode) (\.js[mx]?\' . javascript-mode) (\.har\' . javascript-mode) (\.json\' . javascript-mode) (\.[ds]?va?h?\' . verilog-mode) (\.by\' . bovine-grammar-mode) (\.wy\' . wisent-grammar-mode) ([:/\]\..*\(emacs\|gnus\|viper\)\' . emacs-lisp-mode) (\`\..*emacs\' . emacs-lisp-mode) ([:/]_emacs\' . emacs-lisp-mode) (/crontab\.X*[0-9]+\' . shell-script-mode) (\.ml\' . lisp-mode) (\.ld[si]?\' . ld-script-mode) (ld\.?script\' . ld-script-mode) (\.xs\' . c-mode) (\.x[abdsru]?[cnw]?\' . ld-script-mode) (\.zone\' . dns-mode) (\.soa\' . dns-mode) (\.asd\' . lisp-mode) (\.\(asn\|mib\|smi\)\' . snmp-mode) (\.\(as\|mi\|sm\)2\' . snmpv2-mode) (\.\(diffs?\|patch\|rej\)\' . diff-mode) (\.\(dif\|pat\)\' . diff-mode) (\.[eE]?[pP][sS]\' . ps-mode) (\.\(?:PDF\|DVI\|OD[FGPST]\|DOCX\|XLSX?\|PPTX?\|pdf\|djvu\|dvi\|od[fgpst]\|docx\|xlsx?\|pptx?\)\' . doc-view-mode-maybe) (configure\.\(ac\|in\)\' . autoconf-mode) (\.s\(v\|iv\|ieve\)\' . sieve-mode) (BROWSE\' . ebrowse-tree-mode) (\.ebrowse\' . ebrowse-tree-mode) (#\*mail\* . mail-mode) (\.g\' . antlr-mode) (\.mod\' . m2-mode) (\.ses\' . ses-mode) (\.docbook\' . sgml-mode) (\.com\' . dcl-mode) (/config\.\(?:bat\|log\)\' . fundamental-mode) (/\.\(authinfo\|netrc\)\' . authinfo-mode) (\.\(?:[iI][nN][iI]\|[lL][sS][tT]\|[rR][eE][gG]\|[sS][yY][sS]\)\' . conf-mode) (\.la\' . conf-unix-mode) (\.ppd\' . conf-ppd-mode) (java.+\.conf\' . conf-javaprop-mode) (\.properties\(?:\.[a-zA-Z0-9._-]+\)?\' . conf-javaprop-mode) (\.toml\' . conf-toml-mode) (\.desktop\' . conf-desktop-mode) (/\.redshift\.conf\' . conf-windows-mode) (\`/etc/\(?:DIR_COLORS\|ethers\|.?fstab\|.*hosts\|lesskey\|login\.?de\(?:fs\|vperm\)\|magic\|mtab\|pam\.d/.*\|permissions\(?:\.d/.+\)?\|protocols\|rpc\|services\)\' . conf-space-mode) (\`/etc/\(?:acpid?/.+\|aliases\(?:\.d/.+\)?\|default/.+\|group-?\|hosts\..+\|inittab\|ksysguarddrc\|opera6rc\|passwd-?\|shadow-?\|sysconfig/.+\)\' . conf-mode) ([cC]hange[lL]og[-.][-0-9a-z]+\' . change-log-mode) (/\.?\(?:gitconfig\|gnokiirc\|hgrc\|kde.*rc\|mime\.types\|wgetrc\)\' . conf-mode) (/\.\(?:asound\|enigma\|fetchmail\|gltron\|gtk\|hxplayer\|mairix\|mbsync\|msmtp\|net\|neverball\|nvidia-settings-\|offlineimap\|qt/.+\|realplayer\|reportbug\|rtorrent\.\|screen\|scummvm\|sversion\|sylpheed/.+\|xmp\)rc\' . conf-mode) (/\.\(?:gdbtkinit\|grip\|mpdconf\|notmuch-config\|orbital/.+txt\|rhosts\|tuxracer/options\)\' . conf-mode) (/\.?X\(?:default\|resource\|re\)s\> . conf-xdefaults-mode) (/X11.+app-defaults/\|\.ad\' . conf-xdefaults-mode) (/X11.+locale/.+/Compose\' . conf-colon-mode) (/X11.+locale/compose\.dir\' . conf-javaprop-mode) (\.~?[0-9]+\.[0-9][-.0-9]*~?\' nil t) (\.\(?:orig\|in\|[bB][aA][kK]\)\' nil t) ([/.]c\(?:on\)?f\(?:i?g\)?\(?:\.[a-zA-Z0-9._-]+\)?\' . conf-mode-maybe) (\.[1-9]\' . nroff-mode) (\.art\' . image-mode) (\.avs\' . image-mode) (\.bmp\' . image-mode) (\.cmyk\' . image-mode) (\.cmyka\' . image-mode) (\.crw\' . image-mode) (\.dcr\' . image-mode) (\.dcx\' . image-mode) (\.dng\' . image-mode) (\.dpx\' . image-mode) (\.fax\' . image-mode) (\.hrz\' . image-mode) (\.icb\' . image-mode) (\.icc\' . image-mode) (\.icm\' . image-mode) (\.ico\' . image-mode) (\.icon\' . image-mode) (\.jbg\' . image-mode) (\.jbig\' . image-mode) (\.jng\' . image-mode) (\.jnx\' . image-mode) (\.miff\' . image-mode) (\.mng\' . image-mode) (\.mvg\' . image-mode) (\.otb\' . image-mode) (\.p7\' . image-mode) (\.pcx\' . image-mode) (\.pdb\' . image-mode) (\.pfa\' . image-mode) (\.pfb\' . image-mode) (\.picon\' . image-mode) (\.pict\' . image-mode) (\.rgb\' . image-mode) (\.rgba\' . image-mode) (\.tga\' . image-mode) (\.wbmp\' . image-mode) (\.webp\' . image-mode) (\.wmf\' . image-mode) (\.wpg\' . image-mode) (\.xcf\' . image-mode) (\.xmp\' . image-mode) (\.xwd\' . image-mode) (\.yuv\' . image-mode) (\.tgz\' . tar-mode) (\.tbz2?\' . tar-mode) (\.txz\' . tar-mode) (\.tzst\' . tar-mode))
+
+*** Rust
+You can use C-c C-c C-r to run the program via cargo run.
+https://robert.kra.hn/posts/rust-emacs-setup/
+#+begin_src emacs-lisp
+  (use-package rustic
+    :straight t
+    :bind (:map rustic-mode-map
+                ("M-j" . lsp-ui-imenu)
+                ("M-?" . lsp-find-references)
+                ("C-c C-c l" . flycheck-list-errors)
+                ("C-c C-c a" . lsp-execute-code-action)
+                ("C-c C-c r" . lsp-rename)
+                ("C-c C-c q" . lsp-workspace-restart)
+                ("C-c C-c Q" . lsp-workspace-shutdown)
+                ("C-c C-c s" . lsp-rust-analyzer-status))
+    :config
+    ;; uncomment for less flashiness
+    (setq lsp-eldoc-hook nil)
+    (setq lsp-enable-symbol-highlighting nil)
+    (setq lsp-signature-auto-activate nil)
+
+    ;; comment to disable rustfmt on save
+    (setq rustic-format-on-save t)
+    (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+    (advice-add 'cargo-process-run :before #'viktorya/save-buffer)
+    )
+  (defun rk/rustic-mode-hook ()
+    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+    ;; save rust buffers that are not file visiting. Once
+    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+    ;; no longer be necessary.
+    (when buffer-file-name
+      (setq-local buffer-save-without-query t)))
+
+  (defun viktorya/save-buffer (&rest _args)
+    (save-buffer 1)
+    )
+
+  (use-package cargo
+    :straight t
+    :config
+    (add-hook 'rust-mode-hook 'cargo-minor-mode)
+    )
+#+end_src
+
+#+RESULTS:
+: t
+
 ** Help
 
 https://jwiegley.github.io/use-package/keywords/

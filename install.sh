@@ -115,3 +115,13 @@ if "<<toggle-packages(p="Cli")>>";then
         echo "Remember to add key to github https://github.com/settings/keys"
     fi
 fi
+
+if "<<toggle-packages(p="Rust")>>";then
+    RUST_A=~/.rust-analyzer
+    if ! [ -d "$RUST_A" ]; then
+        echo "Installing Rust Analyser"
+        git clone https://github.com/rust-analyzer/rust-analyzer.git
+        cd $RUST_A
+        cargo xtask install --server
+    fi
+fi

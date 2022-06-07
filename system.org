@@ -1,6 +1,35 @@
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+auto_tangle: t
+* System Config
+** Colors
+#+tblname: colors
+| color         | key     | value   |
+|---------------+---------+---------|
+| black         | color0  | #292d3e |
+| red           | color1  | #f07178 |
+| green         | color2  | #c3e88d |
+| yellow        | color3  | #ffcb6b |
+| blue          | color4  | #82aaff |
+| magenta       | color5  | #c792ea |
+| cyan          | color6  | #89ddff |
+| white         | color7  | #d0d0d0 |
+| light-black   | color8  | #434758 |
+| light-red     | color9  | #ff8b92 |
+| light-green   | color10 | #ddffa7 |
+| light-yellow  | color11 | #ffe585 |
+| light-blue    | color12 | #9cc4ff |
+| light-magenta | color13 | #e1acff |
+| light-cyan    | color14 | #a3f7ff |
+| light-white   | color15 | #ffffff |
+| color-fg      |         | #000000 |
+#+NAME: get-color
+#+begin_src emacs-lisp :var table=colors name="black" quote=0
+(let ((color (seq-some (lambda (e) (and (string= name (car e)) (nth 2 e))) table)))
+  (if (> quote 0)
+      (concat "\"" color "\"")
+    color))
+#+end_src
 * Polybar
 ** Config
 *** Config
@@ -38,7 +67,7 @@
   [colors]
   ;background = ${xrdb:color0:#222}
   background = #E60c0a20
-        
+
   background-alt = #E6020016
   ;foreground = ${xrdb:color7:#222}
   foreground = #f6f6f6
@@ -47,6 +76,8 @@
   secondary = #ff2afc
   red = #f90000
   alert = #bd2c40
+  occupied-active = #df85ff
+  foreground-active = #ff2afc
 
   [bar/example]
   monitor = ${env:MONITOR:HDMI-0}
@@ -425,7 +456,7 @@
     content-background = ${colors.bg}
     content-foreground = ${colors.secondary}
 
-    click-left = rofi -show power-menu -width 250 -lines 5
+    click-left = rofi -show power-menu -width 250 -lines 6
     ;type = custom/menu
 
     ;expand-right = true
@@ -591,241 +622,252 @@
 
 ** Autostart
 
-#+begin_src shell :tangle ./.config/polybar/launch.sh :shebang "#!/usr/bin/env sh"
-
-# More info : https://github.com/jaagr/polybar/wiki
-
-# Install the following applications for polybar and icons in polybar if you are on ArcoLinuxD
-# awesome-terminal-fonts
-# Tip : There are other interesting fonts that provide icons like nerd-fonts-complete
-# --log=error
-# Terminate already running bar instances
-killall -q polybar
-
-# Wait until the processes have been shut down
-while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
-
-desktop=$(echo $DESKTOP_SESSION)
-count=$(xrandr --query | grep " connected" | cut -d" " -f1 | wc -l)
+#+begin_src shell :tangle ./.config/polybar/launch.sh :shebang "#!/bin/bash"
 
 
-case $desktop in
+  # More info : https://github.com/jaagr/polybar/wiki
 
-    i3|/usr/share/xsessions/i3)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-i3 -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-i3 -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-i3-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-i3-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+  # Install the following applications for polybar and icons in polybar if you are on ArcoLinuxD
+  # awesome-terminal-fonts
+  # Tip : There are other interesting fonts that provide icons like nerd-fonts-complete
+  # --log=error
+  # Terminate already running bar instances
+  killall -q polybar
 
-    openbox|/usr/share/xsessions/openbox)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-openbox -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-openbox -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-openbox-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-openbox-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+  # Wait until the processes have been shut down
+  while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
 
-    bspwm|/usr/share/xsessions/bspwm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-bspwm -c ~/.config/polybar/config.ini &
-      done
-    else
-    polybar --reload mainbar-bspwm -c ~/.config/polybar/config.ini &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-bspwm-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-bspwm-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+  desktop=$(echo $DESKTOP_SESSION)
+  count=$(xrandr --query | grep " connected" | cut -d" " -f1 | wc -l)
 
-    herbstluftwm|/usr/share/xsessions/herbstluftwm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-herbstluftwm -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-herbstluftwm -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-herbstluftwm-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-herbstluftwm-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
 
-    worm|/usr/share/xsessions/worm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-worm -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-worm -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-worm-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-worm-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+  case $desktop in
 
-    berry|/usr/share/xsessions/berry)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-berry -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-berry -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-berry-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-berry-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+      i3|/usr/share/xsessions/i3)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-i3 -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-i3 -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-i3-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-i3-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
 
-    xmonad|/usr/share/xsessions/xmonad)
-    if [ $count = 1 ]; then
-      m=$(xrandr --query | grep " connected" | cut -d" " -f1)
-      MONITOR=$m polybar --reload mainbar-xmonad -c ~/.config/polybar/config &
-    else
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      openbox|/usr/share/xsessions/openbox)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-openbox -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-openbox -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-openbox-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-openbox-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+      bspwm|/usr/share/xsessions/bspwm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-bspwm -c ~/.config/polybar/config.ini &
+        done
+      else
+      polybar --reload mainbar-bspwm -c ~/.config/polybar/config.ini &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-bspwm-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-bspwm-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+      herbstluftwm|/usr/share/xsessions/herbstluftwm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-herbstluftwm -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-herbstluftwm -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-herbstluftwm-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-herbstluftwm-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+      worm|/usr/share/xsessions/worm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-worm -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-worm -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-worm-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-worm-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+      berry|/usr/share/xsessions/berry)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-berry -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-berry -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-berry-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-berry-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+      xmonad|/usr/share/xsessions/xmonad)
+      if [ $count = 1 ]; then
+        m=$(xrandr --query | grep " connected" | cut -d" " -f1)
         MONITOR=$m polybar --reload mainbar-xmonad -c ~/.config/polybar/config &
-      done
-    fi
-    # second polybar at bottom
-    # if [ $count = 1 ]; then
-    #   m=$(xrandr --query | grep " connected" | cut -d" " -f1)
-    #   MONITOR=$m polybar --reload mainbar-xmonad-extra -c ~/.config/polybar/config &
-    # else
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-xmonad-extra -c ~/.config/polybar/config &
-    #   done
-    # fi
-    ;;
+      else
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-xmonad -c ~/.config/polybar/config &
+        done
+      fi
+      # second polybar at bottom
+      # if [ $count = 1 ]; then
+      #   m=$(xrandr --query | grep " connected" | cut -d" " -f1)
+      #   MONITOR=$m polybar --reload mainbar-xmonad-extra -c ~/.config/polybar/config &
+      # else
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-xmonad-extra -c ~/.config/polybar/config &
+      #   done
+      # fi
+      ;;
 
-    spectrwm|/usr/share/xsessions/spectrwm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-spectrwm -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-spectrwm -c ~/.config/polybar/config &
-    fi
-    ;;
+      spectrwm|/usr/share/xsessions/spectrwm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-spectrwm -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-spectrwm -c ~/.config/polybar/config &
+      fi
+      ;;
 
-    cwm|/usr/share/xsessions/cwm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-cwm -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-cwm -c ~/.config/polybar/config &
-    fi
+      cwm|/usr/share/xsessions/cwm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-cwm -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-cwm -c ~/.config/polybar/config &
+      fi
 
-     # second polybar at bottom
-     # if type "xrandr" > /dev/null; then
-     #  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-     #    MONITOR=$m polybar --reload mainbar-cwm-extra -c ~/.config/polybar/config &
-     #  done
-     # else
-     # polybar --reload mainbar-cwm-extra -c ~/.config/polybar/config &
-     # fi
+       # second polybar at bottom
+       # if type "xrandr" > /dev/null; then
+       #  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+       #    MONITOR=$m polybar --reload mainbar-cwm-extra -c ~/.config/polybar/config &
+       #  done
+       # else
+       # polybar --reload mainbar-cwm-extra -c ~/.config/polybar/config &
+       # fi
 
-    ;;
+      ;;
 
-    fvwm3|/usr/share/xsessions/fvwm3)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-fvwm3 -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-fvwm3 -c ~/.config/polybar/config &
-    fi
+      fvwm3|/usr/share/xsessions/fvwm3)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-fvwm3 -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-fvwm3 -c ~/.config/polybar/config &
+      fi
 
-     # second polybar at bottom
-     # if type "xrandr" > /dev/null; then
-     #  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-     #    MONITOR=$m polybar --reload mainbar-fvwm3-extra -c ~/.config/polybar/config &
-     #  done
-     # else
-     # polybar --reload mainbar-fvwm3-extra -c ~/.config/polybar/config &
-     # fi
+       # second polybar at bottom
+       # if type "xrandr" > /dev/null; then
+       #  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+       #    MONITOR=$m polybar --reload mainbar-fvwm3-extra -c ~/.config/polybar/config &
+       #  done
+       # else
+       # polybar --reload mainbar-fvwm3-extra -c ~/.config/polybar/config &
+       # fi
 
-    ;;
+      ;;
 
-    wmderland|/usr/share/xsessions/wmderland)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-wmderland -c ~/.config/polybar/config &
-      done
-    else
-    polybar --reload mainbar-wmderland -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-wmderland-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-wmderland-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+      wmderland|/usr/share/xsessions/wmderland)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+          MONITOR=$m polybar --reload mainbar-wmderland -c ~/.config/polybar/config &
+        done
+      else
+      polybar --reload mainbar-wmderland -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-wmderland-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-wmderland-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
 
-    leftwm|/usr/share/xsessions/leftwm)
-    if type "xrandr" > /dev/null; then
-      for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config.ini &
-      done
-    else
-    polybar --reload mainbar-leftwm -c ~/.config/polybar/config &
-    fi
-    # second polybar at bottom
-    # if type "xrandr" > /dev/null; then
-    #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    #     MONITOR=$m polybar --reload mainbar-leftwm-extra -c ~/.config/polybar/config &
-    #   done
-    # else
-    # polybar --reload mainbar-leftwm-extra -c ~/.config/polybar/config &
-    # fi
-    ;;
+      leftwm|/usr/share/xsessions/leftwm)
+      if type "xrandr" > /dev/null; then
+        for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+            echo $m
+            if [ $m == 'DP-5' ]; then
+                echo "Portrait"
+                MONITOR=$m polybar --reload mainbar-leftwm-portrait -c ~/.config/polybar/config.ini &
+            elif [ $m == 'DP-2' ]; then
+                echo "Portrait"
+                MONITOR=$m polybar --reload mainbar-leftwm-center -c ~/.config/polybar/config.ini &
 
-esac
+            else
+                MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config.ini &
+            fi
+        done
+      else
+      polybar --reload mainbar-leftwm -c ~/.config/polybar/config &
+      fi
+      # second polybar at bottom
+      # if type "xrandr" > /dev/null; then
+      #   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+      #     MONITOR=$m polybar --reload mainbar-leftwm-extra -c ~/.config/polybar/config &
+      #   done
+      # else
+      # polybar --reload mainbar-leftwm-extra -c ~/.config/polybar/config &
+      # fi
+      ;;
+
+  esac
 
 #+end_src
 
@@ -1228,7 +1270,7 @@ configuration {
   actions[hibernate]="systemctl hibernate"
   actions[reboot]="systemctl reboot"
   actions[shutdown]="systemctl poweroff"
-  actions[displayoff]="~/.dotfiles/bin/rofi-power-menu-sleep"
+  actions[displayoff]="$HOME/.dotfiles/bin/rofi-power-menu-sleep"
 
   # By default, ask for confirmation for actions that are irreversible
   confirmations=(reboot shutdown logout)
@@ -1429,6 +1471,7 @@ configuration {
       exit 1
   fi
 #+end_src
+
 *** Power-Menu Sleep
 #+begin_src python :tangle ./bin/rofi-power-menu-sleep :shebang "#!/usr/bin/python3"
 
@@ -3041,16 +3084,42 @@ while True:
 
 #+end_src
 
-
 * LeftWM
+** Workspaces
+#+begin_src toml :tangle ~/.config/leftwm/config.toml
+  window_rules = [
+  {window_class = "qalculate-gtk", spawn_floating = true},
+  {window_class = "youtube-music-desktop-app",spawn_on_tag = 9, spawn_floating = false},
+  ]
+#+end_src
+
 ** Keybindings
+https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.rs#L46
 #+begin_src toml :tangle ~/.config/leftwm/config.toml
 
   [[keybind]]
   command = "Execute"
-  value = "emacs"
+  value = "alacritty"
+  modifier = ["modkey"]
+  key = "Return"
+
+  [[keybind]]
+  command = "Execute"
+  value = "nemo"
+  modifier = ["modkey"]
+  key = "F1"
+
+  [[keybind]]
+  command = "Execute"
+  value = "emacsclient -c -a 'emacs'"
   modifier = ["modkey"]
   key = "F2"
+
+  [[keybind]]
+  command = "Execute"
+  value = "flatpak run io.github.Qalculate"
+  modifier = ["modkey"]
+  key = "F3"
 
   [[keybind]]
   command = "Execute"
@@ -3058,70 +3127,251 @@ while True:
   modifier = ["modkey", "Shift"]
   key = "d"
 
+  [[keybind]]
+  command = "Execute"
+  value = "rofi -show power-menu"
+  modifier = ["modkey"]
+  key = "x"
+
+  [[keybind]]
+  command = "Execute"
+  value = "spectacle -r "
+  modifier = ["modkey", "Shift"]
+  key = "s"
+
+
+  [[keybind]]
+  command = "SoftReload"
+  modifier = ["modkey", "Shift"]
+  key = "r"
+
+  [[keybind]]
+  command = "CloseWindow"
+  modifier = ["modkey", "Shift"]
+  key = "q"
+
+  # [[keybind]]
+  # command = "MoveWindowToNextWorkspace"
+  # modifier = ["modkey", "Shift"]
+  # key = "Right"
+  # [[keybind]]
+  # command = "MoveWindowToPreviousWorkspace"
+  # modifier = ["modkey", "Shift"]
+  # key = "Left"
+
+  [[keybind]]
+  command = "ToggleFloating"
+  modifier = ["modkey"]
+  key = "space"
+
+  [[keybind]]
+  command = "MoveWindowUp"
+  modifier = ["modkey", "Shift"]
+  key = "Up"
+
+  [[keybind]]
+  command = "MoveWindowDown"
+  modifier = ["modkey", "Shift"]
+  key = "Down"
+
+  [[keybind]]
+  command = "MoveWindowTop"
+  modifier = ["modkey", "Alt"]
+  key = "Return"
+
+  [[keybind]]
+  command = "FocusWindowUp"
+  modifier = ["modkey"]
+  key = "Up"
+
+  [[keybind]]
+  command = "FocusWindowDown"
+  modifier = ["modkey"]
+  key = "Down"
+
+  [[keybind]]
+  command = "NextLayout"
+  modifier = ["modkey", "Control"]
+  key = "Up"
+
+  [[keybind]]
+  command = "PreviousLayout"
+  modifier = ["modkey", "Control"]
+  key = "Down"
+
+  [[keybind]]
+  command = "SwapTags"
+  modifier = ["modkey"]
+  key = "w"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "1"
+  modifier = ["modkey"]
+  key = "1"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "2"
+  modifier = ["modkey"]
+  key = "2"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "3"
+  modifier = ["modkey"]
+  key = "3"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "4"
+  modifier = ["modkey"]
+  key = "4"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "5"
+  modifier = ["modkey"]
+  key = "5"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "6"
+  modifier = ["modkey"]
+  key = "6"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "7"
+  modifier = ["modkey"]
+  key = "7"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "8"
+  modifier = ["modkey"]
+  key = "8"
+
+  [[keybind]]
+  command = "GotoTag"
+  value = "9"
+  modifier = ["modkey"]
+  key = "9"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "1"
+  modifier = ["modkey", "Shift"]
+  key = "1"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "2"
+  modifier = ["modkey", "Shift"]
+  key = "2"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "3"
+  modifier = ["modkey", "Shift"]
+  key = "3"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "4"
+  modifier = ["modkey", "Shift"]
+  key = "4"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "5"
+  modifier = ["modkey", "Shift"]
+  key = "5"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "6"
+  modifier = ["modkey", "Shift"]
+  key = "6"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "7"
+  modifier = ["modkey", "Shift"]
+  key = "7"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "8"
+  modifier = ["modkey", "Shift"]
+  key = "8"
+
+  [[keybind]]
+  command = "MoveToTag"
+  value = "9"
+  modifier = ["modkey", "Shift"]
+  key = "9"
+
 
 #+end_src
 
 ** Autostart
-#+begin_src shell :tangle ~/.config/leftwm/autostart.sh :shebang "#!/bin/bash"
+#+begin_src shell :tangle ~/.config/leftwm/up :shebang "#!/bin/bash"
 
-  function run {
-      if ! pgrep $1 ;
-      then
-          $@&
-      fi
-  }
+    function run {
+        if ! pgrep $1 ;
+        then
+            $@&
+        fi
+    }
 
-  #Find out your monitor name with xrandr or arandr (save and you get this line)
-  #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
-  #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
-  #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
-  #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
-  #autorandr horizontal
-  xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+    #Find out your monitor name with xrandr or arandr (save and you get this line)
+    #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
+    #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
+    #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
+    #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
+    #autorandr horizontal
+    # xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
 
+    xrandr --output DVI-D-1 --off --output DP-5 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+    #change your keyboard if you need it
+    #setxkbmap -layout be
+    # leftwm command SoftReload
+    #Some ways to set your wallpaper besides variety or nitrogen
+    #feh --bg-scale ~/.config/bspwm/wall.png &
+    #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+    #feh --randomize --bg-fill ~/Képek/*
+    #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
 
-  $HOME/.config/polybar/launch.sh &
+    xsetroot -cursor_name left_ptr &
 
-  #change your keyboard if you need it
-  #setxkbmap -layout be
-
-  #Some ways to set your wallpaper besides variety or nitrogen
-  #feh --bg-scale ~/.config/bspwm/wall.png &
-  #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
-  #feh --randomize --bg-fill ~/Képek/*
-  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
-
-  xsetroot -cursor_name left_ptr &
-
-  conky -c $HOME/.config/bspwm/system-overview &
-  run variety &
-  run nm-applet &
-  run pamac-tray &
-  run xfce4-power-manager &
-  numlockx on &
-  picom --config $HOME/.config/bspwm/picom.conf &
-  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-  /usr/lib/xfce4/notifyd/xfce4-notifyd &
-  run volumeicon &
-  syncthing serve --no-browser &
-  nitrogen --restore &
-  run emacs --daemon &
-  #run caffeine &
-  #run vivaldi-stable &
-  #run firefox &
-  #run thunar &
-  #run dropbox &
-  #run insync start &
-  #run discord &
-  #run spotify &
-  #run atom &
+    # run variety &
+    # run nm-applet &
+    # run pamac-tray &
+    # run xfce4-power-manager &
+    numlockx on &
+    # /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+    # /usr/lib/xfce4/notifyd/xfce4-notifyd &
+    # run volumeicon &
+    syncthing serve --no-browser &
+    # run emacs --daemon &
+    #run caffeine &
+    #run vivaldi-stable &
+    #run firefox &
+    #run thunar &
+    #run dropbox &
+    #run insync start &
+    #run discord &
+    run /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=start-ytmdesktop.sh --file-forwarding app.ytmdesktop.ytmdesktop @@u %U @@
+ &
+    #run atom &
 
 #+end_src
 
 ** Themes
 *** Custom Theme
 **** Up
-#+begin_src shell :tangle:tangle ~/.config/leftwm/themes/custom-theme/up :shebang "#!/bin/bash"
+#+begin_src shell :tangle ~/.config/leftwm/themes/custom-theme/up :shebang "#!/bin/bash"
   export SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
   # Down the last running theme
@@ -3131,51 +3381,896 @@ while True:
   fi
   ln -s $SCRIPTPATH/down /tmp/leftwm-theme-down
 
-    xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
-
-
+  /usr/bin/nitrogen --restore & 
   $HOME/.config/polybar/launch.sh &
+  conky -c $HOME/.config/leftwm/themes/custom-theme/conky2.conf -m 3 & 
+  # echo "LoadTheme $SCRIPTPATH/theme.toml" > $XDG_RUNTIME_DIR/leftwm/commands.pipe
 
-  #change your keyboard if you need it
-  #setxkbmap -layout be
-
-  #Some ways to set your wallpaper besides variety or nitrogen
-  #feh --bg-scale ~/.config/bspwm/wall.png &
-  #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
-  #feh --randomize --bg-fill ~/Képek/*
-  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
-
-  xsetroot -cursor_name left_ptr &
-
-  conky -c $HOME/.config/bspwm/system-overview &
-  run variety &
-  run nm-applet &
-  run xfce4-power-manager &
-  numlockx on &
-  picom --config $HOME/.config/bspwm/picom.conf &
-  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-  /usr/lib/xfce4/notifyd/xfce4-notifyd &
-  run volumeicon &
-  nitrogen --restore &
+  # conky -c $HOME/.config/bspwm/system-overview &
+  picom --config $HOME/.config/leftwm/themes/custom-theme/picom.conf --experimental &
 
 #+end_src
 
 **** Down
 
-#+begin_src shell :tangle:tangle ~/.config/leftwm/themes/custom-theme/down :shebang "#!/bin/bash"
-    pkill picom
-    pkill polybar
-
+#+begin_src shell :tangle ~/.config/leftwm/themes/custom-theme/down :shebang "#!/bin/bash"
+  pkill picom
+  pkill polybar
+  pkill conky
 #+end_src
 
 **** Theme
 #+begin_src toml :tangle ~/.config/leftwm/themes/custom-theme/theme.toml
   border_width = 1
-  margin = 20 
+  margin = 12 
   default_border_color = "#222222"
-  floating_border_color = "#005500"
-  focused_border_color = "#FFB53A"
+  floating_border_color = "#555555"
+  focused_border_color = "#AAAAAA"
+  window_rules = [
+               {window_title = "youtube-music-desktop-app", spawn_on_tag = 9, spawn_floating = true},
+                               ]
 #+end_src
+
+**** Polybar
+***** Main-Bar
+
+#+begin_src conf :tangle ./.config/polybar/config.ini
+
+  [bar/mainbar-leftwm]
+  monitor = ${env:MONITOR}
+  ;monitor-fallback = HDMI1
+  width = 100%
+  height = 30
+  ;offset-x = 1%
+  ;offset-y = 1%
+  radius = 0.0
+  fixed-center = true
+  bottom = false
+  separator = |
+
+  background = ${colors.background}
+  foreground = ${colors.foreground}
+
+  line-size = 2
+  line-color = #f00
+
+  ; Enable support for inter-process messaging
+  ; See the Messaging wiki page for more details.
+  enable-ipc = true
+
+  ; border-size = 2
+  ;border-left-size = 0
+  ;border-right-size = 25
+  ;border-top-size = 0
+  border-bottom-size = 2
+  border-color = ${colors.background}
+
+  padding-left = 0
+  padding-right = 1
+
+  module-margin-left = 2
+  module-margin-right = 2
+
+  ;https://github.com/jaagr/polybar/wiki/Fonts
+  font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
+  font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;2
+  font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=32;7
+  font-3 = "FontAwesome:size=13;0"
+
+  ;font-0 = "Noto Sans:size=10;0"
+  ;font-2 = "Noto Sans:size=10;0"
+  ;font-3 = "Noto Sans Mono:size=10;0"
+
+  modules-left = ewmh startmenu
+  ;modules-center = kernel
+  ;modules-right = pavolume memory2 cpu2 date
+  modules-right = kill-emacs filesystem pulseaudio eth cpu memory temperature battery date powermenu 
+
+  tray-detached = false
+  tray-offset-x = 0
+  tray-offset-y = 0
+  tray-padding = 2
+  tray-maxsize = 20
+  tray-scale = 1.0
+  tray-position = none
+  tray-background = ${colors.background}
+
+  ; scroll-up = bspwm-desknext
+  ; scroll-down = bspwm-deskprev
+
+#+end_src
+
+***** Main-Bar-Center
+
+#+begin_src conf :tangle ./.config/polybar/config.ini
+
+  [bar/mainbar-leftwm-center]
+  monitor = ${env:MONITOR}
+  ;monitor-fallback = HDMI1
+  width = 100%
+  height = 30
+  ;offset-x = 1%
+  ;offset-y = 1%
+  radius = 0.0
+  fixed-center = true
+  bottom = false
+  separator = |
+
+  background = ${colors.background}
+  foreground = ${colors.foreground}
+
+  line-size = 2
+  line-color = #f00
+
+  ; Enable support for inter-process messaging
+  ; See the Messaging wiki page for more details.
+  enable-ipc = true
+
+  ; border-size = 2
+  ;border-left-size = 0
+  ;border-right-size = 25
+  ;border-top-size = 0
+  border-bottom-size = 2
+  border-color = ${colors.background}
+
+  padding-left = 0
+  padding-right = 1
+
+  module-margin-left = 2
+  module-margin-right = 2
+
+  ;https://github.com/jaagr/polybar/wiki/Fonts
+  font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
+  font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;2
+  font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=32;7
+  font-3 = "FontAwesome:size=13;0"
+
+  ;font-0 = "Noto Sans:size=10;0"
+  ;font-2 = "Noto Sans:size=10;0"
+  ;font-3 = "Noto Sans Mono:size=10;0"
+
+  modules-left = ewmh startmenu
+  ;modules-center = kernel
+  ;modules-right = pavolume memory2 cpu2 date
+  modules-right = filesystem pulseaudio eth cpu memory temperature battery date
+
+  tray-detached = false
+  tray-offset-x = 0
+  tray-offset-y = 0
+  tray-padding = 2
+  tray-maxsize = 20
+  tray-scale = 1.0
+  tray-position = none
+  tray-background = ${colors.background}
+
+  ; scroll-up = bspwm-desknext
+  ; scroll-down = bspwm-deskprev
+
+#+end_src
+
+***** Main-Bar-Portrait
+
+#+begin_src conf :tangle ./.config/polybar/config.ini
+
+  [bar/mainbar-leftwm-portrait]
+  monitor = ${env:MONITOR}
+  ;monitor-fallback = HDMI1
+  width = 100%
+  height = 30
+  ;offset-x = 1%
+  ;offset-y = 1%
+  radius = 0.0
+  fixed-center = true
+  bottom = false
+  separator = |
+
+  background = ${colors.background}
+  foreground = ${colors.foreground}
+
+  line-size = 4
+  line-color = #f00
+
+  ; Enable support for inter-process messaging
+  ; See the Messaging wiki page for more details.
+  enable-ipc = true
+
+  border-size = 0
+  ;border-left-size = 0
+  ;border-right-size = 25
+  ;border-top-size = 0
+  ;border-bottom-size = 25
+  border-bottom-size = 2
+  border-color = ${colors.background}
+
+  padding-left = 0
+  padding-right = 1
+
+  module-margin-left = 2
+  module-margin-right = 2
+
+  ;https://github.com/jaagr/polybar/wiki/Fonts
+  font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
+  font-1 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=18;2
+  font-2 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=32;7
+  font-3 = "FontAwesome:size=13;0"
+
+  ;font-0 = "Noto Sans:size=10;0"
+  ;font-2 = "Noto Sans:size=10;0"
+  ;font-3 = "Noto Sans Mono:size=10;0"
+
+  modules-left = ewmh 
+  ;modules-center = kernel
+  ;modules-right = pavolume memory2 cpu2 date
+  modules-right = filesystem date
+
+  tray-detached = false
+  tray-offset-x = 0
+  tray-offset-y = 0
+  tray-padding = 2
+  tray-maxsize = 20
+  tray-scale = 1.0
+  tray-position = none
+  tray-background = ${colors.background}
+
+  ; scroll-up = bspwm-desknext
+  ; scroll-down = bspwm-deskprev
+
+#+end_src
+
+***** ewmh-module
+#+begin_src conf :tangle ./.config/polybar/config.ini
+    [module/ewmh]
+    type = internal/xworkspaces
+
+    pin-workspaces = false
+    enable-click = true
+    enable-scroll = true
+    reverse-scroll = true
+
+    icon-0 = 1;
+    icon-1 = 2;
+    icon-2 = 3;
+    icon-3 = 4;
+    icon-4 = 5;
+    icon-5 = 6;
+    icon-6 = 7;
+    icon-7 = 8;
+    icon-8 = ﱘ;
+    #icon-5 = 6;
+    icon-default = ♟
+
+    format = <label-state>
+    label-monitor = %name%
+
+
+
+    label-active = %name%
+    label-active-foreground = ${colors.foreground-active}
+    label-active-background = ${colors.background}
+    label-active-underline= ${colors.foreground-active}
+    label-active-padding = 1
+
+    label-occupied = %name%
+    label-occupied-foreground = ${colors.occupied-active}
+    label-occupied-background = ${colors.background}
+    label-occupied-padding = 1
+
+    label-urgent = %name%
+    label-urgent-foreground = ${colors.foreground}
+    label-urgent-background = ${colors.alert}
+    label-urgent-underline = ${colors.alert}
+    label-urgent-padding = 1
+
+    label-empty = %name%
+    label-empty-foreground = ${colors.foreground}
+    label-empty-padding = 1
+    format-foreground = ${colors.foreground}
+    format-background = ${colors.background}
+#+end_src
+
+***** kill emacs module
+
+#+begin_src conf :tangle ./.config/polybar/config.ini
+  [module/kill-emacs]
+  type = custom/text
+  content = k-Emacs
+  click-left = pkill emacs
+#+end_src
+
+
+**** Conky
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/conky2.conf
+    -- Config_Settings: http://conky.sourceforge.net/config_settings.html
+    -- Config_Variables: http://conky.sourceforge.net/variables.html
+
+
+    conky.config = {
+                 -- Conky -   -
+
+    background = false,
+    update_interval = 1,
+    total_run_times = 0,  
+    cpu_avg_samples = 4,
+    net_avg_samples = 2,  
+    override_utf8_locale = true,  
+    double_buffer = true,
+    no_buffers = true,
+    imlib_cache_size=0,  
+    text_buffer_size = 256,
+
+    -- Window --
+
+    own_window = true,
+    own_window_colour = '222222',
+    own_window_class = 'Conky',
+    own_window_argb_visual = false,
+    own_window_argb_count = 0,
+    own_window_argb_value = 0,
+    own_window_type = 'desktop',
+    own_window_transparent = false,
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+    border_inner_margin = 20,
+    border_width = 20,
+    minimum_height = 1080,
+    minimum_width = 200,
+    maximum_width = 360,
+    alignment = 'top_left',
+    gap_x = 0,
+    gap_y = 73,
+
+    -- Graphics -- 
+
+    draw_shades = false,
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = false,
+
+    -- Text --
+
+    use_xft = true,
+    font = 'Signika Negative',
+    xftalpha = 1,
+    uppercase = false,
+    pad_percents = 0,
+
+    -- Colors --
+
+    default_color = '039fab',
+    default_shade_color = '000000',
+    default_outline_color = '000000',
+
+  };
+    conky.text = [[
+
+                     #				-- RELÓGIO --
+                     ${color e95420}${font :size= 10}${alignr}${time %A, %d %B %Y}
+                     ${color e95420}${font :size= 36}${alignr}${time %H:%M}
+                     #				-- HEADER --
+                     ${font :size= 10}${alignr}${color 03b0d2}$nodename
+                     ${font :size= 8}${color 03b0d2}${alignr}$uptime
+
+                     ${font :size= 8}${color e95420}${alignr}${exec hostnamectl | grep System | cut -c21-40}
+                     ${alignr}${exec hostnamectl | grep Architecture | cut -c7-30}
+                     ${alignr}${exec hostnamectl | grep Kernel | cut -c13-32}
+                     # ${image ~/Conky_Gorilla/Icons/gorilla.png -p 40,50 -s 160x160 -f 86400}
+                     # ${image ~/Conky_Gorilla/Icons/ubuntu.png -p 112,120 -s 42x42 -f 86400}
+
+                     #				-- CPU --
+                     ${color 03b0d2}${font :size= 9}"Morwenna"${alignr}${font :size= 9}${color 03b0d2}$cpu%
+                     ${offset 4}${color 000000}${cpugraph 222222 039fab}
+                     ${color e95420}${offset 4}Core 1 (${color e95420}${execi 5 sensors|grep 'Core 0'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu1 28,86 222222 e95420}${color e95420}${offset 4} Core 2 (${color e95420}${execi 5 sensors|grep 'Core 1'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu3 28,86 222222 e95420}
+                     ${color 03b0d2}${offset 4}Core 3 (${color 039fab}${execi 5 sensors|grep 'Core 2'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu2 28,86 222222 039fab}${color 03b0d2}${offset 4}Core 4 (${color 039fab}${execi 5 sensors|grep 'Core 3'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu4 28,86 222222 039fab}
+
+
+                     ${color e95420}${offset 4}Core 5 (${color e95420}${execi 5 sensors|grep 'Core 4'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu2 28,86 222222 e95420}${color e95420}${offset 4}Core 6 (${color e95420}${execi 5 sensors|grep 'Core 5'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu4 28,86 222222 e95420}
+                     ${color 03b0d2}${offset 4}Core 7 (${color 039fab}${execi 5 sensors|grep 'Core 6'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu2 28,86 222222 039fab}${color 03b0d2}${offset 4}Core 8 (${color 039fab}${execi 5 sensors|grep 'Core 7'| awk -F'+' '{print $2}' | awk -F'.' '{print $1}'} °C)${color 000000}${cpugraph cpu4 28,86 222222 039fab}
+
+                     #				-- RAM --
+                     ${color e95420}${font :size= 9}Memory${alignr}$mem
+                     ${color e95420}${font :size= 9}Swap${alignr}$swapperc% / $swapmax
+                     ${offset 4}${color 000000}${memgraph 222222 e95420}
+
+                     #				-- HD --
+                     ${color 03b0d2}${font :size= 9}"Nvme SSD"${alignr}${diskio /dev/nvme0}
+                     ${offset 4}${color 000000}${diskiograph 222222 039fab}
+
+                     #				-- INTERNET --
+                     ${color e95420}${font :size= 9}${wireless_essid "eno1"}${alignr}${addr "eno1"}
+                     ${color e95420}${offset 4}${color 000000}${downspeedgraph "eno1" 28,178 222222 e95420}${color e95420}${color 000000}${upspeedgraph "eno1" 28,178 222222 e95420}
+                     ${color e95420}${font :size=8} ▼  ${downspeed "eno1"}${alignr}${color e95420} ▲  ${upspeed "eno1"}
+
+                     # #				-- TO DO LIST --
+                     ${color 03b0d2}${font :size= 9}Keybindings	${hr 1}${color 039fab}
+                     ${color 03b0d2}${font :size= 9}C-s-d ${color 03b0d2}${font :size= 9}${alignr}Launch App
+                     ${color 03b0d2}${font :size= 9}C-s-r ${color 03b0d2}${font :size= 9}${alignr}Reload Leftwm
+                     ${color 03b0d2}${font :size= 9}C-s-q ${color 03b0d2}${font :size= 9}${alignr}Close Window
+                     ${color 03b0d2}${font :size= 9}S-Space ${color 03b0d2}${font :size= 9}${alignr}Toggle Floating
+                     ${color 03b0d2}${font :size= 9}C-Shift-Up ${color 03b0d2}${font :size= 9}${alignr}Move Window
+                     ${color 03b0d2}${font :size= 9}C-Shift-Down ${color 03b0d2}${font :size= 9}${alignr}Move Window
+                     ${color 03b0d2}${font :size= 9}C-s-Up ${color 03b0d2}${font :size= 9}${alignr}Next Layout
+                     ${color 03b0d2}${font :size= 9}C-s-Up ${color 03b0d2}${font :size= 9}${alignr}Previous Layout
+
+                 ]];
+#+end_src
+
+**** Picom
+***** Shadows
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
+  #################################
+  #             Shadows           #
+  #################################
+
+
+  # Enabled client-side shadows on windows. Note desktop windows 
+  # (windows with '_NET_WM_WINDOW_TYPE_DESKTOP') never get shadow, 
+  # unless explicitly requested using the wintypes option.
+  #
+  # shadow = false
+  shadow = false;
+
+  # The blur radius for shadows, in pixels. (defaults to 12)
+  # shadow-radius = 12
+  shadow-radius = 7;
+
+  # The opacity of shadows. (0.0 - 1.0, defaults to 0.75)
+  # shadow-opacity = .75
+
+  # The left offset for shadows, in pixels. (defaults to -15)
+  # shadow-offset-x = -15
+  shadow-offset-x = -7;
+
+  # The top offset for shadows, in pixels. (defaults to -15)
+  # shadow-offset-y = -15
+  shadow-offset-y = -7;
+
+  # Avoid drawing shadows on dock/panel windows. This option is deprecated,
+  # you should use the *wintypes* option in your config file instead.
+  #
+  # no-dock-shadow = false
+
+  # Don't draw shadows on drag-and-drop windows. This option is deprecated, 
+  # you should use the *wintypes* option in your config file instead.
+  #
+  # no-dnd-shadow = false
+
+  # Red color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-red = 0
+
+  # Green color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-green = 0
+
+  # Blue color value of shadow (0.0 - 1.0, defaults to 0).
+  # shadow-blue = 0
+
+  # Do not paint shadows on shaped windows. Note shaped windows 
+  # here means windows setting its shape through X Shape extension. 
+  # Those using ARGB background is beyond our control. 
+  # Deprecated, use 
+  #   shadow-exclude = 'bounding_shaped'
+  # or 
+  #   shadow-exclude = 'bounding_shaped && !rounded_corners'
+  # instead.
+  #
+  # shadow-ignore-shaped = ''
+
+  # Specify a list of conditions of windows that should have no shadow.
+  #
+  # examples:
+  #   shadow-exclude = "n:e:Notification";
+  #
+  # shadow-exclude = []
+  shadow-exclude = [
+  "name = 'Notification'",
+  "class_g ?= 'Notify-osd'",
+  "name = 'Plank'",
+  "name = 'Docky'",
+  "name = 'Kupfer'",
+  "name = 'xfce4-notifyd'",
+  "name *= 'VLC'",
+  "name *= 'compton'",
+  "name *= 'Chromium'",
+  "name *= 'Chrome'",
+  "class_g = 'Firefox' && argb",
+  "class_g = 'Conky'",
+  "class_g = 'Kupfer'",
+  "class_g = 'Synapse'",
+  "class_g ?= 'Notify-osd'",
+  "class_g ?= 'Cairo-dock'",
+  "class_g = 'Cairo-clock'",
+  "class_g ?= 'Xfce4-notifyd'",
+  "class_g ?= 'Xfce4-power-manager'",
+  "_GTK_FRAME_EXTENTS@:c"
+  ];
+
+  # Add this one too for ...
+  # "_NET_WM_STATE@:32a *= '_NET_WM_STATE_HIDDEN'"
+  # Add this one above to the list to have no shadow in Openbox menu
+  # "! name~=''",
+
+  # Specify a X geometry that describes the region in which shadow should not
+  # be painted in, such as a dock window region. Use 
+  #    shadow-exclude-reg = "x10+0+0"
+  # for example, if the 10 pixels on the bottom of the screen should not have shadows painted on.
+  #
+  # shadow-exclude-reg = "" 
+
+  # Crop shadow of a window fully on a particular Xinerama screen to the screen.
+  # xinerama-shadow-crop = false
+
+  #+end_src
+  
+***** Fading
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
+  #################################
+  #           Fading              #
+  #################################
+
+
+  # Fade windows in/out when opening/closing and when opacity changes,
+  #  unless no-fading-openclose is used.
+  # fading = false
+  fading = false
+
+  # Opacity change between steps while fading in. (0.01 - 1.0, defaults to 0.028)
+  # fade-in-step = 0.028
+  fade-in-step = 0.03;
+
+  # Opacity change between steps while fading out. (0.01 - 1.0, defaults to 0.03)
+  # fade-out-step = 0.03
+  fade-out-step = 0.03;
+
+  # The time between steps in fade step, in milliseconds. (> 0, defaults to 10)
+  # fade-delta = 10
+
+  # Specify a list of conditions of windows that should not be faded.
+  # fade-exclude = []
+
+  # Do not fade on window open/close.
+  # no-fading-openclose = false
+
+  # Do not fade destroyed ARGB windows with WM frame. Workaround of bugs in Openbox, Fluxbox, etc.
+  # no-fading-destroyed-argb = false
+
+#+end_src
+
+***** Transparency
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
+
+      #################################
+      #   Transparency / Opacity      #
+      #################################
+
+
+      # Opacity of inactive windows. (0.1 - 1.0, defaults to 1.0)
+      # inactive-opacity = 1
+      # inactive-opacity = 0.05;
+
+      # Opacity of window titlebars and borders. (0.1 - 1.0, disabled by default)
+      # frame-opacity = 1.0
+      frame-opacity = 0.2;
+
+      # Default opacity for dropdown menus and popup menus. (0.0 - 1.0, defaults to 1.0)
+      # menu-opacity = 1.0
+
+      # Let inactive opacity set by -i override the '_NET_WM_OPACITY' values of windows.
+      # inactive-opacity-override = true
+      inactive-opacity-override = false;
+
+      # Default opacity for active windows. (0.0 - 1.0, defaults to 1.0)
+      # active-opacity = 0.95
+
+      # Dim inactive windows. (0.0 - 1.0, defaults to 0.0)
+      # inactive-dim = 0.0
+
+      # Specify a list of conditions of windows that should always be considered focused.
+      # focus-exclude = []
+      focus-exclude = [ "class_g = 'Cairo-clock'" ];
+
+      # Use fixed inactive dim value, instead of adjusting according to window opacity.
+      # inactive-dim-fixed = 1.0
+
+      # Specify a list of opacity rules, in the format `PERCENT:PATTERN`, 
+      # like `50:name *= "Firefox"`. picom-trans is recommended over this. 
+      # Note we don't make any guarantee about possible conflicts with other 
+      # programs that set '_NET_WM_WINDOW_OPACITY' on frame or client windows.
+      # example:
+      #    opacity-rule = [ "80:class_g = 'URxvt'" ];
+      #
+      opacity-rule = [
+      "60:class_g = 'Alacritty'",
+      "75:class_g = 'Conky'",
+      "60:class_g = 'emacs'",
+      "75:class_g = 'kitty'"
+
+      ]
+
+#+end_src
+
+***** Bluring
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
+
+  #################################
+  #     Background-Blurring       #
+  #################################
+
+
+  # Parameters for background blurring, see the *BLUR* section for more information.
+  # blur-method = 
+  # blur-size = 12
+  #
+  # blur-deviation = false
+
+  # Blur background of semi-transparent / ARGB windows. 
+  # Bad in performance, with driver-dependent behavior. 
+  # The name of the switch may change without prior notifications.
+  #
+  # blur-background = false
+
+  # Blur background of windows when the window frame is not opaque. 
+  # Implies:
+  #    blur-background 
+  # Bad in performance, with driver-dependent behavior. The name may change.
+  #
+  # blur-background-frame = false
+
+
+  # Use fixed blur strength rather than adjusting according to window opacity.
+  # blur-background-fixed = false
+
+
+  # Specify the blur convolution kernel, with the following format:
+  # example:
+  #   blur-kern = "5,5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1";
+  #
+  # blur-kern = ''
+  blur-kern = "3x3box";
+
+  blur:
+  {
+  method = "dual_kawase";
+  strength = 1.5;
+  }
+
+  # Exclude conditions for background blur.
+  # blur-background-exclude = []
+  blur-background-exclude = [
+  "window_type = 'dock'",
+  # "window_type = 'desktop'",
+  # "class_g = 'Conky'",
+  "_GTK_FRAME_EXTENTS@:c"
+  ];
+#+end_src
+
+***** General Settings
+#+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
+
+  #################################
+  #       General Settings        #
+  #################################
+
+  # Daemonize process. Fork to background after initialization. Causes issues with certain (badly-written) drivers.
+  # daemon = false
+
+  # Specify the backend to use: `xrender`, `glx`, or `xr_glx_hybrid`.
+  # `xrender` is the default one.
+  #
+  # backend = "glx"
+  # backend = "xr_glx_hybrid"
+  backend = "glx";
+
+  # Enable/disable VSync.
+  vsync = true
+  #vsync = true
+
+  # Enable remote control via D-Bus. See the *D-BUS API* section below for more details.
+  # dbus = false
+
+  # Try to detect WM windows (a non-override-redirect window with no 
+  # child that has 'WM_STATE') and mark them as active.
+  #
+  # mark-wmwin-focused = false
+  mark-wmwin-focused = true;
+
+  # Mark override-redirect windows that doesn't have a child window with 'WM_STATE' focused.
+  # mark-ovredir-focused = false
+  mark-ovredir-focused = true;
+
+  # Try to detect windows with rounded corners and don't consider them 
+  # shaped windows. The accuracy is not very high, unfortunately.
+  #
+  # detect-rounded-corners = false
+  detect-rounded-corners = true;
+
+  # Detect '_NET_WM_OPACITY' on client windows, useful for window managers
+  # not passing '_NET_WM_OPACITY' of client windows to frame windows.
+  #
+  # detect-client-opacity = false
+  detect-client-opacity = true;
+
+  # Specify refresh rate of the screen. If not specified or 0, picom will 
+  # try detecting this with X RandR extension.
+  #
+  # refresh-rate = 60
+  refresh-rate = 0
+
+  # Limit picom to repaint at most once every 1 / 'refresh_rate' second to 
+  # boost performance. This should not be used with 
+  #   vsync drm/opengl/opengl-oml
+  # as they essentially does sw-opti's job already, 
+  # unless you wish to specify a lower refresh rate than the actual value.
+  #
+  # sw-opti = 
+
+  # Use EWMH '_NET_ACTIVE_WINDOW' to determine currently focused window, 
+  # rather than listening to 'FocusIn'/'FocusOut' event. Might have more accuracy, 
+  # provided that the WM supports it.
+  #
+  # use-ewmh-active-win = false
+
+  # Unredirect all windows if a full-screen opaque window is detected, 
+  # to maximize performance for full-screen windows. Known to cause flickering 
+  # when redirecting/unredirecting windows.
+  #
+  # unredir-if-possible = false
+
+  # Delay before unredirecting the window, in milliseconds. Defaults to 0.
+  # unredir-if-possible-delay = 0
+
+  # Conditions of windows that shouldn't be considered full-screen for unredirecting screen.
+  # unredir-if-possible-exclude = []
+
+  # Use 'WM_TRANSIENT_FOR' to group windows, and consider windows 
+  # in the same group focused at the same time.
+  #
+  # detect-transient = false
+  detect-transient = true
+
+  # Use 'WM_CLIENT_LEADER' to group windows, and consider windows in the same 
+  # group focused at the same time. 'WM_TRANSIENT_FOR' has higher priority if 
+  # detect-transient is enabled, too.
+  #
+  # detect-client-leader = false
+  detect-client-leader = true
+
+  # Resize damaged region by a specific number of pixels. 
+  # A positive value enlarges it while a negative one shrinks it. 
+  # If the value is positive, those additional pixels will not be actually painted 
+  # to screen, only used in blur calculation, and such. (Due to technical limitations, 
+  # with use-damage, those pixels will still be incorrectly painted to screen.) 
+  # Primarily used to fix the line corruption issues of blur, 
+  # in which case you should use the blur radius value here 
+  # (e.g. with a 3x3 kernel, you should use `--resize-damage 1`, 
+  # with a 5x5 one you use `--resize-damage 2`, and so on). 
+  # May or may not work with *--glx-no-stencil*. Shrinking doesn't function correctly.
+  #
+  # resize-damage = 1
+
+  # Specify a list of conditions of windows that should be painted with inverted color. 
+  # Resource-hogging, and is not well tested.
+  #
+  # invert-color-include = []
+
+  # GLX backend: Avoid using stencil buffer, useful if you don't have a stencil buffer. 
+  # Might cause incorrect opacity when rendering transparent content (but never 
+  # practically happened) and may not work with blur-background. 
+  # My tests show a 15% performance boost. Recommended.
+  #
+  # glx-no-stencil = false
+
+  # GLX backend: Avoid rebinding pixmap on window damage. 
+  # Probably could improve performance on rapid window content changes, 
+  # but is known to break things on some drivers (LLVMpipe, xf86-video-intel, etc.).
+  # Recommended if it works.
+  #
+  # glx-no-rebind-pixmap = false
+
+  # Disable the use of damage information. 
+  # This cause the whole screen to be redrawn everytime, instead of the part of the screen
+  # has actually changed. Potentially degrades the performance, but might fix some artifacts.
+  # The opposing option is use-damage
+  #
+  # no-use-damage = false
+  use-damage = true
+
+  # Use X Sync fence to sync clients' draw calls, to make sure all draw 
+  # calls are finished before picom starts drawing. Needed on nvidia-drivers 
+  # with GLX backend for some users.
+  #
+  # xrender-sync-fence = false
+
+  # GLX backend: Use specified GLSL fragment shader for rendering window contents. 
+  # See `compton-default-fshader-win.glsl` and `compton-fake-transparency-fshader-win.glsl` 
+  # in the source tree for examples.
+  #
+  # glx-fshader-win = ''
+
+  # Force all windows to be painted with blending. Useful if you 
+  # have a glx-fshader-win that could turn opaque pixels transparent.
+  #
+  # force-win-blend = false
+
+  # Do not use EWMH to detect fullscreen windows. 
+  # Reverts to checking if a window is fullscreen based only on its size and coordinates.
+  #
+  # no-ewmh-fullscreen = false
+
+  # Dimming bright windows so their brightness doesn't exceed this set value. 
+  # Brightness of a window is estimated by averaging all pixels in the window, 
+  # so this could comes with a performance hit. 
+  # Setting this to 1.0 disables this behaviour. Requires --use-damage to be disabled. (default: 1.0)
+  #
+  # max-brightness = 1.0
+
+  # Make transparent windows clip other windows like non-transparent windows do,
+  # instead of blending on top of them.
+  #
+  # transparent-clipping = false
+
+  # Set the log level. Possible values are:
+  #  "trace", "debug", "info", "warn", "error"
+  # in increasing level of importance. Case doesn't matter. 
+  # If using the "TRACE" log level, it's better to log into a file 
+  # using *--log-file*, since it can generate a huge stream of logs.
+  #
+  # log-level = "debug"
+  log-level = "warn";
+
+  # Set the log file.
+  # If *--log-file* is never specified, logs will be written to stderr. 
+  # Otherwise, logs will to written to the given file, though some of the early 
+  # logs might still be written to the stderr. 
+  # When setting this option from the config file, it is recommended to use an absolute path.
+  #
+  # log-file = '~/.config/compton.log'
+
+  # Show all X errors (for debugging)
+  # show-all-xerrors = false
+
+  # Write process ID to a file.
+  # write-pid-path = '/path/to/your/log/file'
+
+  # Window type settings
+  # 
+  # 'WINDOW_TYPE' is one of the 15 window types defined in EWMH standard: 
+  #     "unknown", "desktop", "dock", "toolbar", "menu", "utility", 
+  #     "splash", "dialog", "normal", "dropdown_menu", "popup_menu", 
+  #     "tooltip", "notification", "combo", and "dnd".
+  # 
+  # Following per window-type options are available: ::
+  # 
+  #   fade, shadow:::
+  #     Controls window-type-specific shadow and fade settings.
+  # 
+  #   opacity:::
+  #     Controls default opacity of the window type.
+  # 
+  #   focus:::
+  #     Controls whether the window of this type is to be always considered focused. 
+  #     (By default, all window types except "normal" and "dialog" has this on.)
+  # 
+  #   full-shadow:::
+  #     Controls whether shadow is drawn under the parts of the window that you 
+  #     normally won't be able to see. Useful when the window has parts of it 
+  #     transparent, and you want shadows in those areas.
+  # 
+  #   redir-ignore:::
+  #     Controls whether this type of windows should cause screen to become 
+  #     redirected again after been unredirected. If you have unredir-if-possible
+  #     set, and doesn't want certain window to cause unnecessary screen redirection, 
+  #     you can set this to `true`.
+  #
+  wintypes:
+  {
+  tooltip = { fade = true; shadow = true; opacity = 0.9; focus = true; full-shadow = false; };
+  dock = { shadow = false; }
+  dnd = { shadow = false; }
+  popup_menu = { opacity = 0.9; }
+  dropdown_menu = { opacity = 0.9; }
+  };
+
+#+end_src
+
+ 
 
 * Install
 ** Toggle package list
@@ -3228,7 +4323,7 @@ while True:
 ** Install script
 curl https://sh.rustup.rs -sSf | sh
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb no
- 
+
   UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
   ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
@@ -3345,7 +4440,22 @@ curl https://sh.rustup.rs -sSf | sh
           echo "Remember to add key to github https://github.com/settings/keys"
       fi
   fi
+
+  if "<<toggle-packages(p="Rust")>>";then
+      RUST_A=~/.rust-analyzer
+      if ! [ -d "$RUST_A" ]; then
+          echo "Installing Rust Analyser"
+          git clone https://github.com/rust-analyzer/rust-analyzer.git
+          cd $RUST_A
+          cargo xtask install --server
+      fi
+  fi
+
+
+
 #+end_src
+
+#+RESULTS:
 
 ** Install ssh authorised keys
 

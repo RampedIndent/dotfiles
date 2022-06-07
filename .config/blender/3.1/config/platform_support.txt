@@ -1,2 +1,0 @@
-{nouveau/NV134/4.3 (Core Profile) Mesa 21.2.6}=SUPPORTED
-{NVIDIA Corporation/NVIDIA GeForce GTX 1080/PCIe/SSE2/4.5.0 NVIDIA 510.60.02}=SUPPORTED

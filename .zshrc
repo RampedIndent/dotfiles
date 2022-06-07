@@ -124,15 +124,17 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 # Aliases
 alias reload='source ~/.zshrc'
 alias ls="exa -la"
-alias git="emacsclient -c -a emacs -q --eval \"(magit)\""
+alias magit="emacsclient -c -a emacs -q --eval \"(magit)\""
 #alias git="emacsclient -nw -c -a emacs -q --eval \"(magit)\""
-alias gitcli="/bin/git"
+alias git="/bin/git"
 alias ..="cd .."
 alias back="cd -"
 alias khc="cd ~/Documents/Kubernetes-Home-Cluster"
 alias dtf="cd ~/.dotfiles"
 alias tracert="traceroute"
 alias docker-compose="/usr/libexec/docker/cli-plugins/docker-compose"
+alias s="kitty +kitten ssh"
+alias please='sudo $(fc -ln -1)'
 
 vterm_printf(){
     if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
