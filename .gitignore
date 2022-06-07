@@ -10,3 +10,6 @@
 /.emacs.d/straight/
 /.emacs.d/transient/
 /.emacs.d/var/
+/.themes/*
+
+!/.themes/*.tar.*
