@@ -4,25 +4,27 @@
 * System Config
 ** Colors
 #+tblname: colors
-| color         | key     | value   |
-|---------------+---------+---------|
-| black         | color0  | #292d3e |
-| red           | color1  | #f07178 |
-| green         | color2  | #c3e88d |
-| yellow        | color3  | #ffcb6b |
-| blue          | color4  | #82aaff |
-| magenta       | color5  | #c792ea |
-| cyan          | color6  | #89ddff |
-| white         | color7  | #d0d0d0 |
-| light-black   | color8  | #434758 |
-| light-red     | color9  | #ff8b92 |
-| light-green   | color10 | #ddffa7 |
-| light-yellow  | color11 | #ffe585 |
-| light-blue    | color12 | #9cc4ff |
-| light-magenta | color13 | #e1acff |
-| light-cyan    | color14 | #a3f7ff |
-| light-white   | color15 | #ffffff |
-| color-fg      |         | #000000 |
+| color     | key     | value   |
+|-----------+---------+---------|
+| black     | color0  | #292d3e |
+| greay     | color1  | #546A90 |
+| red       | color2  | #e61f44 |
+| orange    | color3  | #cf433e |
+| green     | color4  | #a7da1e |
+| teal      | color5  | #A875FF |
+| yellow    | color6  | #ffd400 |
+| blue      | color7  | #1ea8fc |
+| dark-blue | color8  | #3F88AD |
+| magenta   | color9  | #ff2afc |
+| violet    | color10 | #df85ff |
+| cyan      | color11 | #42c6ff |
+| dark-cyan | color12 | #204052 |
+| white     | color13 | #d0d0d0 |
+| fg        | color14 | #f2f3f7 |
+| fg-alt    | color15 | #7984D1 |
+| bg        | color16 | #0c0a20 |
+
+
 #+NAME: get-color
 #+begin_src emacs-lisp :var table=colors name="black" quote=0
 (let ((color (seq-some (lambda (e) (and (string= name (car e)) (nth 2 e))) table)))
@@ -33,7 +35,7 @@
 * Polybar
 ** Config
 *** Config
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
   ;==========================================================
   ;
   ; THIS IS AN EXAMPLE CONFIGURATION FILE!
@@ -66,18 +68,18 @@
 
   [colors]
   ;background = ${xrdb:color0:#222}
-  background = #E60c0a20
+  background = <<get-color(name="bg", quote=0)>>
 
   background-alt = #E6020016
   ;foreground = ${xrdb:color7:#222}
-  foreground = #f6f6f6
-  foreground-alt = #afafaf
+  foreground = <<get-color(name="fg", quote=0)>>
+  foreground-alt = <<get-color(name="fg-alt", quote=0)>>
   primary = #ffb52a
   secondary = #ff2afc
   red = #f90000
   alert = #bd2c40
-  occupied-active = #df85ff
-  foreground-active = #ff2afc
+  occupied-active =<<get-color(name="teal", quote=0)>> 
+  foreground-active = <<get-color(name="magenta", quote=0)>>
 
   [bar/example]
   monitor = ${env:MONITOR:HDMI-0}
@@ -207,7 +209,7 @@
 
 *** Modules
 
-  #+begin_src conf :tangle ./.config/polybar/config.ini
+  #+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
     [module/xwindow]
     type = internal/xwindow
     label = %title:0:30:...%
@@ -234,7 +236,7 @@
 
     mount-0 = /
 
-    label-mounted = %{F#0a81f5}Disk: %free% / %total% 
+    label-mounted = %{F<<get-color(name="fg-alt", quote=0)>>}Disk: %free% / %total% 
     label-unmounted = %mountpoint% not mounted
     label-unmounted-foreground = ${colors.foreground-alt}
 
@@ -256,7 +258,7 @@
     interval = 2
     format-prefix = "CPU "
     format-prefix-foreground = ${colors.foreground-alt}
-    format-underline = #f90000
+    format-underline =<<get-color(name="magenta", quote=0)>> 
     label = %percentage:2%%
 
     [module/memory]
@@ -264,7 +266,7 @@
     interval = 2
     format-prefix = "RAM "
     format-prefix-foreground = ${colors.foreground-alt}
-    format-underline = #4bffdc
+    format-underline = <<get-color(name="orange", quote=0)>>
     label = %percentage_used%%
 
     [module/wlan]
@@ -294,10 +296,11 @@
     interface = eno1
     interval = 3.0
 
-    format-connected-underline = #55aa55
-    ;format-connected-prefix = "%ifname% "
+    format-connected-underline = <<get-color(name="green", quote=0)>>
+    ; format-connected-prefix = %ifname% 
     format-connected-prefix-foreground = ${colors.foreground-alt}
-    label-connected =%ifname%:%upspeed:9% %downspeed:9%
+    label-connected = %ifname%:%{F<<get-color(name="fg", quote=0)>>}%upspeed:9% %downspeed:9%
+    label-connected-foreground = <<get-color(name="fg-alt", quote=0)>>
     label-connected-exec =%ifname%:%local_ip%
     label-disconnected = not connected
 
@@ -319,7 +322,7 @@
 
     format-prefix = 
     format-prefix-foreground = ${colors.foreground-alt}
-    format-underline = #0a6cf5
+    format-underline =<<get-color(name="cyan", quote=0)>> 
 
     label = %date% %time%
 
@@ -424,16 +427,16 @@
     ; to find path to desired file
     ; Default reverts to thermal zone setting
     hwmon-path = /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
-    warn-temperature = 60
+    warn-temperature = 80
 
     format = <label>
-    format-underline = #f50a4d
+    format-underline = <<get-color(name="teal", quote=0)>>
     format-warn = <label-warn>
     format-warn-underline = ${self.format-underline}
 
     label = %temperature-c%
     label-warn = %temperature-c%
-    label-warn-foreground = ${colors.secondary}
+    label-warn-foreground = <<get-color(name="red", quote=0)>>
 
     ramp-0 = 
     ramp-1 = 
@@ -443,7 +446,7 @@
 
 *** Menu Modules
 
-  #+begin_src conf :tangle ./.config/polybar/config.ini
+  #+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
 
     [module/powermenu]
 
@@ -454,7 +457,7 @@
     ;content-padding = 15pt
     format-content-offset = 10px
     content-background = ${colors.bg}
-    content-foreground = ${colors.secondary}
+    content-foreground = <<get-color(name="dark-blue", quote=0)>>
 
     click-left = rofi -show power-menu -width 250 -lines 6
     ;type = custom/menu
@@ -495,7 +498,7 @@
     label-open = 
     label-open-font= 3
 
-    label-open-foreground = ${colors.secondary}
+    label-open-foreground = <<get-color(name="dark-blue", quote=0)>>
     label-close =  cancel
     label-close-foreground = ${colors.secondary}
     label-separator = |
@@ -3089,6 +3092,7 @@ while True:
 #+begin_src toml :tangle ~/.config/leftwm/config.toml
   window_rules = [
   {window_class = "qalculate-gtk", spawn_floating = true},
+  {window_class = "steam_app_244850", spawn_floating = true},
   {window_class = "youtube-music-desktop-app",spawn_on_tag = 9, spawn_floating = false},
   ]
 #+end_src
@@ -3097,220 +3101,224 @@ while True:
 https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.rs#L46
 #+begin_src toml :tangle ~/.config/leftwm/config.toml
 
-  [[keybind]]
-  command = "Execute"
-  value = "alacritty"
-  modifier = ["modkey"]
-  key = "Return"
+      [[keybind]]
+      command = "Execute"
+      value = "alacritty"
+      modifier = ["modkey"]
+      key = "Return"
 
-  [[keybind]]
-  command = "Execute"
-  value = "nemo"
-  modifier = ["modkey"]
-  key = "F1"
+      [[keybind]]
+      command = "Execute"
+      value = "nemo"
+      modifier = ["modkey"]
+      key = "F1"
 
-  [[keybind]]
-  command = "Execute"
-  value = "emacsclient -c -a 'emacs'"
-  modifier = ["modkey"]
-  key = "F2"
+      [[keybind]]
+      command = "Execute"
+      value = "emacsclient -c -a 'emacs'"
+      modifier = ["modkey"]
+      key = "F2"
 
-  [[keybind]]
-  command = "Execute"
-  value = "flatpak run io.github.Qalculate"
-  modifier = ["modkey"]
-  key = "F3"
+      [[keybind]]
+      command = "Execute"
+      value = "flatpak run io.github.Qalculate"
+      modifier = ["modkey"]
+      key = "F3"
 
-  [[keybind]]
-  command = "Execute"
-  value = "rofi -show drun"
-  modifier = ["modkey", "Shift"]
-  key = "d"
+      [[keybind]]
+      command = "Execute"
+      value = "rofi -show drun"
+      modifier = ["modkey", "Shift"]
+      key = "d"
 
-  [[keybind]]
-  command = "Execute"
-  value = "rofi -show power-menu"
-  modifier = ["modkey"]
-  key = "x"
+      [[keybind]]
+      command = "Execute"
+      value = "rofi -show power-menu"
+      modifier = ["modkey"]
+      key = "x"
 
-  [[keybind]]
-  command = "Execute"
-  value = "spectacle -r "
-  modifier = ["modkey", "Shift"]
-  key = "s"
+      [[keybind]]
+      command = "Execute"
+      value = "spectacle -r "
+      modifier = ["modkey", "Shift"]
+      key = "s"
 
 
-  [[keybind]]
-  command = "SoftReload"
-  modifier = ["modkey", "Shift"]
-  key = "r"
+      [[keybind]]
+      command = "SoftReload"
+      modifier = ["modkey", "Shift"]
+      key = "r"
 
-  [[keybind]]
-  command = "CloseWindow"
-  modifier = ["modkey", "Shift"]
-  key = "q"
+      [[keybind]]
+      command = "CloseWindow"
+      modifier = ["modkey", "Shift"]
+      key = "q"
 
-  # [[keybind]]
-  # command = "MoveWindowToNextWorkspace"
-  # modifier = ["modkey", "Shift"]
-  # key = "Right"
-  # [[keybind]]
-  # command = "MoveWindowToPreviousWorkspace"
-  # modifier = ["modkey", "Shift"]
-  # key = "Left"
+      # [[keybind]]
+      # command = "MoveWindowToNextWorkspace"
+      # modifier = ["modkey", "Shift"]
+      # key = "Right"
+      # [[keybind]]
+      # command = "MoveWindowToPreviousWorkspace"
+      # modifier = ["modkey", "Shift"]
+      # key = "Left"
 
-  [[keybind]]
-  command = "ToggleFloating"
-  modifier = ["modkey"]
-  key = "space"
+      [[keybind]]
+      command = "ToggleFloating"
+      modifier = ["modkey"]
+      key = "space"
 
-  [[keybind]]
-  command = "MoveWindowUp"
-  modifier = ["modkey", "Shift"]
-  key = "Up"
+      [[keybind]]
+      command = "MoveWindowUp"
+      modifier = ["modkey", "Shift"]
+      key = "Up"
 
-  [[keybind]]
-  command = "MoveWindowDown"
-  modifier = ["modkey", "Shift"]
-  key = "Down"
+      [[keybind]]
+      command = "MoveWindowDown"
+      modifier = ["modkey", "Shift"]
+      key = "Down"
 
-  [[keybind]]
-  command = "MoveWindowTop"
-  modifier = ["modkey", "Alt"]
-  key = "Return"
+      [[keybind]]
+      command = "MoveWindowTop"
+      modifier = ["modkey", "Alt"]
+      key = "Return"
 
-  [[keybind]]
-  command = "FocusWindowUp"
-  modifier = ["modkey"]
-  key = "Up"
+      [[keybind]]
+      # command = "FocusWindowUp"
+      command = "Execute"
+      value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus up"
+      modifier = ["modkey"]
+      key = "Up"
 
-  [[keybind]]
-  command = "FocusWindowDown"
-  modifier = ["modkey"]
-  key = "Down"
+      [[keybind]]
+      # command = "FocusWindowDown"
+      command = "Execute"
+      value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus down"
+      modifier = ["modkey"]
+      key = "Down"
 
-  [[keybind]]
-  command = "NextLayout"
-  modifier = ["modkey", "Control"]
-  key = "Up"
+      [[keybind]]
+      command = "NextLayout"
+      modifier = ["modkey", "Control"]
+      key = "Up"
 
-  [[keybind]]
-  command = "PreviousLayout"
-  modifier = ["modkey", "Control"]
-  key = "Down"
+      [[keybind]]
+      command = "PreviousLayout"
+      modifier = ["modkey", "Control"]
+      key = "Down"
 
-  [[keybind]]
-  command = "SwapTags"
-  modifier = ["modkey"]
-  key = "w"
+      [[keybind]]
+      command = "SwapTags"
+      modifier = ["modkey"]
+      key = "w"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "1"
-  modifier = ["modkey"]
-  key = "1"
+      [[keybind]]
+      command = "GotoTag"
+      value = "1"
+      modifier = ["modkey"]
+      key = "1"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "2"
-  modifier = ["modkey"]
-  key = "2"
+      [[keybind]]
+      command = "GotoTag"
+      value = "2"
+      modifier = ["modkey"]
+      key = "2"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "3"
-  modifier = ["modkey"]
-  key = "3"
+      [[keybind]]
+      command = "GotoTag"
+      value = "3"
+      modifier = ["modkey"]
+      key = "3"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "4"
-  modifier = ["modkey"]
-  key = "4"
+      [[keybind]]
+      command = "GotoTag"
+      value = "4"
+      modifier = ["modkey"]
+      key = "4"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "5"
-  modifier = ["modkey"]
-  key = "5"
+      [[keybind]]
+      command = "GotoTag"
+      value = "5"
+      modifier = ["modkey"]
+      key = "5"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "6"
-  modifier = ["modkey"]
-  key = "6"
+      [[keybind]]
+      command = "GotoTag"
+      value = "6"
+      modifier = ["modkey"]
+      key = "6"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "7"
-  modifier = ["modkey"]
-  key = "7"
+      [[keybind]]
+      command = "GotoTag"
+      value = "7"
+      modifier = ["modkey"]
+      key = "7"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "8"
-  modifier = ["modkey"]
-  key = "8"
+      [[keybind]]
+      command = "GotoTag"
+      value = "8"
+      modifier = ["modkey"]
+      key = "8"
 
-  [[keybind]]
-  command = "GotoTag"
-  value = "9"
-  modifier = ["modkey"]
-  key = "9"
+      [[keybind]]
+      command = "GotoTag"
+      value = "9"
+      modifier = ["modkey"]
+      key = "9"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "1"
-  modifier = ["modkey", "Shift"]
-  key = "1"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "1"
+      modifier = ["modkey", "Shift"]
+      key = "1"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "2"
-  modifier = ["modkey", "Shift"]
-  key = "2"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "2"
+      modifier = ["modkey", "Shift"]
+      key = "2"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "3"
-  modifier = ["modkey", "Shift"]
-  key = "3"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "3"
+      modifier = ["modkey", "Shift"]
+      key = "3"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "4"
-  modifier = ["modkey", "Shift"]
-  key = "4"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "4"
+      modifier = ["modkey", "Shift"]
+      key = "4"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "5"
-  modifier = ["modkey", "Shift"]
-  key = "5"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "5"
+      modifier = ["modkey", "Shift"]
+      key = "5"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "6"
-  modifier = ["modkey", "Shift"]
-  key = "6"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "6"
+      modifier = ["modkey", "Shift"]
+      key = "6"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "7"
-  modifier = ["modkey", "Shift"]
-  key = "7"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "7"
+      modifier = ["modkey", "Shift"]
+      key = "7"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "8"
-  modifier = ["modkey", "Shift"]
-  key = "8"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "8"
+      modifier = ["modkey", "Shift"]
+      key = "8"
 
-  [[keybind]]
-  command = "MoveToTag"
-  value = "9"
-  modifier = ["modkey", "Shift"]
-  key = "9"
+      [[keybind]]
+      command = "MoveToTag"
+      value = "9"
+      modifier = ["modkey", "Shift"]
+      key = "9"
 
 
 #+end_src
@@ -3448,8 +3456,8 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
   padding-left = 0
   padding-right = 1
 
-  module-margin-left = 2
-  module-margin-right = 2
+  module-margin-left = 1
+  module-margin-right = 1
 
   ;https://github.com/jaagr/polybar/wiki/Fonts
   font-0 = InconsolataGo Nerd Font Mono:style=Bold:pixelsize=13;1
@@ -3676,7 +3684,6 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
   content = k-Emacs
   click-left = pkill emacs
 #+end_src
-
 
 **** Conky
 #+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/conky2.conf
@@ -3979,6 +3986,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
       opacity-rule = [
       "60:class_g = 'Alacritty'",
       "75:class_g = 'Conky'",
+      "85:class_g = 'Polybar'",
       "60:class_g = 'emacs'",
       "75:class_g = 'kitty'"
 
@@ -4271,6 +4279,18 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+end_src
 
  
+** Emacs Intergration
+*** Script
+
+#+begin_src bash :tangle ./bin/emacs-leftwm-intergration :shebang "#!/bin/bash" :noweb no 
+  if [[ $(xdotool getactivewindow getwindowname) =~ ^emacs(:.*)?@.* ]]; then
+      command="(viktorya/emacs-leftwm-integration \"$@\")"
+      emacsclient -e "$command"
+  else
+      leftwm-command "$1Window$2"
+      # echo "$1Window$2"
+  fi
+#+end_src
 
 * Install
 ** Toggle package list
