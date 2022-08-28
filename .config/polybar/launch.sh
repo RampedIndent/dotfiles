@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 # More info : https://github.com/jaagr/polybar/wiki
 
 # Install the following applications for polybar and icons in polybar if you are on ArcoLinuxD
@@ -216,7 +216,17 @@ case $desktop in
     leftwm|/usr/share/xsessions/leftwm)
     if type "xrandr" > /dev/null; then
       for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-        MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config.ini &
+          echo $m
+          if [ $m == 'DP-5' ]; then
+              echo "Portrait"
+              MONITOR=$m polybar --reload mainbar-leftwm-portrait -c ~/.config/polybar/config.ini &
+          elif [ $m == 'DP-2' ]; then
+              echo "Portrait"
+              MONITOR=$m polybar --reload mainbar-leftwm-center -c ~/.config/polybar/config.ini &
+
+          else
+              MONITOR=$m polybar --reload mainbar-leftwm -c ~/.config/polybar/config.ini &
+          fi
       done
     else
     polybar --reload mainbar-leftwm -c ~/.config/polybar/config &

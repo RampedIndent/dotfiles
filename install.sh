@@ -1,6 +1,6 @@
 #!/bin/bash
-UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
-ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"
+UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute btop"
+ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute btop"
 ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
 UI_PACKAGES="picom polybar nitrogen syncthing mousepad"
 PROD_PACKAGES="inkscape krita opera opera-ffmpeg"

@@ -21,7 +21,9 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 install.sh
-\.*.org
+^/*.org
+system.org
+emacs.org
 .on-login.sh
 .stow-local-ignore
 etc

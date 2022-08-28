@@ -1,3 +1,4 @@
+# #eval: (let () (org-babel-goto-named-src-block "get-flatpak-packages") (org-babel-execute-src-block)); 
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+auto_tangle: t
@@ -32,6 +33,10 @@
       (concat "\"" color "\"")
     color))
 #+end_src
+
+#+RESULTS: get-color
+: #292d3e
+
 * Polybar
 ** Config
 *** Config
@@ -509,7 +514,8 @@
     menu-0-0-exec = opera
     menu-0-1 = 
     menu-0-1-font = 2
-    menu-0-1-exec = emacsclient -c -a emacs -q --eval "(multi-vterm)"
+    ; menu-0-1-exec = emacsclient -c -a emacs -q --eval "(multi-vterm)"
+    menu-0-1-exec = alacritty
     menu-0-2 = E
     menu-0-2-exec = emacsclient -c -a 'emacs'
     menu-0-3 = Virt
@@ -518,6 +524,8 @@
     menu-0-4-exec = ~/.joplin/Joplin.AppImage
     menu-0-5 = Music
     menu-0-5-exec = /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=start-ytmdesktop.sh --file-forwarding app.ytmdesktop.ytmdesktop @@u %U @@
+    menu-0-6 = Drun
+    menu-0-6-exec = rofi -show drun
     [settings]
     screenchange-reload = true
     ;compositing-background = xor
@@ -3093,7 +3101,17 @@ while True:
   window_rules = [
   {window_class = "qalculate-gtk", spawn_floating = true},
   {window_class = "steam_app_244850", spawn_floating = true},
+  {window_class = "Avorion", spawn_floating = true},
+  # {window_class = "yubioath-desktop", spawn_floating = true},
   {window_class = "youtube-music-desktop-app",spawn_on_tag = 9, spawn_floating = false},
+  ]
+#+end_src
+
+** Scratch Pads
+#+begin_src toml :tangle ~/.config/leftwm/config.toml
+  scratchpad = [
+  { name = "Btop", value = "btop", x = 860, y = 390, height = 300, width = 200 },
+  { name = "Alacritty", value = "alacritty -e btop", x = 860, y = 390, height = 300, width = 200 },
   ]
 #+end_src
 
@@ -3101,225 +3119,242 @@ while True:
 https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.rs#L46
 #+begin_src toml :tangle ~/.config/leftwm/config.toml
 
-      [[keybind]]
-      command = "Execute"
-      value = "alacritty"
-      modifier = ["modkey"]
-      key = "Return"
+    [[keybind]]
+    command = "Execute"
+    value = "alacritty"
+    modifier = ["modkey"]
+    key = "Return"
 
-      [[keybind]]
-      command = "Execute"
-      value = "nemo"
-      modifier = ["modkey"]
-      key = "F1"
+    [[keybind]]
+    command = "Execute"
+    value = "nemo"
+    modifier = ["modkey"]
+    key = "F1"
 
-      [[keybind]]
-      command = "Execute"
-      value = "emacsclient -c -a 'emacs'"
-      modifier = ["modkey"]
-      key = "F2"
+    [[keybind]]
+    command = "Execute"
+    value = "emacsclient -c -a 'emacs'"
+    modifier = ["modkey"]
+    key = "F2"
 
-      [[keybind]]
-      command = "Execute"
-      value = "flatpak run io.github.Qalculate"
-      modifier = ["modkey"]
-      key = "F3"
+    [[keybind]]
+    command = "Execute"
+    value = "flatpak run io.github.Qalculate"
+    modifier = ["modkey"]
+    key = "F3"
 
-      [[keybind]]
-      command = "Execute"
-      value = "rofi -show drun"
-      modifier = ["modkey", "Shift"]
-      key = "d"
+    [[keybind]]
+    command = "ToggleScratchPad"
+    value = "Alacritty"
+    modifier = ["modkey"]
+    key = "F4"
 
-      [[keybind]]
-      command = "Execute"
-      value = "rofi -show power-menu"
-      modifier = ["modkey"]
-      key = "x"
+    [[keybind]]
+    command = "Execute"
+    value = "rofi -show drun"
+    modifier = ["modkey", "Shift"]
+    key = "d"
 
-      [[keybind]]
-      command = "Execute"
-      value = "spectacle -r "
-      modifier = ["modkey", "Shift"]
-      key = "s"
+    [[keybind]]
+    command = "ToggleFullScreen"
+    modifier = ["modkey", "Shift"]
+    key = "f"    
+
+    [[keybind]]
+    command = "Execute"
+    value = "rofi -show power-menu"
+    modifier = ["modkey"]
+    key = "x"
+
+    [[keybind]]
+    command = "Execute"
+    value = "spectacle -r "
+    modifier = ["modkey", "Shift"]
+    key = "s"
 
 
-      [[keybind]]
-      command = "SoftReload"
-      modifier = ["modkey", "Shift"]
-      key = "r"
+    [[keybind]]
+    command = "SoftReload"
+    modifier = ["modkey", "Shift"]
+    key = "r"
 
-      [[keybind]]
-      command = "CloseWindow"
-      modifier = ["modkey", "Shift"]
-      key = "q"
+    [[keybind]]
+    # command = "CloseWindow"
+    command = "Execute"
+    value = "~/.dotfiles/bin/emacs-leftwm-intergration Close"
+    modifier = ["modkey", "Shift"]
+    key = "q"
 
-      # [[keybind]]
-      # command = "MoveWindowToNextWorkspace"
-      # modifier = ["modkey", "Shift"]
-      # key = "Right"
-      # [[keybind]]
-      # command = "MoveWindowToPreviousWorkspace"
-      # modifier = ["modkey", "Shift"]
-      # key = "Left"
+    # [[keybind]]
+    # command = "MoveWindowToNextWorkspace"
+    # modifier = ["modkey", "Shift"]
+    # key = "Right"
+    # [[keybind]]
+    # command = "MoveWindowToPreviousWorkspace"
+    # modifier = ["modkey", "Shift"]
+    # key = "Left"
 
-      [[keybind]]
-      command = "ToggleFloating"
-      modifier = ["modkey"]
-      key = "space"
+    [[keybind]]
+    command = "ToggleFloating"
+    modifier = ["modkey"]
+    key = "space"
 
-      [[keybind]]
-      command = "MoveWindowUp"
-      modifier = ["modkey", "Shift"]
-      key = "Up"
+    [[keybind]]
+    command = "MoveWindowUp"
+    modifier = ["modkey", "Shift"]
+    key = "Up"
 
-      [[keybind]]
-      command = "MoveWindowDown"
-      modifier = ["modkey", "Shift"]
-      key = "Down"
+    [[keybind]]
+    command = "MoveWindowDown"
+    modifier = ["modkey", "Shift"]
+    key = "Down"
 
-      [[keybind]]
-      command = "MoveWindowTop"
-      modifier = ["modkey", "Alt"]
-      key = "Return"
+    [[keybind]]
+    command = "MoveWindowTop"
+    modifier = ["modkey", "Alt"]
+    key = "Return"
 
-      [[keybind]]
-      # command = "FocusWindowUp"
-      command = "Execute"
-      value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus up"
-      modifier = ["modkey"]
-      key = "Up"
+    [[keybind]]
+    # command = "FocusWindowUp"
+    command = "Execute"
+    value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus up"
+    modifier = ["modkey"]
+    key = "Up"
 
-      [[keybind]]
-      # command = "FocusWindowDown"
-      command = "Execute"
-      value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus down"
-      modifier = ["modkey"]
-      key = "Down"
+    [[keybind]]
+    # command = "FocusWindowDown"
+    command = "Execute"
+    value = "~/.dotfiles/bin/emacs-leftwm-intergration Focus down"
+    modifier = ["modkey"]
+    key = "Down"
 
-      [[keybind]]
-      command = "NextLayout"
-      modifier = ["modkey", "Control"]
-      key = "Up"
+    [[keybind]]
+    command = "NextLayout"
+    modifier = ["modkey", "Control"]
+    key = "Up"
 
-      [[keybind]]
-      command = "PreviousLayout"
-      modifier = ["modkey", "Control"]
-      key = "Down"
+    [[keybind]]
+    command = "PreviousLayout"
+    modifier = ["modkey", "Control"]
+    key = "Down"
 
-      [[keybind]]
-      command = "SwapTags"
-      modifier = ["modkey"]
-      key = "w"
+    [[keybind]]
+    command = "SwapTags"
+    modifier = ["modkey"]
+    key = "w"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "1"
-      modifier = ["modkey"]
-      key = "1"
+    [[keybind]]
+    command = "GotoTag"
+    value = "1"
+    modifier = ["modkey"]
+    key = "1"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "2"
-      modifier = ["modkey"]
-      key = "2"
+    [[keybind]]
+    command = "GotoTag"
+    value = "2"
+    modifier = ["modkey"]
+    key = "2"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "3"
-      modifier = ["modkey"]
-      key = "3"
+    [[keybind]]
+    command = "GotoTag"
+    value = "3"
+    modifier = ["modkey"]
+    key = "3"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "4"
-      modifier = ["modkey"]
-      key = "4"
+    [[keybind]]
+    command = "GotoTag"
+    value = "4"
+    modifier = ["modkey"]
+    key = "4"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "5"
-      modifier = ["modkey"]
-      key = "5"
+    [[keybind]]
+    command = "GotoTag"
+    value = "5"
+    modifier = ["modkey"]
+    key = "5"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "6"
-      modifier = ["modkey"]
-      key = "6"
+    [[keybind]]
+    command = "GotoTag"
+    value = "6"
+    modifier = ["modkey"]
+    key = "6"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "7"
-      modifier = ["modkey"]
-      key = "7"
+    [[keybind]]
+    command = "GotoTag"
+    value = "7"
+    modifier = ["modkey"]
+    key = "7"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "8"
-      modifier = ["modkey"]
-      key = "8"
+    [[keybind]]
+    command = "GotoTag"
+    value = "8"
+    modifier = ["modkey"]
+    key = "8"
 
-      [[keybind]]
-      command = "GotoTag"
-      value = "9"
-      modifier = ["modkey"]
-      key = "9"
+    [[keybind]]
+    command = "GotoTag"
+    value = "9"
+    modifier = ["modkey"]
+    key = "9"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "1"
-      modifier = ["modkey", "Shift"]
-      key = "1"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "1"
+    modifier = ["modkey", "Shift"]
+    key = "1"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "2"
-      modifier = ["modkey", "Shift"]
-      key = "2"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "2"
+    modifier = ["modkey", "Shift"]
+    key = "2"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "3"
-      modifier = ["modkey", "Shift"]
-      key = "3"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "3"
+    modifier = ["modkey", "Shift"]
+    key = "3"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "4"
-      modifier = ["modkey", "Shift"]
-      key = "4"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "4"
+    modifier = ["modkey", "Shift"]
+    key = "4"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "5"
-      modifier = ["modkey", "Shift"]
-      key = "5"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "5"
+    modifier = ["modkey", "Shift"]
+    key = "5"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "6"
-      modifier = ["modkey", "Shift"]
-      key = "6"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "6"
+    modifier = ["modkey", "Shift"]
+    key = "6"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "7"
-      modifier = ["modkey", "Shift"]
-      key = "7"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "7"
+    modifier = ["modkey", "Shift"]
+    key = "7"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "8"
-      modifier = ["modkey", "Shift"]
-      key = "8"
+    [[keybind]]
+    command = "MoveToTag"
+    value = "8"
+    modifier = ["modkey", "Shift"]
+    key = "8"
 
-      [[keybind]]
-      command = "MoveToTag"
-      value = "9"
-      modifier = ["modkey", "Shift"]
-      key = "9"
-
+    [[keybind]]
+    command = "MoveToTag"
+    value = "9"
+    modifier = ["modkey", "Shift"]
+    key = "9"
+    
+  [[keybind]]
+  command = "MoveWindowUp"
+  modifier = ["modkey"]
+  key = "t"
 
 #+end_src
 
@@ -3380,22 +3415,22 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 *** Custom Theme
 **** Up
 #+begin_src shell :tangle ~/.config/leftwm/themes/custom-theme/up :shebang "#!/bin/bash"
-  export SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+    export SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-  # Down the last running theme
-  if [ -f "/tmp/leftwm-theme-down" ]; then
-      /tmp/leftwm-theme-down
-      rm /tmp/leftwm-theme-down
-  fi
-  ln -s $SCRIPTPATH/down /tmp/leftwm-theme-down
+    # Down the last running theme
+    if [ -f "/tmp/leftwm-theme-down" ]; then
+        /tmp/leftwm-theme-down
+        rm /tmp/leftwm-theme-down
+    fi
+    ln -s $SCRIPTPATH/down /tmp/leftwm-theme-down
 
-  /usr/bin/nitrogen --restore & 
-  $HOME/.config/polybar/launch.sh &
-  conky -c $HOME/.config/leftwm/themes/custom-theme/conky2.conf -m 3 & 
-  # echo "LoadTheme $SCRIPTPATH/theme.toml" > $XDG_RUNTIME_DIR/leftwm/commands.pipe
-
-  # conky -c $HOME/.config/bspwm/system-overview &
-  picom --config $HOME/.config/leftwm/themes/custom-theme/picom.conf --experimental &
+    /usr/bin/nitrogen --restore & 
+    $HOME/.config/polybar/launch.sh &
+    # conky -c $HOME/.config/leftwm/themes/custom-theme/conky2.conf -m 3 & 
+    # echo "LoadTheme $SCRIPTPATH/theme.toml" > $XDG_RUNTIME_DIR/leftwm/commands.pipe
+    leftwm command "LoadTheme $SCRIPTPATH/theme.toml"
+    # conky -c $HOME/.config/bspwm/system-overview &
+    picom --config $HOME/.config/leftwm/themes/custom-theme/picom.conf --experimental &
 
 #+end_src
 
@@ -3409,11 +3444,11 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
 **** Theme
 #+begin_src toml :tangle ~/.config/leftwm/themes/custom-theme/theme.toml
-  border_width = 1
+  border_width = 5
   margin = 12 
   default_border_color = "#222222"
   floating_border_color = "#555555"
-  focused_border_color = "#AAAAAA"
+  focused_border_color = "#DDDDDD"
   window_rules = [
                {window_title = "youtube-music-desktop-app", spawn_on_tag = 9, spawn_floating = true},
                                ]
@@ -3943,54 +3978,54 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 ***** Transparency
 #+begin_src conf :tangle ~/.config/leftwm/themes/custom-theme/picom.conf
 
-      #################################
-      #   Transparency / Opacity      #
-      #################################
+        #################################
+        #   Transparency / Opacity      #
+        #################################
 
 
-      # Opacity of inactive windows. (0.1 - 1.0, defaults to 1.0)
-      # inactive-opacity = 1
-      # inactive-opacity = 0.05;
+        # Opacity of inactive windows. (0.1 - 1.0, defaults to 1.0)
+        # inactive-opacity = 1
+        # inactive-opacity = 0.05;
 
-      # Opacity of window titlebars and borders. (0.1 - 1.0, disabled by default)
-      # frame-opacity = 1.0
-      frame-opacity = 0.2;
+        # Opacity of window titlebars and borders. (0.1 - 1.0, disabled by default)
+        # frame-opacity = 1.0
+        frame-opacity = 0.2;
 
-      # Default opacity for dropdown menus and popup menus. (0.0 - 1.0, defaults to 1.0)
-      # menu-opacity = 1.0
+        # Default opacity for dropdown menus and popup menus. (0.0 - 1.0, defaults to 1.0)
+        # menu-opacity = 1.0
 
-      # Let inactive opacity set by -i override the '_NET_WM_OPACITY' values of windows.
-      # inactive-opacity-override = true
-      inactive-opacity-override = false;
+        # Let inactive opacity set by -i override the '_NET_WM_OPACITY' values of windows.
+        # inactive-opacity-override = true
+        inactive-opacity-override = false;
 
-      # Default opacity for active windows. (0.0 - 1.0, defaults to 1.0)
-      # active-opacity = 0.95
+        # Default opacity for active windows. (0.0 - 1.0, defaults to 1.0)
+        # active-opacity = 0.95
 
-      # Dim inactive windows. (0.0 - 1.0, defaults to 0.0)
-      # inactive-dim = 0.0
+        # Dim inactive windows. (0.0 - 1.0, defaults to 0.0)
+        # inactive-dim = 0.0
 
-      # Specify a list of conditions of windows that should always be considered focused.
-      # focus-exclude = []
-      focus-exclude = [ "class_g = 'Cairo-clock'" ];
+        # Specify a list of conditions of windows that should always be considered focused.
+        # focus-exclude = []
+        focus-exclude = [ "class_g = 'Cairo-clock'" ];
 
-      # Use fixed inactive dim value, instead of adjusting according to window opacity.
-      # inactive-dim-fixed = 1.0
+        # Use fixed inactive dim value, instead of adjusting according to window opacity.
+        # inactive-dim-fixed = 1.0
 
-      # Specify a list of opacity rules, in the format `PERCENT:PATTERN`, 
-      # like `50:name *= "Firefox"`. picom-trans is recommended over this. 
-      # Note we don't make any guarantee about possible conflicts with other 
-      # programs that set '_NET_WM_WINDOW_OPACITY' on frame or client windows.
-      # example:
-      #    opacity-rule = [ "80:class_g = 'URxvt'" ];
-      #
-      opacity-rule = [
-      "60:class_g = 'Alacritty'",
-      "75:class_g = 'Conky'",
-      "85:class_g = 'Polybar'",
-      "60:class_g = 'emacs'",
-      "75:class_g = 'kitty'"
-
-      ]
+        # Specify a list of opacity rules, in the format `PERCENT:PATTERN`, 
+        # like `50:name *= "Firefox"`. picom-trans is recommended over this. 
+        # Note we don't make any guarantee about possible conflicts with other 
+        # programs that set '_NET_WM_WINDOW_OPACITY' on frame or client windows.
+        # example:
+        #    opacity-rule = [ "80:class_g = 'URxvt'" ];
+        #
+        opacity-rule = [
+        "60:class_g = 'Alacritty'",
+        "75:class_g = 'Conky'",
+        "85:class_g = 'Polybar'",
+        "60:class_g = 'emacs'",
+        "75:class_g = 'kitty'",
+        "85:class_g = 'Nemo'"
+        ]
 
 #+end_src
 
@@ -4293,6 +4328,62 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+end_src
 
 * Install
+** Flatpak
+*** Install Flatpak
+*** Get Installed Packages
+#+NAME: get-flatpak-packages
+#+begin_src python :results output raw :wrap :var x=flatpak-packages-list
+  import subprocess
+  print("#+NAME: flatpak-packages-list");
+  flatpak = subprocess.run(["flatpak", "list", "--app"],stdout=subprocess.PIPE, text=True)
+  programs = flatpak.stdout.split("\n")
+  programs.pop()
+  for program in programs:
+    s = program.split("\t")
+
+    print("- [ ] {:<30} {:}".format(s[0], s[1]))
+#+end_src
+
+#+RESULTS: get-flatpak-packages
+#+begin_results
+#+NAME: flatpak-packages-list
+- [ ] ytmdesktop                     app.ytmdesktop.ytmdesktop
+- [ ] Brave Browser                  com.brave.Browser
+- [ ] Discord                        com.discordapp.Discord
+- [ ] RuneScape                      com.jagex.RuneScape
+- [ ] draw.io                        com.jgraph.drawio.desktop
+- [ ] Wonderwall                     com.ktechpit.wonderwall
+- [ ] PrusaSlicer                    com.prusa3d.PrusaSlicer
+- [ ] RawTherapee                    com.rawtherapee.RawTherapee
+- [ ] HandBrake                      fr.handbrake.ghb
+- [ ] Qalculate! (GTK UI)            io.github.Qalculate
+- [ ] hugin                          net.sourceforge.Hugin
+- [ ] KiCad                          org.kicad.KiCad
+- [ ] ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors
+- [ ] OpenRGB                        org.openrgb.OpenRGB
+#+end_results
+
+#+begin_src python :var x=flatpak-packages-list :noweb yes 
+  return(x)
+
+#+end_src
+
+#+RESULTS:
+| [ ]  ytmdesktop                     app.ytmdesktop.ytmdesktop                   |
+| [X]  Brave Browser                  com.brave.Browser                           |
+| [X]  Discord                        com.discordapp.Discord                      |
+| [X]  RuneScape                      com.jagex.RuneScape                         |
+| [X]  draw.io                        com.jgraph.drawio.desktop                   |
+| [X]  Wonderwall                     com.ktechpit.wonderwall                     |
+| [X]  PrusaSlicer                    com.pruddddddddddddddddddddsa3d.PrusaSlicer |
+| [X]  RawTherapee                    com.rawtherapee.RawTherapee                 |
+| [X]  Qalculate! (GTK UI)            io.github.Qalculate                         |
+| [X]  hugin                          net.sourceforge.Hugin                       |
+| [X]  KiCad                          org.kicad.KiCad                             |
+| [X]  ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors               |
+| [X]  OpenRGB                        org.openrgb.OpenRGB                         |
+*** Package List
+#+CALL: <get-flatpak-packages>()
 ** Toggle package list
 #+NAME: toggle-packages-list
 - Choose items [3/4]  
@@ -4344,8 +4435,8 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 curl https://sh.rustup.rs -sSf | sh
 #+begin_src shell :tangle ./install.sh :shebang "#!/bin/bash" :noweb no
 
-  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute"
-  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute"
+  UBUNTU_PACKEGES="zsh exa screen emacs aspell-en dvipng texlive-latex-extra cmake xclip pandoc traceroute btop"
+  ARCH_PACKEGES="zsh exa screen emacs aspell-en texlive-bin texlive-latexextra cmake xclip pandoc gnupg pcscd scdaemon traceroute btop"
   ARCH_UI_PACKAGES="bluez-utils picom polybar nitrogen syncthing"
   UI_PACKAGES="picom polybar nitrogen syncthing mousepad"
   PROD_PACKAGES="inkscape krita opera opera-ffmpeg"
@@ -4491,6 +4582,8 @@ curl https://sh.rustup.rs -sSf | sh
 /etc/systemd/logind.conf
 systemctl restart systemd
 
+** Increase Swap Size
+https://askubuntu.com/a/178726
 * Troubleshooting
 ** Fix Bluetooth audio
 https://askubuntu.com/a/1207648
@@ -4502,4 +4595,65 @@ https://gist.github.com/artizirk/d09ce3570021b0f65469cb450bee5e29
 #+begin_src emacs-lisp
   (kill-emacs)
 #+end_src
+* Proxmox
+Proxmox post install script
 
+#+begin_src shell
+bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-install.sh)"
+
+#+end_src
+
+* Network
+#+begin_src yaml
+
+  # Network Devices 192.168.50.1-192.168.50.24
+  OPENWRT-MAIN: 192.168.50.1
+  OPENWRT-KITCHEN: 192.168.50.2
+  TP-LINK-SWITCH-BEDROOM: 192.168.50.3
+  RPI-PRINTER: 192.168.50.14
+
+  # Physical Server Range 192.168.50.66-192.168.50.92
+  KRISTINE: 192.168.50.66
+  NATHALIE-PROXMOX: 192.168.50.67
+  AMITY-PROXMOX: 192.168.50.68
+
+
+  METALLB_ARP_RANGE: 192.168.50.92-192.168.50.110
+  # MetalLB Load Balancer IPs Kubernetes
+  LB_KUBERNETES: 192.168.50.92
+  LB_TRAEFIK: 192.168.50.93
+  LB_BLOCKY: 192.168.50.94
+  LB_HOMEASSISTANT: 192.168.50.100
+  LB_MOSQUITTO: 192.168.50.101
+50
+  # Proxmox Server range 192.168.50.111-124
+  NODE-1-K3S: 192.168.50.112
+  DASHY: 192.168.50.113
+  HOME_ASSISTANT: 192.168.50.114
+  NGINX-PROXY: 192.168.50.115
+  POSTGRESQL: 192.168.50.116
+  PI-HOLE: 192.168.50.117
+  PI-HOLE2: 192.168.50.118
+  MQTT: 192.168.50.118
+  ESP-HOME: 192.168.50.120
+  INVENTREE: 192.168.50.121
+  AUTHELIA: 192.168.50.122
+  DOCKER: 192.168.50.123
+  PORTAINER: 192.168.50.123
+  # DHCP Range 192.168.50.190-192.168.50.240 
+
+#+end_src
+
+
+#+begin_src shell
+ssh pi@printserver
+#+end_src
+
+
+
+
+* tmp
+# Local Variables:
+# eval: (progn (org-babel-goto-named-src-block "get-flatpak-packages") (org-babel-execute-src-block))
+# End:
+t

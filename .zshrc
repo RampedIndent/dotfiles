@@ -131,10 +131,14 @@ alias ..="cd .."
 alias back="cd -"
 alias khc="cd ~/Documents/Kubernetes-Home-Cluster"
 alias dtf="cd ~/.dotfiles"
+alias rpd="cd ~/Projects/Programming/rust"
 alias tracert="traceroute"
 alias docker-compose="/usr/libexec/docker/cli-plugins/docker-compose"
 alias s="kitty +kitten ssh"
 alias please='sudo $(fc -ln -1)'
+alias dd='sudo dd bs=1024k status=progress'
+alias install='sudo dpkg -i'
+alias em='emacsclient -nw'
 
 vterm_printf(){
     if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
@@ -166,3 +170,9 @@ dc () {
 zshaddhistory() {
  [[ $1 != 'dc '* ]]
 }
+
+
+mosh-screen () {
+    mosh "$@" -- screen -dR mosh-session
+}
+

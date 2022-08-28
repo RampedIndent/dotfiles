@@ -28,6 +28,15 @@
 
 (setq dw/is-termux
       (string-suffix-p "Android" (string-trim (shell-command-to-string "uname -a"))))
+(setq-default frame-title-format
+            '(""
+              "emacs"
+              (:eval
+               (let ((project-name (projectile-project-name)))
+                 (if (not (string= "-" project-name))
+                     (format ":%s@%s" project-name (system-name))
+                   (format "@%s" (system-name)))))
+              ))
 
 (setq inhibit-start-message t)
 
@@ -200,7 +209,8 @@
                     :height 0.8)
 
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "opera")
+        browse-url-generic-program "
+")
 
 (defun efs/lookup-password (&rest keys)
   (let ((result (apply #'auth-source-search keys)))
@@ -303,10 +313,10 @@
 (use-package counsel-projectile
     :straight t)
 
-(defun cust-git-pull (&rest _args)
+(defun viktorya/cust-git-pull (&rest _args)
   (magit-pull-from-pushremote nil)
   )
-(defun cust-git-push (&rest _args)
+(defun viktorya/cust-git-push (&rest _args)
   (magit-push-current-to-pushremote nil)
   )
 
@@ -315,13 +325,13 @@
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (global-set-key (kbd "<ESCAPE>") 'magit-dispatch)
   :config
-  (advice-add 'magit :after 'cust-git-pull)
+  (advice-add 'magit :after 'viktorya/cust-git-pull)
   ;; (advice-add 'magit-commit :after 'cust-git-push)
-  (setq magit-post-commit-hook 'cust-git-push)
+  (setq magit-post-commit-hook 'viktorya/cust-git-push)
   )
 (add-hook 'with-editor-mode-hook 'evil-insert-state)
-  (setq magit-post-commit-hook 'cust-git-push)
-  (setf (alist-get 'unpushed magit-section-initial-visibility-alist) 'show)
+;; (setq magit-post-commit-hook 'cust-git-push)
+(setf (alist-get 'unpushed magit-section-initial-visibility-alist) 'show)
 
 ;; (cust-git-pull)
 
@@ -439,7 +449,7 @@
     ;(setq dashboard-startup-banner "~/dotfiles/banner.png")
 
     (setq dashboard-items '((recents  . 5)
-                            (bookmarks . 5)
+                            ;; (bookmarks . 5)
                             (projects . 5)
                             (agenda . 5)
                             ;; (registers . 5)
@@ -756,7 +766,36 @@
                          )
 )
 
+;; (concat "a" "b" "c")
 
+(defmacro leftwm-msg (command dir &rest args)
+  `(start-process "emacs-leftwm-windmove" nil "leftwm-command" ,(concat command "window" dir)))
+(defun viktorya/emacs-leftwm-windmove (dir)
+  (let ((other-window (windmove-find-other-window dir)))
+    ;; (message "%s" other-window)
+    (if (or (null other-window) ) ;;(window-minibuffer-p other-window))
+        (leftwm-msg "Focus" (symbol-name dir))
+      (windmove-do-window-select dir))))
+(defun viktorya/emacs-leftwm-integration (command)
+  (pcase command
+    ((rx bos "focus")
+     (viktorya/emacs-leftwm-windmove
+      (intern (elt (split-string command) 1))))
+    ;; ((rx bos "move")
+    ;;  (my/emacs-i3-move-window
+    ;;   (intern (elt (split-string command) 1))))
+    ;; ((rx bos "resize")
+    ;;  (my/emacs-i3-resize-window
+    ;;    (intern (elt (split-string command) 2))
+    ;;    (intern (elt (split-string command) 1))
+    ;;    (string-to-number (elt (split-string command) 3))))
+    ("layout toggle split" (transpose-frame))
+    ("split h" (evil-window-split))
+    ("split v" (evil-window-vsplit))
+    ("Close" (evil-quit))
+    (- (leftwm-msg command))))
+
+(straight-use-package '(ink :type git :host github :repo "foxfriday/ink" ))
 
 (use-package which-key
   :init (which-key-mode)
@@ -776,7 +815,18 @@
 (defun viktorya/org-insert-image-width ()
   (interactive)
   (insert "#+ATTR_HTML: :width 700")
-)  
+  )
+(defun viktorya/org-insert-color ()
+  (interactive)
+  (insert "<<get-color(name=\"black\", quote=0)>>")
+  )  
+(defun viktorya/view-buffer-in-browser ()
+  (interactive)
+  (setq-default buffer (htmlize-buffer))
+  (browse-url-of-buffer buffer)
+  ;; (kill-buffer buffer)
+  )  
+
 (viktorya/editor-keys
   "t"  '(:ignore t :which-key "toggles")
   "tt" '(counsel-load-theme :which-key "choose theme")
@@ -788,8 +838,10 @@
   "in" '(org-roam-node-insert :which-key "Insert Org Roam Node Link")
   "ii" '(org-download-clipboard :which-key "Insert clipboard image into file")
   "iI" '(viktorya/org-insert-image-width :which-key "Insert image Width")
+  "ic" '(viktorya/org-insert-color :which-key "Insert color")
   "f" '(:ignore f :which-key "file commands")
   "ff" '(counsel-find-file :which-key "Find File")
+  "fb" '(viktorya/view-buffer-in-browser :which-key "View Buffer in Browser")
   "fg" '(revert-buffer-no-confirm :which-key "Refresh File")
   "fs" '(save-buffer :which-key "Save Current Buffer")
   "fS" '(write-file :which-key "Save Current Buffer as")
@@ -811,9 +863,9 @@
   )
 
 (defun revert-buffer-no-confirm ()
-    "Revert buffer without confirmation."
-    (interactive)
-    (revert-buffer :ignore-auto :noconfirm))
+  "Revert buffer without confirmation."
+  (interactive)
+  (revert-buffer :ignore-auto :noconfirm))
 
 
 (use-package hydra)
@@ -912,13 +964,36 @@
     (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+  (set-face-attribute 'org-block nil :foreground nil 
+                      :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   
+                      :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-todo nil   
+                      :inherit '(shadow fixed-pitch) 
+                      :weight 'bold :height 1.2)
+  (set-face-attribute 'org-done nil   
+                      :inherit '(shadow fixed-pitch)
+                      :weight 'bold :height 1.2 :slant 'italic)
+  (set-face-attribute 'org-table nil   
+                      :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil 
+                      :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil 
+                      :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil 
+                      :inherit '(font-lock-comment-face fixed-pitch))
+
+  (set-face-attribute 'org-checkbox nil 
+                      :inherit 'fixed-pitch 
+                      :height 1.6)
+
+  (defface org-checkbox-todo-text
+    '((t (:inherit org-done)))
+    "Face for the text part of an unchecked org-mode checkbox.")
+  (defface org-checkbox-done-text
+    '((t (:inherit org-todo)))
+    "Face for the text part of a checked org-mode checkbox.")
+  )
 
 ;; (add-to-list 'org-modules 'org-habit)
 
@@ -963,7 +1038,7 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-todo-keywords
-  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)" "MISSED(m)")))
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)" "MISSED(m)")))
 
   (setq org-image-actual-width nil)
 
@@ -1029,18 +1104,12 @@
                            (push '("[X]" . "☑" ) prettify-symbols-alist)
                            (push '("[-]" . "❍" ) prettify-symbols-alist)
                            (prettify-symbols-mode)))
-(defface org-checkbox-todo-text
-  '((t (:inherit org-todo)))
-  "Face for the text part of an unchecked org-mode checkbox.")
 
 (font-lock-add-keywords
  'org-mode
  `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?: \\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)" 1 'org-checkbox-todo-text prepend))
  'append)
 
-(defface org-checkbox-done-text
-  '((t (:inherit org-done)))
-  "Face for the text part of a checked org-mode checkbox.")
 
 (font-lock-add-keywords
  'org-mode
@@ -1084,6 +1153,7 @@
 (add-to-list 'org-structure-template-alist '("conf" . "src conf :tangle ./"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 (add-to-list 'org-structure-template-alist '("rst" . "src rustic"))
+(add-to-list 'org-structure-template-alist '("lat" . "src latex"))
 
 ;; ;; Automatically tangle our Emacs.org config file when we save it
 ;; (defun efs/org-babel-tangle-config ()
@@ -1238,6 +1308,19 @@
 (use-package org-download
   :straight t)
 
+;; Set up org-mode export stuff
+(require 'ox-latex)
+(unless (boundp 'org-latex-classes)
+  (setq org-latex-classes nil))
+  (add-to-list 'org-latex-classes
+               '("apa6"
+                 "\\documentclass{apa6}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
 (setq org-latex-create-formula-image-program 'dvipng)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
@@ -1281,6 +1364,185 @@ See `org-capture-templates' for more information."
                  (function org-hugo-new-subtree-post-capture-template)))
 
   )
+
+(use-package org-make-toc
+  :config
+  (add-hook 'org-mode-hook #'org-make-toc-mode)
+  )
+
+;; (defun auto-capitalize (beg end length)
+;;   "If `auto-capitalize' mode is on, then capitalize the previous word.
+;; The previous word is capitalized (or upcased) if it is a member of the
+;; `auto-capitalize-words' list; or if it begins a paragraph or sentence.
+
+;; Capitalization occurs only if the current command was invoked via a
+;; self-inserting non-word character (e.g. whitespace or punctuation)\; but
+;; if the `auto-capitalize-yank' option is set, then the first word of
+;; yanked sentences will be capitalized as well.
+
+;; Capitalization can be disabled in specific contexts via the
+;; `auto-capitalize-predicate' variable.
+
+;; This should be installed as an `after-change-function'."
+;;   (if (and auto-capitalize
+;;            (or (null auto-capitalize-predicate)
+;;                (funcall auto-capitalize-predicate)))
+;;       (cond ((or (and (or (eq this-command 'self-insert-command)
+;;                           ;; LaTeX mode binds "." to TeX-insert-punctuation,
+;;                           ;; and "\"" to TeX-insert-quote:
+;;                           (let ((key (this-command-keys)))
+;;                             ;; XEmacs `lookup-key' signals "unable to bind
+;;                             ;; this type of event" for commands invoked via
+;;                             ;; the mouse:
+;;                             (and (if (and (vectorp key)
+;;                                           (> (length key) 0)
+;;                                           (fboundp 'misc-user-event-p)
+;;                                           (misc-user-event-p (aref key 0)))
+;;                                      nil
+;;                                    (memq (lookup-key global-map key t) ;new code
+;;                                           '(self-insert-command newline newline-and-indent))) ;new code
+;;                                  ;; single character insertion?
+;;                                  (= length 0)
+;;                                  (= (- end beg) 1))))
+;;                       (let ((self-insert-char
+;;                              (cond ((featurep 'xemacs) ; XEmacs
+;;                                     (event-to-character last-command-event
+;;                                                         nil nil t))
+;;                                    (t last-command-event)))) ; GNU Emacs
+;;                         (not (equal (char-syntax self-insert-char) ?w))))
+;;                  (eq this-command 'newline)
+;;                  (eq this-command 'newline-and-indent))
+;;              ;; self-inserting, non-word character
+;;              (if (and (> beg (point-min))
+;;                       (equal (char-syntax (char-after (1- beg))) ?w))
+;;                  ;; preceded by a word character
+;;                  (save-excursion
+;;                    (forward-word -1)
+;;                    (save-match-data
+;;                      (let* ((word-start (point))
+;;                             (text-start
+;;                              (progn
+;;                                (while (or (minusp (skip-chars-backward "\""))
+;;                                           (minusp (skip-syntax-backward "\"(")))
+;;                                  t)
+;;                                (point)))
+;;                             lowercase-word)
+;;                        (cond ((and auto-capitalize-words
+;;                                    (let ((case-fold-search nil))
+;;                                      (goto-char word-start)
+;;                                      (looking-at
+;;                                       (concat "\\("
+;;                                               (mapconcat 'downcase
+;;                                                          auto-capitalize-words
+;;                                                          "\\|")
+;;                                               "\\)\\>"))))
+;;                               ;; user-specified capitalization
+;;                               (if (not (member (setq lowercase-word
+;;                                                      (buffer-substring ; -no-properties?
+;;                                                       (match-beginning 1)
+;;                                                       (match-end 1)))
+;;                                                auto-capitalize-words))
+;;                                   ;; not preserving lower case
+;;                                   (progn ; capitalize!
+;;                                     (undo-boundary)
+;;                                     (replace-match (find lowercase-word
+;;                                                          auto-capitalize-words
+;;                                                          :key 'downcase
+;;                                                          :test 'string-equal)
+;;                                                    t t))))
+;;                              ((and (or (equal text-start (point-min)) ; (bobp)
+;;                                        (progn ; beginning of paragraph?
+;;                                          (goto-char text-start)
+;;                                          (and (= (current-column) left-margin)
+;;                                               (zerop (forward-line -1))
+;;                                               (looking-at paragraph-separate)))
+;;                                        (progn ; beginning of paragraph?
+;;                                          (goto-char text-start)
+;;                                          (and (= (current-column) left-margin)
+;;                                               (re-search-backward paragraph-start
+;;                                                                   nil t)
+;;                                               (= (match-end 0) text-start)
+;;                                               (= (current-column) left-margin)))
+;;                                        (progn ; beginning of sentence?
+;;                                          (goto-char text-start)
+;;                                          (save-restriction
+;;                                            (narrow-to-region (point-min)
+;;                                                              word-start)
+;;                                            (and (re-search-backward (auto-capitalize-sentence-end)
+;;                                                                     nil t)
+;;                                                 (= (match-end 0) text-start)
+;;                                                 ;; verify: preceded by
+;;                                                 ;; whitespace?
+;;                                                 (let ((previous-char
+;;                                                        (char-after
+;;                                                         (1- text-start))))
+;;                                                   ;; In some modes, newline
+;;                                                   ;; (^J, aka LFD) is comment-
+;;                                                   ;; end, not whitespace:
+;;                                                   (or (equal previous-char
+;;                                                              ?\n)
+;;                                                       (equal (char-syntax
+;;                                                               previous-char)
+;;                                                              ? )))
+;;                                                 ;; verify: not preceded by
+;;                                                 ;; an abbreviation?
+;;                                                 (let ((case-fold-search nil)
+;;                                                       (abbrev-regexp
+;;                                                        (if (featurep 'xemacs)
+;;                                                            "\\<\\([A-Z�-��-�]?[a-z�-��-�]+\\.\\)+\\="
+;;                                                          "\\<\\([[:upper:]]?[[:lower:]]+\\.\\)+\\=")))
+;;                                                   (goto-char
+;;                                                    (1+ (match-beginning 0)))
+;;                                                   (or (not
+;;                                                        (re-search-backward abbrev-regexp
+;;                                                                            nil t))
+;;                                                       (not
+;;                                                        (member
+;;                                                         (buffer-substring ; -no-properties?
+;;                                                          (match-beginning 0)
+;;                                                          (match-end 0))
+;;                                                         auto-capitalize-words))))
+;;                                                 ))))
+;;                                    ;; inserting lowercase text?
+;;                                    (let ((case-fold-search nil))
+;;                                      (goto-char word-start)
+;;                                      (looking-at (if (featurep 'xemacs)
+;;                                                      "[a-z�-��-�]+"
+;;                                                    "[[:lower:]]+")))
+;;                                    (or (eq auto-capitalize t)
+;;                                        (prog1 (y-or-n-p
+;;                                                (format "Capitalize \"%s\"? "
+;;                                                        (buffer-substring
+;;                                                         (match-beginning 0)
+;;                                                         (match-end 0))))
+;;                                          (message ""))))
+;;                               ;; capitalize!
+;;                               (undo-boundary)
+;;                               (goto-char word-start)
+;;                               (capitalize-word 1))))))))
+;;             ((and auto-capitalize-yank
+;;                   ;; `yank' sets `this-command' to t, and the
+;;                   ;; after-change-functions are run before it has been
+;;                   ;; reset:
+;;                   (or (eq this-command 'yank)
+;;                       (and (= length 0) ; insertion?
+;;                            (eq this-command 't))))
+;;              (save-excursion
+;;                (goto-char beg)
+;;                (save-match-data
+;;                  (while (re-search-forward "\\Sw" end t)
+;;                    ;; recursion!
+;;                    (let* ((this-command 'self-insert-command)
+;;                           (non-word-char (char-after (match-beginning 0)))
+;;                           (last-command-event
+;;                            (cond ((featurep 'xemacs) ; XEmacs
+;;                                   (character-to-event non-word-char))
+;;                                  (t non-word-char)))) ; GNU Emacs
+;;                      (auto-capitalize (match-beginning 0)
+;;                                       (match-end 0)
+;;                                       0)))))))))
+
+;; (add-hook 'org-mode-hook #'org-auto-capitalize-headings-and-lists)
 
 ;; (use-package ivy-xref
 ;;   :straight t
