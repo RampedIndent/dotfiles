@@ -4349,18 +4349,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+NAME: flatpak-packages-list
 - [ ] ytmdesktop                     app.ytmdesktop.ytmdesktop
 - [ ] Brave Browser                  com.brave.Browser
-- [ ] Discord                        com.discordapp.Discord
-- [ ] RuneScape                      com.jagex.RuneScape
-- [ ] draw.io                        com.jgraph.drawio.desktop
-- [ ] Wonderwall                     com.ktechpit.wonderwall
-- [ ] PrusaSlicer                    com.prusa3d.PrusaSlicer
-- [ ] RawTherapee                    com.rawtherapee.RawTherapee
-- [ ] HandBrake                      fr.handbrake.ghb
-- [ ] Qalculate! (GTK UI)            io.github.Qalculate
-- [ ] hugin                          net.sourceforge.Hugin
-- [ ] KiCad                          org.kicad.KiCad
 - [ ] ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors
-- [ ] OpenRGB                        org.openrgb.OpenRGB
 #+end_results
 
 #+begin_src python :var x=flatpak-packages-list :noweb yes 
@@ -4631,7 +4620,6 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-insta
   DASHY: 192.168.50.113
   HOME_ASSISTANT: 192.168.50.114
   NGINX-PROXY: 192.168.50.115
-  POSTGRESQL: 192.168.50.116
   PI-HOLE: 192.168.50.117
   PI-HOLE2: 192.168.50.118
   MQTT: 192.168.50.118
@@ -4640,6 +4628,9 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-insta
   AUTHELIA: 192.168.50.122
   DOCKER: 192.168.50.123
   PORTAINER: 192.168.50.123
+  POSTGRESQL-Natalie: 192.168.50.125
+  POSTGRESQL-AMITY: 192.168.50.126
+  POSTGRESQL-AMITY: 192.168.50.127
   # DHCP Range 192.168.50.190-192.168.50.240 
 
 #+end_src
