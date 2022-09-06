@@ -24,6 +24,7 @@ install.sh
 ^/*.org
 system.org
 emacs.org
+ssh.sh
 .on-login.sh
 .stow-local-ignore
 etc

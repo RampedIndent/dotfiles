@@ -4560,12 +4560,25 @@ curl https://sh.rustup.rs -sSf | sh
 ** Install ssh authorised keys
 
 #+begin_src bash
-  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin
-  chmod +x ~/.bin/authorized_keys.sh
+  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin &&
+  chmod +x ~/.bin/authorized_keys.sh &&
   EDITOR=nano crontab -e 
 
   */15 * * * * ~/.bin/authorized_keys.sh
+  sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 #+end_src
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ./ssh.sh
+  wget https://raw.githubusercontent.com/RampedIndent/dotfiles/main/bin/authorized_keys.sh -P ~/.bin 
+  chmod +x ~/.bin/authorized_keys.sh
+  crontab -l > crontab_new
+  echo "*/15 * * * * ~/.bin/authorized_keys.sh" >> crontab_new
+  crontab crontab_new
+  rm crontab_new
+  sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+#+end_src
+
+bash <(curl -s https://raw.githubusercontent.com/Weilbyte/PVEDiscordDark/master/PVEDiscordDark.sh ) 
 
 ** Disable lid suspend
 /etc/systemd/logind.conf
@@ -4584,6 +4597,7 @@ https://gist.github.com/artizirk/d09ce3570021b0f65469cb450bee5e29
 #+begin_src emacs-lisp
   (kill-emacs)
 #+end_src
+
 * Proxmox
 Proxmox post install script
 
@@ -4605,6 +4619,7 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-insta
   KRISTINE: 192.168.50.66
   NATHALIE-PROXMOX: 192.168.50.67
   AMITY-PROXMOX: 192.168.50.68
+  AMITY-PROXMOX: 192.168.50.69
 
 
   METALLB_ARP_RANGE: 192.168.50.92-192.168.50.110
@@ -4620,6 +4635,7 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-insta
   DASHY: 192.168.50.113
   HOME_ASSISTANT: 192.168.50.114
   NGINX-PROXY: 192.168.50.115
+  POSTGRESQL: 192.168.50.116
   PI-HOLE: 192.168.50.117
   PI-HOLE2: 192.168.50.118
   MQTT: 192.168.50.118
