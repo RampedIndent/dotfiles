@@ -758,13 +758,13 @@
 
 (use-package flycheck :ensure)
 
-(use-package wakatime-mode
-:config
-(global-wakatime-mode)
-(setq wakatime-api-key 
-                         (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
-                         )
-)
+;; (use-package wakatime-mode
+;; :config
+;; (global-wakatime-mode)
+;; (setq wakatime-api-key 
+;;                          (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
+;;                          )
+;; )
 
 ;; (concat "a" "b" "c")
 

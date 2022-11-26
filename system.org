@@ -893,158 +893,158 @@ cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
 ** Rofi Config
 
 #+begin_src css :tangle ./.config/rofi/config.rasi
-configuration {
-	modi: "window,drun,ssh,power-menu:~/.dotfiles/bin/rofi-power-menu";
-	width: 600; 
-	lines: 8;
-/*	columns: 1;*/
-	font: "InconsolataGo Nerd Font Mono 16";
-/*	bw: 1;*/
-/*	location: 0;*/
-/*	padding: 5;*/
-/*	yoffset: 0;*/
-/*	xoffset: 0;*/
-/*	fixed-num-lines: true;*/
-/*	show-icons: false;*/
-/*	terminal: "rofi-sensible-terminal";*/
-/*	ssh-client: "ssh";*/
-/*	ssh-command: "{terminal} -e {ssh-client} {host} [-p {port}]";*/
-/*	run-command: "{cmd}";*/
-/*	run-list-command: "";*/
-/*	run-shell-command: "{terminal} -e {cmd}";*/
-/*	window-command: "wmctrl -i -R {window}";*/
-/*	window-match-fields: "all";*/
-	icon-theme: "Papirus" ;
-/*	drun-match-fields: "name,generic,exec,categories,keywords";*/
-/*	drun-categories: ;*/
-/*	drun-show-actions: false;*/
-/*	drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";*/
-/*	drun-url-launcher: "xdg-open";*/
-/*	disable-history: false;*/
-/*	ignored-prefixes: "";*/
-/*	sort: false;*/
-/*	sorting-method: "normal";*/
-/*	case-sensitive: false;*/
-/*	cycle: true;*/
-/*	sidebar-mode: false;*/
-/*	eh: 1;*/
-/*	auto-select: false;*/
-/*	parse-hosts: false;*/
-/*	parse-known-hosts: true;*/
-/*	combi-modi: "window,run";*/
-/*	matching: "normal";*/
-/*	tokenize: true;*/
-/*	m: "-5";*/
-/*	line-margin: 2;*/
-/*	line-padding: 1;*/
-/*	filter: ;*/
-/*	separator-style: "dash";*/
-/*	hide-scrollbar: false;*/
-/*	fullscreen: false;*/
-/*	fake-transparency: false;*/
-/*	dpi: -1;*/
-/*	threads: 0;*/
-/*	scrollbar-width: 8;*/
-/*	scroll-method: 0;*/
-/*	fake-background: "screenshot";*/
-/*	window-format: "{w}    {c}   {t}";*/
-/*	click-to-exit: true;*/
-/*	show-match: true;*/
-/*	theme: ;*/
-/*	color-normal: ;*/
-/*	color-urgent: ;*/
-/*	color-active: ;*/
-/*	color-window: ;*/
-/*	max-history-size: 25;*/
-/*	combi-hide-mode-prefix: false;*/
-/*	matching-negate-char: '-' /* unsupported */;*/
-/*	cache-dir: ;*/
-/*	window-thumbnail: false;*/
-/*	drun-use-desktop-cache: false;*/
-/*	drun-reload-desktop-cache: false;*/
-/*	normalize-match: false;*/
-/*	pid: "/run/user/1000/rofi.pid";*/
-/*	display-window: ;*/
-/*	display-windowcd: ;*/
-/*	display-run: ;*/
-/*	display-ssh: ;*/
-/*	display-drun: ;*/
-/*	display-combi: ;*/
-/*	display-keys: ;*/
-/*	display-file-browser: ;*/
-/*	kb-primary-paste: "Control+V,Shift+Insert";*/
-/*	kb-secondary-paste: "Control+v,Insert";*/
-/*	kb-clear-line: "Control+w";*/
-/*	kb-move-front: "Control+a";*/
-/*	kb-move-end: "Control+e";*/
-/*	kb-move-word-back: "Alt+b,Control+Left";*/
-/*	kb-move-word-forward: "Alt+f,Control+Right";*/
-/*	kb-move-char-back: "Left,Control+b";*/
-/*	kb-move-char-forward: "Right,Control+f";*/
-/*	kb-remove-word-back: "Control+Alt+h,Control+BackSpace";*/
-/*	kb-remove-word-forward: "Control+Alt+d";*/
-/*	kb-remove-char-forward: "Delete,Control+d";*/
-/*	kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";*/
-/*	kb-remove-to-eol: "Control+k";*/
-/*	kb-remove-to-sol: "Control+u";*/
-	kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
-/*	kb-accept-custom: "Control+Return";*/
-/*	kb-accept-alt: "Shift+Return";*/
-/*	kb-delete-entry: "Shift+Delete";*/
-	kb-mode-next: "Shift+Right,Control+Tab";
-	kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
-/*	kb-row-left: "Control+Page_Up";*/
-/*	kb-row-right: "Control+Page_Down";*/
-	kb-row-up: "Up,Control+p,ISO_Left_Tab";
-	kb-row-down: "Down,Control+n";
-	kb-row-tab: "Tab";
-/*	kb-page-prev: "Page_Up";*/
-/*	kb-page-next: "Page_Down";*/
-/*	kb-row-first: "Home,KP_Home";*/
-/*	kb-row-last: "End,KP_End";*/
-/*	kb-row-select: "Control+space";*/
-/*	kb-screenshot: "Alt+S";*/
-/*	kb-ellipsize: "Alt+period";*/
-/*	kb-toggle-case-sensitivity: "grave,dead_grave";*/
-	kb-toggle-sort: "Alt+grave";
-	kb-cancel: "Escape,Control+g,Control+bracketleft";
-/*	kb-custom-1: "Alt+1";*/
-/*	kb-custom-2: "Alt+2";*/
-/*	kb-custom-3: "Alt+3";*/
-/*	kb-custom-4: "Alt+4";*/
-/*	kb-custom-5: "Alt+5";*/
-/*	kb-custom-6: "Alt+6";*/
-/*	kb-custom-7: "Alt+7";*/
-/*	kb-custom-8: "Alt+8";*/
-/*	kb-custom-9: "Alt+9";*/
-/*	kb-custom-10: "Alt+0";*/
-/*	kb-custom-11: "Alt+exclam";*/
-/*	kb-custom-12: "Alt+at";*/
-/*	kb-custom-13: "Alt+numbersign";*/
-/*	kb-custom-14: "Alt+dollar";*/
-/*	kb-custom-15: "Alt+percent";*/
-/*	kb-custom-16: "Alt+dead_circumflex";*/
-/*	kb-custom-17: "Alt+ampersand";*/
-/*	kb-custom-18: "Alt+asterisk";*/
-/*	kb-custom-19: "Alt+parenleft";*/
-/*	kb-select-1: "Super+1";*/
-/*	kb-select-2: "Super+2";*/
-/*	kb-select-3: "Super+3";*/
-/*	kb-select-4: "Super+4";*/
-/*	kb-select-5: "Super+5";*/
-/*	kb-select-6: "Super+6";*/
-/*	kb-select-7: "Super+7";*/
-/*	kb-select-8: "Super+8";*/
-/*	kb-select-9: "Super+9";*/
-/*	kb-select-10: "Super+0";*/
-/*	ml-row-left: "ScrollLeft";*/
-/*	ml-row-right: "ScrollRight";*/
-/*	ml-row-up: "ScrollUp";*/
-/*	ml-row-down: "ScrollDown";*/
-	me-select-entry: "MousePrimary";
-	me-accept-entry: "MouseDPrimary";
-/*	me-accept-custom: "Control+MouseDPrimary";*/
-}
+  configuration {
+          modi: "window,drun,ssh,power-menu:~/.dotfiles/bin/rofi-power-menu";
+          width: 600; 
+          lines: 8;
+  /*	columns: 1;*/
+          font: "InconsolataGo Nerd Font Mono 16";
+  /*	bw: 1;*/
+  /*	location: 0;*/
+  /*	padding: 5;*/
+  /*	yoffset: 0;*/
+  /*	xoffset: 0;*/
+  /*	fixed-num-lines: true;*/
+  /*	show-icons: false;*/
+  /*	terminal: "rofi-sensible-terminal";*/
+  /*	ssh-client: "ssh";*/
+  /*	ssh-command: "{terminal} -e {ssh-client} {host} [-p {port}]";*/
+  /*	run-command: "{cmd}";*/
+  /*	run-list-command: "";*/
+  /*	run-shell-command: "{terminal} -e {cmd}";*/
+  /*	window-command: "wmctrl -i -R {window}";*/
+  /*	window-match-fields: "all";*/
+          icon-theme: "Papirus" ;
+  /*	drun-match-fields: "name,generic,exec,categories,keywords";*/
+  /*	drun-categories: ;*/
+  /*	drun-show-actions: false;*/
+  /*	drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";*/
+  /*	drun-url-launcher: "xdg-open";*/
+  /*	disable-history: false;*/
+  /*	ignored-prefixes: "";*/
+  /*	sort: false;*/
+  /*	sorting-method: "normal";*/
+  /*	case-sensitive: false;*/
+  /*	cycle: true;*/
+  /*	sidebar-mode: false;*/
+  /*	eh: 1;*/
+  /*	auto-select: false;*/
+  /*	parse-hosts: false;*/
+  /*	parse-known-hosts: true;*/
+  /*	combi-modi: "window,run";*/
+  /*	matching: "normal";*/
+  /*	tokenize: true;*/
+  /*	m: "-5";*/
+  /*	line-margin: 2;*/
+  /*	line-padding: 1;*/
+  /*	filter: ;*/
+  /*	separator-style: "dash";*/
+  /*	hide-scrollbar: false;*/
+  /*	fullscreen: false;*/
+  /*	fake-transparency: false;*/
+  /*	dpi: -1;*/
+  /*	threads: 0;*/
+  /*	scrollbar-width: 8;*/
+  /*	scroll-method: 0;*/
+  /*	fake-background: "screenshot";*/
+  /*	window-format: "{w}    {c}   {t}";*/
+  /*	click-to-exit: true;*/
+  /*	show-match: true;*/
+  /*	theme: ;*/
+  /*	color-normal: ;*/
+  /*	color-urgent: ;*/
+  /*	color-active: ;*/
+  /*	color-window: ;*/
+  /*	max-history-size: 25;*/
+  /*	combi-hide-mode-prefix: false;*/
+  /*	matching-negate-char: '-' /* unsupported */*/
+  /*	cache-dir: ;*/
+  /*	window-thumbnail: false;*/
+  /*	drun-use-desktop-cache: false;*/
+  /*	drun-reload-desktop-cache: false;*/
+  /*	normalize-match: false;*/
+  /*	pid: "/run/user/1000/rofi.pid";*/
+  /*	display-window: ;*/
+  /*	display-windowcd: ;*/
+  /*	display-run: ;*/
+  /*	display-ssh: ;*/
+  /*	display-drun: ;*/
+  /*	display-combi: ;*/
+  /*	display-keys: ;*/
+  /*	display-file-browser: ;*/
+  /*	kb-primary-paste: "Control+V,Shift+Insert";*/
+  /*	kb-secondary-paste: "Control+v,Insert";*/
+  /*	kb-clear-line: "Control+w";*/
+  /*	kb-move-front: "Control+a";*/
+  /*	kb-move-end: "Control+e";*/
+  /*	kb-move-word-back: "Alt+b,Control+Left";*/
+  /*	kb-move-word-forward: "Alt+f,Control+Right";*/
+  /*	kb-move-char-back: "Left,Control+b";*/
+  /*	kb-move-char-forward: "Right,Control+f";*/
+  /*	kb-remove-word-back: "Control+Alt+h,Control+BackSpace";*/
+  /*	kb-remove-word-forward: "Control+Alt+d";*/
+  /*	kb-remove-char-forward: "Delete,Control+d";*/
+  /*	kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";*/
+  /*	kb-remove-to-eol: "Control+k";*/
+  /*	kb-remove-to-sol: "Control+u";*/
+          kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
+  /*	kb-accept-custom: "Control+Return";*/
+  /*	kb-accept-alt: "Shift+Return";*/
+  /*	kb-delete-entry: "Shift+Delete";*/
+          kb-mode-next: "Shift+Right,Control+Tab";
+          kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+  /*	kb-row-left: "Control+Page_Up";*/
+  /*	kb-row-right: "Control+Page_Down";*/
+          /* kb-row-up: "Up,Control+p,ISO_Left_Tab"; */
+          kb-row-down: "Down,Control+n";
+          /* kb-row-tab: "Tab"; */
+  /*	kb-page-prev: "Page_Up";*/
+  /*	kb-page-next: "Page_Down";*/
+  /*	kb-row-first: "Home,KP_Home";*/
+  /*	kb-row-last: "End,KP_End";*/
+  /*	kb-row-select: "Control+space";*/
+  /*	kb-screenshot: "Alt+S";*/
+  /*	kb-ellipsize: "Alt+period";*/
+  /*	kb-toggle-case-sensitivity: "grave,dead_grave";*/
+          kb-toggle-sort: "Alt+grave";
+          kb-cancel: "Escape,Control+g,Control+bracketleft";
+  /*	kb-custom-1: "Alt+1";*/
+  /*	kb-custom-2: "Alt+2";*/
+  /*	kb-custom-3: "Alt+3";*/
+  /*	kb-custom-4: "Alt+4";*/
+  /*	kb-custom-5: "Alt+5";*/
+  /*	kb-custom-6: "Alt+6";*/
+  /*	kb-custom-7: "Alt+7";*/
+  /*	kb-custom-8: "Alt+8";*/
+  /*	kb-custom-9: "Alt+9";*/
+  /*	kb-custom-10: "Alt+0";*/
+  /*	kb-custom-11: "Alt+exclam";*/
+  /*	kb-custom-12: "Alt+at";*/
+  /*	kb-custom-13: "Alt+numbersign";*/
+  /*	kb-custom-14: "Alt+dollar";*/
+  /*	kb-custom-15: "Alt+percent";*/
+  /*	kb-custom-16: "Alt+dead_circumflex";*/
+  /*	kb-custom-17: "Alt+ampersand";*/
+  /*	kb-custom-18: "Alt+asterisk";*/
+  /*	kb-custom-19: "Alt+parenleft";*/
+  /*	kb-select-1: "Super+1";*/
+  /*	kb-select-2: "Super+2";*/
+  /*	kb-select-3: "Super+3";*/
+  /*	kb-select-4: "Super+4";*/
+  /*	kb-select-5: "Super+5";*/
+  /*	kb-select-6: "Super+6";*/
+  /*	kb-select-7: "Super+7";*/
+  /*	kb-select-8: "Super+8";*/
+  /*	kb-select-9: "Super+9";*/
+  /*	kb-select-10: "Super+0";*/
+  /*	ml-row-left: "ScrollLeft";*/
+  /*	ml-row-right: "ScrollRight";*/
+  /*	ml-row-up: "ScrollUp";*/
+  /*	ml-row-down: "ScrollDown";*/
+          me-select-entry: "MousePrimary";
+          me-accept-entry: "MouseDPrimary";
+  /*	me-accept-custom: "Control+MouseDPrimary";*/
+  }
 
 
 #+end_src
@@ -1120,7 +1120,7 @@ configuration {
   }
   message {
       border:       1px dash 0px 0px ;
-      border-color: @separatorcolor;
+      /* border-color: @separatorcolor; */
       padding:      1px ;
   }
   textbox {
@@ -1165,10 +1165,10 @@ configuration {
       background-color: @selected-normal-background;
       text-color:       @selected-normal-foreground;
   }
-  element.selected.urgent {
-      background-color: @selected-urgent-background;
-      text-color:       @selected-urgent-foreground;
-  }
+  /* element.selected.urgent { */
+  /*     /\* background-color: @selected-urgent-background; *\/ */
+  /*     text-color:       @selected-urgent-foreground; */
+  /* } */
   element.selected.active {
       background-color: @selected-active-background;
       text-color:       @selected-active-foreground;
@@ -1177,12 +1177,12 @@ configuration {
       background-color: @alternate-normal-background;
       text-color:       @alternate-normal-foreground;
   }
-  element.alternate.urgent {
-      background-color: @alternate-urgent-background;
-      text-color:       @alternate-urgent-foreground;
-  }
+  /* element.alternate.urgent { */
+  /*     /\* background-color: @alternate-urgent-background; *\/ */
+  /*     text-color:       @alternate-urgent-foreground; */
+  /* } */
   element.alternate.active {
-      background-color: @alternate-active-background;
+      /* background-color: @alternate-active-background; */
       text-color:       @alternate-active-foreground;
   }
   scrollbar {
@@ -1193,7 +1193,7 @@ configuration {
   }
   mode-switcher {
       border:       0px dash 0px 0px ;
-      border-color: @separatorcolor;
+      /* border-color: @separatorcolor; */
   }
   button.selected {
       background-color: @selected-normal-background;
@@ -3121,6 +3121,25 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
     [[keybind]]
     command = "Execute"
+    value = "amixer -D pulse sset Master 5%+"
+    # modifier = ["modkey"]
+    key = "XF86XK_AudioRaiseVolume"
+    [[keybind]]
+    command = "Execute"
+    value = "amixer -D pulse sset Master 5%-"
+    # modifier = ["modkey"]
+    key = "XF86XK_AudioLowerVolume"
+    [[keybind]]
+    command = "Execute"
+    value = "amixer -D pulse sset Master toggle"
+    # modifier = ["modkey"]
+    key = "XF86XK_AudioMute"
+
+
+
+
+    [[keybind]]
+    command = "Execute"
     value = "alacritty"
     modifier = ["modkey"]
     key = "Return"
@@ -3156,6 +3175,12 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
     key = "d"
 
     [[keybind]]
+    command = "Execute"
+    value = "flameshot gui"
+    modifier = ["modkey", "Shift"]
+    key = "s"
+    
+    [[keybind]]
     command = "ToggleFullScreen"
     modifier = ["modkey", "Shift"]
     key = "f"    
@@ -3166,11 +3191,11 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
     modifier = ["modkey"]
     key = "x"
 
-    [[keybind]]
-    command = "Execute"
-    value = "spectacle -r "
-    modifier = ["modkey", "Shift"]
-    key = "s"
+    # [[keybind]]
+    # command = "Execute"
+    # value = "spectacle -r "
+    # modifier = ["modkey", "Shift"]
+    # key = "s"
 
 
     [[keybind]]
@@ -3350,7 +3375,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
     value = "9"
     modifier = ["modkey", "Shift"]
     key = "9"
-    
+
   [[keybind]]
   command = "MoveWindowUp"
   modifier = ["modkey"]
@@ -3361,53 +3386,57 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 ** Autostart
 #+begin_src shell :tangle ~/.config/leftwm/up :shebang "#!/bin/bash"
 
-    function run {
-        if ! pgrep $1 ;
-        then
-            $@&
-        fi
-    }
+  function run {
+      if ! pgrep $1 ;
+      then
+          $@&
+      fi
+  }
 
-    #Find out your monitor name with xrandr or arandr (save and you get this line)
-    #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
-    #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
-    #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
-    #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
-    #autorandr horizontal
-    # xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+  #Find out your monitor name with xrandr or arandr (save and you get this line)
+  #xrandr --output VGA-1 --primary --mode 1360x768 --pos 0x0 --rotate normal
+  #xrandr --output DP2 --primary --mode 1920x1080 --rate 60.00 --output LVDS1 --off &
+  #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
+  #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
+  #autorandr horizontal
+  # xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+  case $HOST in
+  (manuel) xrandr --setprovideroutputsource modesetting NVIDIA-0 && xrandr --auto ;;
 
-    xrandr --output DVI-D-1 --off --output DP-5 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
-    #change your keyboard if you need it
-    #setxkbmap -layout be
-    # leftwm command SoftReload
-    #Some ways to set your wallpaper besides variety or nitrogen
-    #feh --bg-scale ~/.config/bspwm/wall.png &
-    #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
-    #feh --randomize --bg-fill ~/Képek/*
-    #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
+  (bar) echo "Oops, bar? Are you kidding?";;
+  (*) xrandr --output DVI-D-1 --off --output DP-5 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off;;
+  esac
+  #change your keyboard if you need it
+  #setxkbmap -layout be
+  # leftwm command SoftReload
+  #Some ways to set your wallpaper besides variety or nitrogen
+  #feh --bg-scale ~/.config/bspwm/wall.png &
+  #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
+  #feh --randomize --bg-fill ~/Képek/*
+  #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
 
-    xsetroot -cursor_name left_ptr &
+  xsetroot -cursor_name left_ptr &
 
-    # run variety &
-    # run nm-applet &
-    # run pamac-tray &
-    # run xfce4-power-manager &
-    numlockx on &
-    # /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-    # /usr/lib/xfce4/notifyd/xfce4-notifyd &
-    # run volumeicon &
-    syncthing serve --no-browser &
-    # run emacs --daemon &
-    #run caffeine &
-    #run vivaldi-stable &
-    #run firefox &
-    #run thunar &
-    #run dropbox &
-    #run insync start &
-    #run discord &
-    run /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=start-ytmdesktop.sh --file-forwarding app.ytmdesktop.ytmdesktop @@u %U @@
- &
-    #run atom &
+  # run variety &
+  # run nm-applet &
+  # run pamac-tray &
+  # run xfce4-power-manager &
+  numlockx on &
+  # /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+  # /usr/lib/xfce4/notifyd/xfce4-notifyd &
+  # run volumeicon &
+  syncthing serve --no-browser &
+  # run emacs --daemon &
+  #run caffeine &
+  #run vivaldi-stable &
+  #run firefox &
+  #run thunar &
+  #run dropbox &
+  #run insync start &
+  #run discord &
+  run /usr/bin/flatpak run --branch=stable --arch=x86_64 --command=start-ytmdesktop.sh --file-forwarding app.ytmdesktop.ytmdesktop @@u %U @@
+  &
+  #run atom &
 
 #+end_src
 
@@ -4348,6 +4377,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+begin_results
 #+NAME: flatpak-packages-list
 - [ ] ytmdesktop                     app.ytmdesktop.ytmdesktop
+- [ ] Bitwarden                      com.bitwarden.desktop
 - [ ] Brave Browser                  com.brave.Browser
 - [ ] ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors
 #+end_results
@@ -4578,7 +4608,7 @@ curl https://sh.rustup.rs -sSf | sh
   sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 #+end_src
 
-bash <(curl -s https://raw.githubusercontent.com/Weilbyte/PVEDiscordDark/master/PVEDiscordDark.sh ) 
+bash <(curl -s https://raw.githubusercontent.com/RampedIndent/dotfiles/main/ssh.sh  ) 
 
 ** Disable lid suspend
 /etc/systemd/logind.conf
@@ -4607,54 +4637,6 @@ bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-insta
 #+end_src
 
 * Network
-#+begin_src yaml
-
-  # Network Devices 192.168.50.1-192.168.50.24
-  OPENWRT-MAIN: 192.168.50.1
-  OPENWRT-KITCHEN: 192.168.50.2
-  TP-LINK-SWITCH-BEDROOM: 192.168.50.3
-  RPI-PRINTER: 192.168.50.14
-
-  # Physical Server Range 192.168.50.66-192.168.50.92
-  KRISTINE: 192.168.50.66
-  NATHALIE-PROXMOX: 192.168.50.67
-  AMITY-PROXMOX: 192.168.50.68
-  AMITY-PROXMOX: 192.168.50.69
-
-
-  METALLB_ARP_RANGE: 192.168.50.92-192.168.50.110
-  # MetalLB Load Balancer IPs Kubernetes
-  LB_KUBERNETES: 192.168.50.92
-  LB_TRAEFIK: 192.168.50.93
-  LB_BLOCKY: 192.168.50.94
-  LB_HOMEASSISTANT: 192.168.50.100
-  LB_MOSQUITTO: 192.168.50.101
-50
-  # Proxmox Server range 192.168.50.111-124
-  NODE-1-K3S: 192.168.50.112
-  DASHY: 192.168.50.113
-  HOME_ASSISTANT: 192.168.50.114
-  NGINX-PROXY: 192.168.50.115
-  POSTGRESQL: 192.168.50.116
-  PI-HOLE: 192.168.50.117
-  PI-HOLE2: 192.168.50.118
-  MQTT: 192.168.50.118
-  ESP-HOME: 192.168.50.120
-  INVENTREE: 192.168.50.121
-  AUTHELIA: 192.168.50.122
-  DOCKER: 192.168.50.123
-  PORTAINER: 192.168.50.123
-  POSTGRESQL-Natalie: 192.168.50.125
-  POSTGRESQL-AMITY: 192.168.50.126
-  POSTGRESQL-AMITY: 192.168.50.127
-  # DHCP Range 192.168.50.190-192.168.50.240 
-
-#+end_src
-
-
-#+begin_src shell
-ssh pi@printserver
-#+end_src
 
 
 

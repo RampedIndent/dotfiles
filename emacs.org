@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :tangle ./.emacs.d/init.el
 #+STARTUP: content
 #+auto_tangle: t
-
+ 
 * Contents 
 
 * Emacs Configuration file
@@ -1033,13 +1033,13 @@ A program to manage how emacs opens new windows
 *** WakaTime
 
 #+begin_src emacs-lisp
-  (use-package wakatime-mode
-  :config
-  (global-wakatime-mode)
-  (setq wakatime-api-key 
-                           (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
-                           )
-  )
+  ;; (use-package wakatime-mode
+  ;; :config
+  ;; (global-wakatime-mode)
+  ;; (setq wakatime-api-key 
+  ;;                          (efs/lookup-password :host "wakatime.com" :user "rampedindent-api")
+  ;;                          )
+  ;; )
 #+end_src
 
 #+RESULTS:

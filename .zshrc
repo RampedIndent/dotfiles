@@ -119,6 +119,10 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
 [[ ! -f /usr/local/bin/flux    ]] || . <(flux completion zsh) 
 [[ ! -f /usr/local/bin/kubectl ]] || . <(kubectl completion zsh) 
+# [[ ! -f /usr/local/bin/kubectl ]] || alias k="kubectl" 
+[[ ! -f /usr/local/bin/minikube ]] || . <(minikube completion zsh) 
+[[ ! -f /usr/local/bin/minikube ]] || alias k="minikube kubectl --" 
+# [[ !  -f /usr/local/bin/minikube  &&   -f /usr/local/bin/kubectl  ]] || alias kubectl="minikube kubectl --" 
 [[ ! -f /usr/sbin/helm         ]] || . <(helm completion zsh) 
 [[ ! -f ~/.local/bin/velero    ]] || . <(velero completion zsh)
 # Aliases
