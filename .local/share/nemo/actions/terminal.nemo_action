@@ -1,0 +1,10 @@
+
+[Nemo Action]
+Name=Open in Alacritty
+Comment=Open folder in Alacritty
+Exec=alacritty --working-directory "%F" 
+Icon-Name=alacritty
+Selection=s
+Extensions=dir;
+Quote=double
+EscapeSpaces=true
