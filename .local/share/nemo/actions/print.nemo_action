@@ -1,0 +1,16 @@
+[Nemo Action]
+Name=Print
+Comment=Print this file
+
+# This is needed for supporting file names with spaces
+Quote=double
+
+Exec=lpr %F
+
+Icon-Name=gtk-print
+
+Selection=Any
+
+# Add any extension you need to print.
+# Some files may not be supported by lpr
+Extensions=pdf;ps;jpg;png;txt;
