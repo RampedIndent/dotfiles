@@ -44,8 +44,8 @@ bspc monitor DP-1 -d 1 2 3 4 5 6 7 8 9 10
 bspc monitor DP-2 -d 1 2 3 4 5 6 7 8 9 10
 #bspc monitor LVDS1 -d 1 2 3 4
 #bspc monitor DP3 -d  5 6 7 8 9
-#bspc monitor HDMI-0 -d 1 2 3 4 5 6 7 8 9 10
-bspc monitor HDMI-1 -d 1 2 3 4 5 6 7 8 9 10
+bspc monitor HDMI-0 -d 1 2 3 4 5 6 7 8 9 10
+# bspc monitor HDMI-1 -d 1 2 3 4 5 6 7 8 9 10
 #bspc monitor HDMI1 -d 1 2 3 4 5
 #bspc monitor HDMI2 -d 6 7 8 9 10
 
@@ -80,8 +80,8 @@ bspc rule -a Xfce4-terminal state=floating
 #Tiled applications
 bspc rule -a Gnome-disks state=tiled
 bspc rule -a Xfce4-settings-manager state=tiled
-bspc rule -a emacs state=tiled
-bspc rule -a emacsclient state=tiled
+# bspc rule -a emacs state=tiled
+# bspc rule -a emacsclient state=tiled
 
 #open applications on specific workspaces
 #bspc rule -a Firefox desktop='^1' follow=on

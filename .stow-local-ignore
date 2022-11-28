@@ -31,3 +31,7 @@ etc
 bin
 ltximg
 README.md
+dotdrop
+dotdropfiles
+config.yaml
+dotdrop.sh

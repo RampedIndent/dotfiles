@@ -139,7 +139,12 @@ alias please='sudo $(fc -ln -1)'
 alias dd='sudo dd bs=1024k status=progress'
 alias install='sudo dpkg -i'
 alias em='emacsclient -nw'
+export DOTREPO="~/.dotfiles"
 
+alias dotdrop="$DOTREPO/dotdrop.sh"
+alias dotcompress="dotdrop import --transw=compress --transr=uncompress"
+# alias dotgit="git -C $DOTREPO"
+# alias dotsync="dotgit pull && dotgit add -A && dotgit commit && dotgit push; dotdrop install"
 vterm_printf(){
     if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
         # Tell tmux to pass the escape sequences through

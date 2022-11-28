@@ -12,10 +12,9 @@ function run {
 #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
 #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
 #autorandr horizontal
-xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+# xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
 
 
-$HOME/.config/polybar/launch.sh &
 
 #change your keyboard if you need it
 #setxkbmap -layout be
@@ -33,12 +32,13 @@ fi
 #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
 #feh --randomize --bg-fill ~/Képek/*
 #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
-
+# --pos 0x0
+xrandr  --output DP-3 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-4 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080  --rotate normal --output DP-3 --off
 dex $HOME/.config/autostart/arcolinux-welcome-app.desktop
 xsetroot -cursor_name left_ptr &
 
 conky -c $HOME/.config/bspwm/system-overview &
-run variety &
+# run variety &
 run nm-applet &
 run pamac-tray &
 run xfce4-power-manager &
@@ -46,11 +46,12 @@ numlockx on &
 blueberry-tray &
 picom --config $HOME/.config/bspwm/picom.conf &
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-/usr/lib/xfce4/notifyd/xfce4-notifyd &
+# /usr/lib/xfce4/notifyd/xfce4-notifyd &
 run volumeicon &
 syncthing serve --no-browser &
 nitrogen --restore &
-run emacs --daemon &
+$HOME/.config/polybar/launch.sh &
+# run emacs --daemon &
 #run caffeine &
 #run vivaldi-stable &
 #run firefox &
