@@ -1,4 +1,4 @@
-#eval: (let () (org-babel-goto-named-src-block "get-flatpak-packages") (org-babel-execute-src-block)); 
+# #eval: (let () (org-babel-goto-named-src-block "get-flatpak-packages") (org-babel-execute-src-block)); 
 #+STARTUP: content
 #+PROPERTY: header-args :mkdirp yes
 #+auto_tangle: t
@@ -1980,7 +1980,7 @@ while True:
 
   # Atom
   super + F2
-          emacs
+          emacsclient -c -a 'emacs'
 
   #Move Floating Window
   super + {Left,Down,Up,Right}
@@ -2015,13 +2015,53 @@ while True:
   # SUPER + SHIFT KEYS
   #################################################################
 
+  #Reload bspwm
+  super + shift + r
+          ~/.config/bspwm/bspwmrc
+
+  #reload sxhkd:
+  super + shift + k
+       pkill -USR1 -x sxhkd
+
 
   #dmenu
   super + shift + d
        rofi -show drun
-  #reload sxhkd:
+
+  #kill
+  super + shift + q
+          bspc node -c
+
+  # Screenshot
   super + shift + s
-       pkill -USR1 -x sxhkd
+          flameshot gui
+  #Logout
+  super + shift + x
+	rofi -show power-menu
+
+  # Focus/swap windows by direction
+  super + {_,shift + }{h,j,k,l}
+          bspc node --{focus,swap} {west,south,north,east}
+
+  # Flip layout vertically/horizontally
+  super + {_,shift + }a
+          bspc node @/ --flip {vertical,horizontal}
+
+  # Move focused window to other monitor
+  super + shift + Left
+          bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Right
+                  bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Up
+          bspc node -m next --follow
+
+  # Move focused window to other monitor
+  super + shift + Down
+                  bspc node -m next --follow
 
 
 
@@ -2184,46 +2224,6 @@ while True:
   # SUPER + SHIFT KEYS
   #################################################################
 
-
-  #Reload bspwm
-  super + shift + r
-          ~/.config/bspwm/bspwmrc
-
-  #kill
-  super + shift + q
-          bspc node -c
-
-  # Screenshot
-  super + shift + q
-          bspc node -c
-  #Logout
-  super + shift + x
-	rofi -show power-menu
-
-  # Focus/swap windows by direction
-  super + {_,shift + }{h,j,k,l}
-          bspc node --{focus,swap} {west,south,north,east}
-
-  # Flip layout vertically/horizontally
-  super + {_,shift + }a
-          bspc node @/ --flip {vertical,horizontal}
-
-  # Move focused window to other monitor
-  super + shift + Left
-          bspc node -m next --follow
-
-  # Move focused window to other monitor
-  super + shift + Right
-                  bspc node -m next --follow
-
-  # Move focused window to other monitor
-  super + shift + Up
-          bspc node -m next --follow
-
-  # Move focused window to other monitor
-  super + shift + Down
-                  bspc node -m next --follow
-
   #################################################################
   # SUPER + CONTROL KEYS
   #################################################################
@@ -2351,7 +2351,7 @@ while True:
   #xrandr --output LVDS1 --mode 1366x768 --output DP3 --mode 1920x1080 --right-of LVDS1
   #xrandr --output HDMI2 --mode 1920x1080 --pos 1920x0 --rotate normal --output HDMI1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
   #autorandr horizontal
-  # xrandr --output DVI-D-1 --off --output DP-1 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-2 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 0x0 --rotate normal --output DP-3 --off
+  xrandr --output DP-3 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-4 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080 --pos 0x180 --rotate normal 
 
 
 
@@ -2371,8 +2371,6 @@ while True:
   #feh --bg-fill /usr/share/backgrounds/arcolinux/arco-wallpaper.jpg &
   #feh --randomize --bg-fill ~/Képek/*
   #feh --randomize --bg-fill ~/Dropbox/Apps/Desktoppr/*
-  # --pos 0x0
-  xrandr  --output DP-3 --mode 1920x1080 --pos 4480x0 --rotate right --output DP-4 --primary --mode 2560x1440 --pos 1920x0 --rotate normal --output HDMI-0 --mode 1920x1080  --rotate normal --output DP-3 --off
   dex $HOME/.config/autostart/arcolinux-welcome-app.desktop
   xsetroot -cursor_name left_ptr &
 
@@ -2390,7 +2388,7 @@ while True:
   syncthing serve --no-browser &
   nitrogen --restore &
   $HOME/.config/polybar/launch.sh &
-  # run emacs --daemon &
+  run emacs --daemon &
   #run caffeine &
   #run vivaldi-stable &
   #run firefox &
@@ -4185,7 +4183,6 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+begin_results
 #+NAME: flatpak-packages-list
 - [ ] ytmdesktop                     app.ytmdesktop.ytmdesktop
-- [ ] Bitwarden                      com.bitwarden.desktop
 - [ ] Brave Browser                  com.brave.Browser
 - [ ] Discord                        com.discordapp.Discord
 - [ ] Easy Effects                   com.github.wwmm.easyeffects

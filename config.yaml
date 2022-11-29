@@ -1,0 +1,18 @@
+config:
+  backup: true
+  create: true
+  dotpath: dotdropfiles
+trans_read:
+  uncompress: mkdir -p {1} && tar -xf {0} -C {1}
+trans_write:
+  compress: tar -cf {1} -C {0} .
+dotfiles:
+  d_blender:
+    src: config/blender
+    dst: ~/.config/blender
+    trans_read: uncompress
+    trans_write: compress
+profiles:
+  morwenna:
+    dotfiles:
+    - d_blender

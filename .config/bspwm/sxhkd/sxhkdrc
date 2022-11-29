@@ -12,7 +12,7 @@ super + F1
 
 # Atom
 super + F2
-        emacs
+        emacsclient -c -a 'emacs'
 
 #Move Floating Window
 super + {Left,Down,Up,Right}
@@ -47,13 +47,53 @@ super + Escape
 # SUPER + SHIFT KEYS
 #################################################################
 
+#Reload bspwm
+super + shift + r
+        ~/.config/bspwm/bspwmrc
+
+#reload sxhkd:
+super + shift + k
+     pkill -USR1 -x sxhkd
+
 
 #dmenu
 super + shift + d
      rofi -show drun
-#reload sxhkd:
+
+#kill
+super + shift + q
+        bspc node -c
+
+# Screenshot
 super + shift + s
-     pkill -USR1 -x sxhkd
+        flameshot gui
+#Logout
+super + shift + x
+      rofi -show power-menu
+
+# Focus/swap windows by direction
+super + {_,shift + }{h,j,k,l}
+        bspc node --{focus,swap} {west,south,north,east}
+
+# Flip layout vertically/horizontally
+super + {_,shift + }a
+        bspc node @/ --flip {vertical,horizontal}
+
+# Move focused window to other monitor
+super + shift + Left
+        bspc node -m next --follow
+
+# Move focused window to other monitor
+super + shift + Right
+                bspc node -m next --follow
+
+# Move focused window to other monitor
+super + shift + Up
+        bspc node -m next --follow
+
+# Move focused window to other monitor
+super + shift + Down
+                bspc node -m next --follow
 
 
 
@@ -215,46 +255,6 @@ super + ctrl + space
 #################################################################
 # SUPER + SHIFT KEYS
 #################################################################
-
-
-#Reload bspwm
-super + shift + r
-        ~/.config/bspwm/bspwmrc
-
-#kill
-super + shift + q
-        bspc node -c
-
-# Screenshot
-super + shift + q
-        bspc node -c
-#Logout
-super + shift + x
-      rofi -show power-menu
-
-# Focus/swap windows by direction
-super + {_,shift + }{h,j,k,l}
-        bspc node --{focus,swap} {west,south,north,east}
-
-# Flip layout vertically/horizontally
-super + {_,shift + }a
-        bspc node @/ --flip {vertical,horizontal}
-
-# Move focused window to other monitor
-super + shift + Left
-        bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Right
-                bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Up
-        bspc node -m next --follow
-
-# Move focused window to other monitor
-super + shift + Down
-                bspc node -m next --follow
 
 #################################################################
 # SUPER + CONTROL KEYS
