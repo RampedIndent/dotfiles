@@ -1,0 +1,8 @@
+#!/bin/bash
+if [[ $(xdotool getactivewindow getwindowname) =~ ^emacs(:.*)?@.* ]]; then
+    command="(viktorya/emacs-bspwm-integration \"$@\")"
+    emacsclient -e "$command"
+else
+    leftwm-command "$1Window$2"
+    # echo "$1Window$2"
+fi
