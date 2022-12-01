@@ -40,7 +40,7 @@
 * Polybar
 ** Config
 *** Config
-#+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
+#+begin_src conf :tangle ~/.config/polybar/config.ini :noweb yes
   ;==========================================================
   ;
   ; THIS IS AN EXAMPLE CONFIGURATION FILE!
@@ -142,7 +142,7 @@
 
 *** Bspwm Bar
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
 
   [bar/mainbar-bspwm]
   monitor = ${env:MONITOR}
@@ -214,7 +214,7 @@
 
 *** Modules
 
-  #+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
+  #+begin_src conf :tangle ~/.config/polybar/config.ini :noweb yes
     [module/xwindow]
     type = internal/xwindow
     label = %title:0:30:...%
@@ -451,7 +451,7 @@
 
 *** Menu Modules
 
-  #+begin_src conf :tangle ./.config/polybar/config.ini :noweb yes
+  #+begin_src conf :tangle ~/.config/polybar/config.ini :noweb yes
 
     [module/powermenu]
 
@@ -545,7 +545,7 @@
 *** Bspwm Module
 
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
   [module/bspwm]
   type = internal/bspwm
 
@@ -621,7 +621,7 @@
 
 *** Rofi-Bluetooth
 -font= 3
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
 
   [module/bluetooth]
   type = custom/script
@@ -633,7 +633,7 @@
 
 ** Autostart
 
-#+begin_src shell :tangle ./.config/polybar/launch.sh :shebang "#!/bin/bash"
+#+begin_src shell :tangle ~/.config/polybar/launch.sh :shebang "#!/bin/bash"
 
 
   # More info : https://github.com/jaagr/polybar/wiki
@@ -892,7 +892,7 @@ cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
 * Rofi
 ** Rofi Config
 
-#+begin_src css :tangle ./.config/rofi/config.rasi
+#+begin_src css :tangle ~/.config/rofi/config.rasi 
   configuration {
           modi: "window,drun,ssh,power-menu:~/.dotfiles/bin/rofi-power-menu";
           width: 600; 
@@ -1051,7 +1051,7 @@ cat /sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp3_input
 
 ** Rofi Theme
 
-#+begin_src css :tangle ./.config/rofi/config.rasi
+#+begin_src css :tangle ~/.config/rofi/config.rasi
   @theme "/dev/null"
   ,*{
       /*selected-normal-foreground:  rgba( 255, 255, 255, 100% );
@@ -1502,7 +1502,7 @@ while True:
 
 *** Bluetooth
 
-#+begin_src shell :tangle ./bin/rofi-bluetooth :shebang "#!/bin/bash"
+#+begin_src shell :tangle ~/bin/rofi-bluetooth :shebang "#!/bin/bash"
   #             __ _       _     _            _              _   _
   #  _ __ ___  / _(_)     | |__ | |_   _  ___| |_ ___   ___ | |_| |__
   # | '__/ _ \| |_| |_____| '_ \| | | | |/ _ \ __/ _ \ / _ \| __| '_ \
@@ -1818,7 +1818,7 @@ while True:
 
 ** Wifi Config
 
-#+begin_src conf :tangle ./.config/rofi/wifi
+#+begin_src conf :tangle ~/.config/rofi/wifi
   # Config for rofi-wifi-menu
 
   # position values:
@@ -1843,7 +1843,7 @@ while True:
 * Bspwm
 ** bspwmrc
  
-#+begin_src shell :tangle ./.config/bspwm/bspwmrc :shebang "#!/bin/sh"
+#+begin_src shell :tangle ~/.config/bspwm/bspwmrc :shebang "#!/bin/sh"
   #LAUNCHERS
   $HOME/.config/bspwm/autostart.sh
   #fix for moving spotify to specific workspace
@@ -1965,7 +1965,7 @@ while True:
 
 ** sxhkdrc
 
-#+begin_src conf :tangle ./.config/bspwm/sxhkd/sxhkdrc
+#+begin_src conf :tangle ~/.config/bspwm/sxhkd/sxhkdrc
   #################################################################
   # KEYBOARD BINDINGS FOR ANY TWM
   #################################################################
@@ -2336,7 +2336,7 @@ while True:
 
 ** AutoStart
 
-#+begin_src shell :tangle ./.config/bspwm/autostart.sh :shebang "#!/bin/bash"
+#+begin_src shell :tangle ~/.config/bspwm/autostart.sh :shebang "#!/bin/bash"
 
   function run {
       if ! pgrep $1 ;
@@ -2403,7 +2403,7 @@ while True:
 
 ** Picom
 
-#+begin_src conf :tangle ./.config/bspwm/picom.conf
+#+begin_src conf :tangle ~/.config/bspwm/picom.conf
   #################################
   #             Shadows           #
   #################################
@@ -3292,7 +3292,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 **** Polybar
 ***** Main-Bar
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
 
   [bar/mainbar-leftwm]
   monitor = ${env:MONITOR}
@@ -3325,7 +3325,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
   padding-left = 0
   padding-right = 1
-
+                
   module-margin-left = 1
   module-margin-right = 1
 
@@ -3360,7 +3360,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
 ***** Main-Bar-Center
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
 
   [bar/mainbar-leftwm-center]
   monitor = ${env:MONITOR}
@@ -3428,7 +3428,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
 ***** Main-Bar-Portrait
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
 
   [bar/mainbar-leftwm-portrait]
   monitor = ${env:MONITOR}
@@ -3496,7 +3496,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+end_src
 
 ***** ewmh-module
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
     [module/ewmh]
     type = internal/xworkspaces
 
@@ -3548,7 +3548,7 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 
 ***** kill emacs module
 
-#+begin_src conf :tangle ./.config/polybar/config.ini
+#+begin_src conf :tangle ~/.config/polybar/config.ini
   [module/kill-emacs]
   type = custom/text
   content = k-Emacs
@@ -4206,21 +4206,26 @@ https://github.com/leftwm/leftwm/blob/main/leftwm-core/src/utils/xkeysym_lookup.
 #+end_src
 
 #+RESULTS:
-| [ ]  ytmdesktop                     app.ytmdesktop.ytmdesktop                   |
-| [X]  Brave Browser                  com.brave.Browser                           |
-| [X]  Discord                        com.discordapp.Discord                      |
-| [X]  RuneScape                      com.jagex.RuneScape                         |
-| [X]  draw.io                        com.jgraph.drawio.desktop                   |
-| [X]  Wonderwall                     com.ktechpit.wonderwall                     |
-| [X]  PrusaSlicer                    com.pruddddddddddddddddddddsa3d.PrusaSlicer |
-| [X]  RawTherapee                    com.rawtherapee.RawTherapee                 |
-| [X]  Qalculate! (GTK UI)            io.github.Qalculate                         |
-| [X]  hugin                          net.sourceforge.Hugin                       |
-| [X]  KiCad                          org.kicad.KiCad                             |
-| [X]  ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors               |
-| [X]  OpenRGB                        org.openrgb.OpenRGB                         |
+| [ ] ytmdesktop                     app.ytmdesktop.ytmdesktop     |
+| [ ] Brave Browser                  com.brave.Browser             |
+| [ ] Discord                        com.discordapp.Discord        |
+| [ ] Easy Effects                   com.github.wwmm.easyeffects   |
+| [ ] RuneScape                      com.jagex.RuneScape           |
+| [ ] draw.io                        com.jgraph.drawio.desktop     |
+| [ ] Wonderwall                     com.ktechpit.wonderwall       |
+| [ ] PrusaSlicer                    com.prusa3d.PrusaSlicer       |
+| [ ] RawTherapee                    com.rawtherapee.RawTherapee   |
+| [ ] XIVLauncher                    dev.goats.xivlauncher         |
+| [ ] HandBrake                      fr.handbrake.ghb              |
+| [ ] Qalculate! (GTK UI)            io.github.Qalculate           |
+| [ ] hugin                          net.sourceforge.Hugin         |
+| [ ] KiCad                          org.kicad.KiCad               |
+| [ ] ONLYOFFICE Desktop Editors     org.onlyoffice.desktopeditors |
+| [ ] OpenRGB                        org.openrgb.OpenRGB           |
 *** Package List
 #+CALL: <get-flatpak-packages>()
+*** mangohud
+XL_SECRET_PROVIDER=FILE %command% run --parent-expose-pids --parent-share-pids --parent-pid=1 --branch=stable --arch=x86_64 --env=MANGOHUD=1 --command=xivlauncher dev.goats.xivlauncher
 ** Toggle package list
 #+NAME: toggle-packages-list
 - Choose items [3/4]  

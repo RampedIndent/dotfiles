@@ -12,7 +12,66 @@ dotfiles:
     dst: ~/.config/blender
     trans_read: uncompress
     trans_write: compress
+  d_mangohud:
+    src: config/MangoHud
+    dst: ~/.config/MangoHud
+    link: absolute
+  d_polybar:
+    src: config/polybar
+    dst: ~/.config/polybar
+    link: absolute
+  d_rofi:
+    src: config/rofi
+    dst: ~/.config/rofi
+    link: absolute
+  d_bspwm:
+    src: config/bspwm
+    dst: ~/.config/bspwm
+    chmod: '777'
+    link: absolute
+  d_leftwm:
+    src: config/leftwm
+    dst: ~/.config/leftwm
+    chmod: '777'
+    link: absolute
+  f_authinfo.gpg:
+    src: dotfiles/.authinfo.gpg
+    dst: ~/.authinfo.gpg
+    link: absolute
+  f_p10k.zsh:
+    src: dotfiles/.p10k.zsh
+    dst: ~/.p10k.zsh
+    chmod: '644'
+    link: absolute
+  f_selected_editor:
+    src: dotfiles/.selected_editor
+    dst: ~/.selected_editor
+    link: absolute
+  f_xsession:
+    src: dotfiles/.xsession
+    dst: ~/.xsession
+    chmod: '775'
+    link: absolute
+  f_zprofile:
+    src: dotfiles/.zprofile
+    dst: ~/.zprofile
+    link: absolute
+  f_zshrc:
+    src: dotfiles/.zshrc
+    dst: ~/.zshrc
+    link: absolute
 profiles:
   morwenna:
     dotfiles:
     - d_blender
+    - d_mangohud
+    - d_polybar
+    - d_rofi
+    - d_bspwm
+    - d_leftwm
+    - f_authinfo.gpg
+    - f_p10k.zsh
+    - f_selected_editor
+    - f_xsession
+    - f_zprofile
+    - f_zshrc

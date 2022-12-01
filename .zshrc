@@ -143,10 +143,13 @@ alias please='sudo $(fc -ln -1)'
 alias dd='sudo dd bs=1024k status=progress'
 alias install='sudo dpkg -i'
 alias em='emacsclient -nw'
-export DOTREPO="~/.dotfiles"
+export DOTREPO="/home/rampedindent/.dotfiles"
 
-alias dotdrop="$DOTREPO/dotdrop.sh"
+[[ -f ~/.local/bin/velero    ]] || alias dotdrop="$DOTREPO/dotdrop.sh"
+alias dotfiles="dotdrop --cfg=$DOTREPO/config.yaml"
+alias dotroot="sudo dotdrop --cfg=$DOTREPO/config-root.yaml"
 alias dotcompress="dotdrop import --transw=compress --transr=uncompress"
+alias dotgames="dotdrop -c ~/documents/syncthing/GameSaves/config-games.yaml"
 # alias dotgit="git -C $DOTREPO"
 # alias dotsync="dotgit pull && dotgit add -A && dotgit commit && dotgit push; dotdrop install"
 vterm_printf(){

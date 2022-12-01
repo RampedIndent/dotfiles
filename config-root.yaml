@@ -1,0 +1,17 @@
+config:
+  backup: true
+  create: true
+  dotpath: dotRootFiles
+trans_read:
+  uncompress: mkdir -p {1} && tar -xf {0} -C {1}
+trans_write:
+  compress: tar -cf {1} -C {0} .
+dotfiles:
+  d_pacman_hooks:
+    src: etc/pacman.d/hooks
+    dst: /etc/pacman.d/hooks
+    chmod: '664'
+profiles:
+  morwenna:
+    dotfiles:
+    - d_pacman_hooks

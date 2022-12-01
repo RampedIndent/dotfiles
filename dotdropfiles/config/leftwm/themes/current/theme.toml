@@ -1,0 +1,8 @@
+border_width = 5
+margin = 12 
+default_border_color = "#222222"
+floating_border_color = "#555555"
+focused_border_color = "#DDDDDD"
+window_rules = [
+             {window_title = "youtube-music-desktop-app", spawn_on_tag = 9, spawn_floating = true},
+                             ]

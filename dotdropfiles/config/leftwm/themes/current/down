@@ -1,0 +1,4 @@
+#!/bin/bash
+pkill picom
+pkill polybar
+pkill conky
